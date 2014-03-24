@@ -109,7 +109,7 @@ public class IndexedFaultConverter {
         
         for (int i=0; i<rupIndices.size(); i++) {
         	Element sourceElem = addElement(FAULT_SOURCE, root);
-        	CH_Data mfdData = new CH_Data(mags.get(i), rates.get(i), 1.0);
+        	CH_Data mfdData = CH_Data.create(mags.get(i), rates.get(i), 1.0);
         	mfdData.appendTo(sourceElem);
         	Element geom = addElement(GEOMETRY, sourceElem);
         	geom.setAttribute("rake", String.format("%.1f", rakes.get(i)));
