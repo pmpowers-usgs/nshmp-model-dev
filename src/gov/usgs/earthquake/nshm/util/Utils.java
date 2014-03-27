@@ -561,12 +561,9 @@ public class Utils {
 //		}
 //	}
 	
-	private static Logger log;
-	private static final String LOG_LOC = "/Users/pmpowers/projects/git/usgs-sha/tmp/logs/";
 	
-	public static Logger logger() {
-		if (log != null) return log;
-		log = Logger.getLogger("gov.usgs.earthquake.nshmp");
+	public static Logger logger(String logPath) {
+		Logger log = Logger.getLogger("gov.usgs.earthquake.nshmp");
 		log.setLevel(Level.WARNING);
 		log.setUseParentHandlers(false);
 
@@ -597,7 +594,7 @@ public class Utils {
 		List<Handler> handlers = Lists.newArrayList();
 		try {
 			handlers.add(new ConsoleHandler());
-			handlers.add(new FileHandler(LOG_LOC + "parse.log"));
+			handlers.add(new FileHandler(logPath));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

@@ -68,11 +68,12 @@ import com.google.common.primitives.Doubles;
 public class FaultConverter {
 
 	private static Logger log;
+	private static Level level =  Level.INFO;
+	
 	static {
-		log = Utils.logger();
-		Level level = Level.INFO;
+		log = Utils.logger("tmp/logs/2008parser.log");
 		log.setLevel(level);
-		for (Handler h : Utils.logger().getHandlers()) {
+		for (Handler h : log.getHandlers()) {
 			h.setLevel(level);
 		}
 	}
@@ -84,8 +85,8 @@ public class FaultConverter {
 		try {
 			log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
 			Exporter export = new Exporter();
-			export.files.add(sf.name);	
-			export.weights.add(sf.weight);
+			export.name = sf.name;	
+			export.weight = sf.weight;
 	
 			// KLUDGY nameIdx indicates the array index at which a fault
 			// name begins; most NSHMP files define the fault name on a line such as:
@@ -381,8 +382,8 @@ public class FaultConverter {
 	
 	static class Exporter {
 		
-		List<String> files = Lists.newArrayList();
-		List<Double> weights = Lists.newArrayList();
+		String name = "Unnamed Source Set";
+		double weight = 1.0;
 		Set<String> names = Sets.newLinkedHashSet();
 		ListMultimap<String, FaultConverter.SourceData> map = ArrayListMultimap.create();
 		MagUncertainty magDat;
@@ -398,8 +399,8 @@ public class FaultConverter {
 			Document doc = docBuilder.newDocument();
 			Element root = doc.createElement(FAULT_SOURCE_SET.toString());
 			doc.appendChild(root);
-			root.setAttribute("files", files.toString());
-			root.setAttribute("weights", weights.toString());
+			root.setAttribute("name", name);
+			root.setAttribute("weight", Double.toString(weight));
 
 			// defaults and uncertainty
 			magDat.appendTo(root);
