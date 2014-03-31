@@ -1,27 +1,29 @@
 package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.StandardSystemProperty.LINE_SEPARATOR;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CA;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
-import static org.opensha.eq.forecast.SourceElement.FAULT_SOURCE;
+import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
+import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
 import static org.opensha.eq.forecast.SourceElement.FAULT_SOURCE_SET;
 import static org.opensha.eq.forecast.SourceElement.GEOMETRY;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.forecast.SourceElement.SETTINGS;
+import static org.opensha.eq.forecast.SourceElement.SOURCE;
 import static org.opensha.eq.forecast.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addElement;
-import static org.opensha.util.Parsing.readInt;
 import static org.opensha.util.Parsing.stripComment;
 import static org.opensha.util.Parsing.toDoubleList;
-
 import gov.usgs.earthquake.nshm.util.MFD_Type;
+import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,10 +37,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha.eq.Magnitudes;
 import org.opensha.eq.fault.FocalMech;
+import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.eq.forecast.MagUncertainty;
-import org.opensha.geo.GeoTools;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.mfd.MFDs;
@@ -49,44 +50,39 @@ import org.w3c.dom.Element;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 
-/**
- * Add comments here
- *
- * 
+/*
+ * Convert NSHMP fault input files to XML.
  * @author Peter Powers
- * @version $Id:$
  */
-public class FaultConverter {
+class FaultConverter {
 
-	private static Logger log;
-	private static Level level =  Level.INFO;
-	
-	static {
-		log = Utils.logger("tmp/logs/2008parser.log");
-		log.setLevel(level);
-		for (Handler h : log.getHandlers()) {
-			h.setLevel(level);
-		}
-	}
+	private Logger log;
 	
 	private FaultConverter() {}
 	
-	static void convert(SourceFile sf, String dir) {
-		
+	static FaultConverter create(Logger log) {
+		FaultConverter fc = new FaultConverter();
+		fc.log = checkNotNull(log);
+		return fc;
+	}
+	
+	void convert(SourceFile sf, String outDir) {
+				
 		try {
+			log.info("");
 			log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
 			Exporter export = new Exporter();
 			export.name = sf.name;	
 			export.weight = sf.weight;
+			export.region = sf.region; // mag scaling relationships are region dependent
 	
 			// KLUDGY nameIdx indicates the array index at which a fault
 			// name begins; most NSHMP files define the fault name on a line such as:
@@ -132,7 +128,7 @@ public class FaultConverter {
 				// other sources TODO these peculiarities are handled when sources
 				// are reconstituted so this cloning probably isn't necessary
 				List<String> mfdDat = Parsing.toLineList(lines, fDat.nMag);
-				read_MFDs(fDat, mfdType, mfdDat, export.magDat);
+				read_MFDs(fDat, mfdType, mfdDat, export);
 				
 				readTrace(lines, fDat);
 				
@@ -144,13 +140,14 @@ public class FaultConverter {
 					log.severe("Source with no mfds");
 					System.exit(1);
 				}
-				if (export.names.contains(fDat.name)) {
-					log.warning("Name set already contains: " + fDat.name);
-					// list multimap handles ordered preservation of multiple
-					// faultData for a given name
-					// TODO these need to be reduced
+				if (export.map.containsKey(fDat.name)) {
+					log.warning("Name map already contains: " + fDat.name);
+					// there are strike slip faults with no geometric dip variants nested within
+					// files of mostly normal faults with dip variants; because the dip is not
+					// appended to the name of SS faults, the name repeats; however the
+					// LinkedListMultimap takescare of collecting the different mfds and weights
+					// TODO reduce/combine MFDs see nv.3dip.ch.xml Kane SPring Wash
 				}
-				export.names.add(fDat.name);
 				export.map.put(fDat.name, fDat);
 			}
 			
@@ -161,7 +158,7 @@ public class FaultConverter {
 			// if (fName.contains("3dip")) cleanStrikeSlip(srcList);
 			
 			String S = File.separator;
-			String outPath = dir + S + sf.region + S + sf.type + S + 
+			String outPath = outDir + sf.region + S + sf.type + S + 
 					sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
 			File outFile = new File(outPath);
 			Files.createParentDirs(outFile);
@@ -174,10 +171,9 @@ public class FaultConverter {
 		}
 	}
 	
-	private static MagUncertainty readMagUncertainty(List<String> src) {
+	private MagUncertainty readMagUncertainty(List<String> src) {
 		
 		// epistemic
-		int epiCount = readInt(src.get(0), 0);
 		double[] epiDeltas = Doubles.toArray(toDoubleList(src.get(1)));
 		double[] epiWeights = Doubles.toArray(toDoubleList(src.get(2)));
 		double epiCutoff = 6.5;
@@ -195,22 +191,24 @@ public class FaultConverter {
 	}
 
 	
-	private static void read_MFDs(SourceData fd, MFD_Type type, 
-			List<String> lines, MagUncertainty md) {
+	private void read_MFDs(SourceData fd, MFD_Type type, 
+			List<String> lines, Exporter export) {
 		switch (type) {
 			case CH:
-				read_CH(lines, fd);
+				read_CH(lines, fd, export);
 				break;
 			case GR:
-				read_GR(lines, fd);
+				read_GR(lines, fd, export);
 				break;
 			case GRB0:
-				read_GRB0(lines, fd, md);
+				read_GRB0(lines, fd, export.magDat);
 				break;
 		}
 	}
 
-	private static void read_CH(List<String> lines, SourceData fd) {
+	private void read_CH(List<String> lines, SourceData fd, Exporter export) {
+		initRefCH(export);
+		
 		boolean floats = false;
 		for (String line : lines) {
 			CH_Data ch = CH_Data.create(
@@ -222,52 +220,72 @@ public class FaultConverter {
 			log(fd, MFD_Type.CH, floats);
 		}
 	}
+	
+	private void initRefCH(Exporter export) {
+		if (export.refCH == null) {
+			export.refCH = CH_Data.create(0.0, 0.0, 1.0);
+			// single mags will generally float if associated with GR file
+			export.refCH.floats = export.name.contains(".gr.") ? true : false;
+			export.refCH.scaling = getScalingRel(export.region);
+		}
+	}
+	
+	private static MagScalingType getScalingRel(SourceRegion region) {
+		return region == SourceRegion.CA ? NSHMP_CA : WC_94_LENGTH;
+	}
+	
+	private void initRefGR(Exporter export) {
+		if (export.refGR == null) {
+			export.refGR = GR_Data.createForGridExport(0.0, 0.8, 6.55, 7.5, 0.1);
+			export.refGR.weight = 1.0;
+			export.refGR.scaling = getScalingRel(export.region);
+		}
+	}
 
-	private static void read_GR(List<String> lines, SourceData fd) {
-		boolean floats = true;
+	private void read_GR(List<String> lines, SourceData fd, Exporter export) {
+		
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
 			GR_Data gr = GR_Data.createForFault(line, fd, log);
-			gr.floats = floats;
 			grData.add(gr);
 		}
 
 		// build all GR_Data
 		for (GR_Data gr : grData) {
 			if (gr.nMag > 1) {
+				initRefGR(export);
+
 				fd.mfds.add(gr);
-				log(fd, MFD_Type.GR, floats);
+				log(fd, MFD_Type.GR, true);
 			} else {
+				initRefCH(export);
+				
 				CH_Data ch = CH_Data.create(gr.mMin, MFDs.grRate(gr.aVal,
 					gr.bVal, gr.mMin), gr.weight);
-				ch.floats = floats;
+				ch.floats = true;
+				ch.scaling = getScalingRel(export.region);
 				fd.mfds.add(ch);
-				log(fd, MFD_Type.CH, floats);
+				log(fd, MFD_Type.CH, true);
 			}
 		}
 
 	}
 
-	private static void read_GRB0(List<String> lines, SourceData fd, MagUncertainty md) {
-		boolean floats = true;
+	private void read_GRB0(List<String> lines, SourceData fd, MagUncertainty md) {
 		
-		checkArgument(!md.hasAleatory(),
-			"Aleatory unc. is incompatible with GR b=0 branches");
+		checkArgument(!md.hasAleatory(), "Aleatory unc. is incompatible with GR b=0 branches");
 
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
 			GR_Data gr = GR_Data.createForFault(line, fd, log);
-			gr.floats = floats;
-			checkArgument(gr.mMax > gr.mMin,
-				"GR b=0 branch can't handle floating CH (mMin=mMax)");
+			checkArgument(gr.mMax > gr.mMin, "GR b=0 branch can't handle floating CH (mMin=mMax)");
 			grData.add(gr);
-			
 		}
 
 		for (GR_Data gr : grData) {
 			gr.weight *= 0.5;
 			fd.mfds.add(gr);
-			log(fd, MFD_Type.GR, floats);
+			log(fd, MFD_Type.GR, true);
 			
 			// adjust for b=0, preserving cumulative moment rate
 			double tmr = Utils.totalMoRate(gr.mMin, gr.nMag, gr.dMag, gr.aVal, gr.bVal);
@@ -276,17 +294,16 @@ public class FaultConverter {
 			grB0.aVal = Math.log10(tmr / tsm);
 			grB0.bVal = 0;
 			fd.mfds.add(grB0);
-			log(fd, MFD_Type.GRB0, floats);
+			log(fd, MFD_Type.GRB0, true);
 		} 
 	}
 	 
-	private static void log(SourceData fd, MFD_Type mfdType, boolean floats) {
-		String mfdStr = Strings.padEnd(mfdType.name(), 5, ' ') +
-			(floats ? "f " : "  ");
+	private void log(SourceData fd, MFD_Type mfdType, boolean floats) {
+		String mfdStr = Strings.padEnd(mfdType.name(), 5, ' ') + (floats ? "f " : "  ");
 		log.info(mfdStr + fd.name);
 	}
 	
-	private static void readTrace(Iterator<String> it, SourceData fd) { //, Logger log) {
+	private void readTrace(Iterator<String> it, SourceData fd) {
 		readFaultGeom(it.next(), fd);
 
 		int traceCount = Parsing.readInt(it.next(), 0);
@@ -384,29 +401,40 @@ public class FaultConverter {
 		
 		String name = "Unnamed Source Set";
 		double weight = 1.0;
-		Set<String> names = Sets.newLinkedHashSet();
-		ListMultimap<String, FaultConverter.SourceData> map = ArrayListMultimap.create();
+		SourceRegion region = null;
+		ListMultimap<String, FaultConverter.SourceData> map = LinkedListMultimap.create();
 		MagUncertainty magDat;
+		
+		CH_Data refCH;
+		GR_Data refGR;
 
 		public void writeXML(File out) throws ParserConfigurationException,
 				TransformerException {
 
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory
-				.newInstance();
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
 			// root elements
 			Document doc = docBuilder.newDocument();
+			doc.setXmlStandalone(true);
 			Element root = doc.createElement(FAULT_SOURCE_SET.toString());
 			doc.appendChild(root);
 			root.setAttribute("name", name);
 			root.setAttribute("weight", Double.toString(weight));
 
-			// defaults and uncertainty
-			magDat.appendTo(root);
+			// reference MFDs and uncertainty
+			Element settings = addElement(SETTINGS, root);
+			Element mfdRef;
+			if (refCH != null || refGR != null) {
+				mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+				if (refCH != null) refCH.appendTo(mfdRef, null);
+				if (refGR != null) refGR.appendTo(mfdRef, null);
+			}
+			magDat.appendTo(settings);
 
-			for (String name : names) {
-				Element src = addElement(FAULT_SOURCE, root);
+			for (String name : map.keySet()) {
+				
+				Element src = addElement(SOURCE, root);
 				src.setAttribute("name", name);
 
 				List<FaultConverter.SourceData> fDatList = map.get(name);
@@ -417,11 +445,9 @@ public class FaultConverter {
 					for (int i = 1; i < fDatList.size(); i++) {
 						if (!first.equals(fDatList.get(i))) {
 							throw new IllegalStateException(
-								LINE_SEPARATOR.value() + name + " in " +
-									first.file.name +
-									" has multiple dissimilar entries" +
-									LINE_SEPARATOR.value() + "index = 0 :: " +
-									first + LINE_SEPARATOR.value() +
+								LINE_SEPARATOR.value() + name + " in " + first.file.name +
+									" has multiple dissimilar entries" + LINE_SEPARATOR.value() +
+									"index = 0 :: " + first + LINE_SEPARATOR.value() +
 									"index = " + i + " :: " + fDatList.get(i));
 						}
 					}
@@ -430,7 +456,7 @@ public class FaultConverter {
 				for (FaultConverter.SourceData fDat : fDatList) {
 					// MFDs
 					for (MFD_Data mfdDat : fDat.mfds) {
-						mfdDat.appendTo(src);
+						mfdDat.appendTo(src, (mfdDat instanceof CH_Data) ? refCH : refGR);
 					}
 				}
 				// append geometry from first entry
@@ -438,20 +464,18 @@ public class FaultConverter {
 				Element geom = addElement(GEOMETRY, src);
 				geom.setAttribute("dip", Double.toString(first.dip));
 				geom.setAttribute("width", Double.toString(first.width));
-				geom.setAttribute("rake",
-					Double.toString(first.focalMech.rake()));
+				geom.setAttribute("rake", Double.toString(first.focalMech.rake()));
 				// geom.setAttribute("mech", first.focalMech.name());
 				Element trace = addElement(TRACE, geom);
 				trace.setTextContent(first.locs.toString());
 			}
 
 			// write the content into xml file
-			TransformerFactory transformerFactory = TransformerFactory
-				.newInstance();
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer trans = transformerFactory.newTransformer();
 			trans.setOutputProperty(OutputKeys.INDENT, "yes");
-			trans.setOutputProperty(
-				"{http://xml.apache.org/xslt}indent-amount", "2");
+			trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(out);
 

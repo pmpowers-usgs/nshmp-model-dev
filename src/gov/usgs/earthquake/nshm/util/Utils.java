@@ -40,6 +40,7 @@ import org.opensha.mfd.MFDs;
 //import org.opensha.sha.imr.AttenRelRef;
 //import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
+
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -562,9 +563,9 @@ public class Utils {
 //	}
 	
 	
-	public static Logger logger(String logPath) {
+	public static Logger logger(String logPath, Level level) {
 		Logger log = Logger.getLogger("gov.usgs.earthquake.nshmp");
-		log.setLevel(Level.WARNING);
+		log.setLevel(level);
 		log.setUseParentHandlers(false);
 
 		Formatter cf = new Formatter() {
@@ -584,6 +585,7 @@ public class Utils {
 				}
 				b.append(" ").append(lr.getMessage());
 				if (lr.getThrown() != null) {
+					b.append(StandardSystemProperty.LINE_SEPARATOR.value());
 					b.append(Throwables.getStackTraceAsString(lr.getThrown()));
 				}
 				b.append(StandardSystemProperty.LINE_SEPARATOR.value());
@@ -599,13 +601,13 @@ public class Utils {
 			ioe.printStackTrace();
 		}
 		for (Handler handler : handlers) {
-			handler.setLevel(log.getLevel());
+			handler.setLevel(level);
 			handler.setFormatter(cf);
 			log.addHandler(handler);
 		}
 		return log;
 	}
-	
+		
 	/**
 	 * Method reads a binary file of data into an array. This method is tailored
 	 * to the NSHMP grid files that are stored from top left to bottom right,

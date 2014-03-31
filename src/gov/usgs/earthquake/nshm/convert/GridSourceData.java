@@ -6,7 +6,7 @@ import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha.eq.forecast.MFD_Attribute.MAGS;
 import static org.opensha.eq.forecast.MFD_Attribute.RATES;
 import static org.opensha.eq.forecast.MFD_Attribute.TYPE;
-import static org.opensha.eq.forecast.SourceElement.DEFAULTS;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.GRID_SOURCE_SET;
 import static org.opensha.eq.forecast.SourceElement.NODE;
 import static org.opensha.eq.forecast.SourceElement.NODES;
@@ -47,11 +47,11 @@ import org.w3c.dom.Element;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
-/**
+/*
  * Grid source data container.
  * @author Peter Powers
  */
-public class GridSourceData {
+class GridSourceData {
 
 	String name;
 	double weight;
@@ -134,9 +134,9 @@ public class GridSourceData {
 	
 	// single magnitude grids (e.e.g Charleston)
 	private void writeSingleMagGrid(Element root) {
-		Element defaults = addElement(DEFAULTS, root);
-		chDat.appendDefaultTo(defaults);
-		addSourceAttributes(defaults);
+		Element mfdRef = addElement(MAG_FREQ_DIST_REF, root);
+		chDat.appendDefaultTo(mfdRef);
+		addSourceAttributes(mfdRef);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -150,7 +150,7 @@ public class GridSourceData {
 	
 	// large mblg CEUS grids with craton-margin tapers etc...
 	private void writeLargeCeusGrid(Element root) {
-		Element defaults = addElement(DEFAULTS, root);
+		Element defaults = addElement(MAG_FREQ_DIST_REF, root);
 		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, defaults);
 		e.setAttribute(TYPE.toString(), MFD_Type.INCR.name());
 		e.setAttribute(MAGS.toString(), Parsing.toString(Doubles.asList(
@@ -168,7 +168,7 @@ public class GridSourceData {
 	
 	// for grids with wtGrid
 	private void writeMixedGrid(Element root) {
-		Element defaults = addElement(DEFAULTS, root);
+		Element defaults = addElement(MAG_FREQ_DIST_REF, root);
 		grDat.appendDefaultTo(defaults);
 		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, defaults);
 		e.setAttribute(TYPE.toString(), MFD_Type.INCR.name());
@@ -201,9 +201,9 @@ public class GridSourceData {
 	
 	// standard grid without customizations requiring incremental MFDs
 	private void writeStandardGrid(Element root) {
-		Element defaults = addElement(DEFAULTS, root);
-		grDat.appendTo(defaults);
-		addSourceAttributes(defaults);
+		Element mfdRef = addElement(MAG_FREQ_DIST_REF, root);
+		grDat.appendTo(mfdRef);
+		addSourceAttributes(mfdRef);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];

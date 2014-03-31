@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import gov.usgs.earthquake.nshm.convert.FaultConverter.SourceData;
 import gov.usgs.earthquake.nshm.util.Utils;
 
+import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.eq.forecast.SourceElement;
 import org.opensha.mfd.MFD_Type;
 import org.opensha.mfd.MFDs;
@@ -31,7 +32,7 @@ class GR_Data implements MFD_Data {
 	double dMag;
 	double weight;
 	int nMag;
-	boolean floats;
+	MagScalingType scaling;
 
 	/* Used internally */
 	private GR_Data() {}
@@ -93,7 +94,6 @@ class GR_Data implements MFD_Data {
 		grNew.dMag = gr.dMag;
 		grNew.weight = gr.weight;
 		grNew.nMag = gr.nMag;
-		grNew.floats = gr.floats;
 		return grNew;
 	}
 
@@ -193,15 +193,38 @@ class GR_Data implements MFD_Data {
 //	}
 
 	@Override
-	public Element appendTo(Element parent) {
+	public Element appendTo(Element parent, MFD_Data ref) {
 		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, parent);
+		// always include type
 		e.setAttribute(TYPE.toString(), MFD_Type.GR.name());
+		// always include rate
 		e.setAttribute(A.toString(), Double.toString(aVal));
-		e.setAttribute(B.toString(), Double.toString(bVal));
-		e.setAttribute(M_MIN.toString(), Double.toString(mMin));
-		e.setAttribute(M_MAX.toString(), Double.toString(mMax));
-		e.setAttribute(D_MAG.toString(), Double.toString(dMag));
-		e.setAttribute(WEIGHT.toString(), Double.toString(weight));
+		if (ref != null) {
+			GR_Data refGR = (GR_Data) ref;
+			if (bVal != refGR.bVal) {
+				e.setAttribute(B.toString(),Double.toString(bVal));
+			}
+			if (mMin != refGR.mMin) {
+				e.setAttribute(M_MIN.toString(),Double.toString(mMin));
+			}
+			if (mMax != refGR.mMax) {
+				e.setAttribute(M_MAX.toString(),Double.toString(mMax));
+			}
+			if (dMag != refGR.dMag) {
+				e.setAttribute(D_MAG.toString(),Double.toString(dMag));
+			}
+			if (weight != refGR.weight) {
+				e.setAttribute(WEIGHT.toString(),Double.toString(weight));
+			}
+		} else {
+			e.setAttribute(B.toString(), Double.toString(bVal));
+			e.setAttribute(M_MIN.toString(), Double.toString(mMin));
+			e.setAttribute(M_MAX.toString(), Double.toString(mMax));
+			e.setAttribute(D_MAG.toString(), Double.toString(dMag));
+			e.setAttribute(WEIGHT.toString(), Double.toString(weight));
+			// at present, magScaling does not vary by source group
+			e.setAttribute(MAG_SCALING.toString(), scaling.name());
+		}
 		return e;
 	}
 	
