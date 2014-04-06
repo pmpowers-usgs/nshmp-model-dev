@@ -1,16 +1,18 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.forecast.MFD_Attribute.A;
-import static org.opensha.eq.forecast.MFD_Attribute.FLOATS;
-import static org.opensha.eq.forecast.MFD_Attribute.M;
-import static org.opensha.eq.forecast.MFD_Attribute.MAG_SCALING;
-import static org.opensha.eq.forecast.MFD_Attribute.TYPE;
-import static org.opensha.eq.forecast.MFD_Attribute.WEIGHT;
+import static org.opensha.eq.forecast.SourceAttribute.A;
+import static org.opensha.eq.forecast.SourceAttribute.FLOATS;
+import static org.opensha.eq.forecast.SourceAttribute.M;
+import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.forecast.SourceAttribute.TYPE;
+import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.mfd.MFD_Type.SINGLE;
+import static org.opensha.util.Parsing.addAttribute;
+import static org.opensha.util.Parsing.addElement;
 
 import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.eq.forecast.SourceElement;
-import org.opensha.mfd.MFD_Type;
-import org.opensha.util.Parsing;
 import org.w3c.dom.Element;
 
 /*
@@ -37,35 +39,31 @@ class CH_Data implements MFD_Data {
 
 	@Override
 	public Element appendTo(Element parent, MFD_Data ref) {
-		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, parent);
+		Element e = addElement(MAG_FREQ_DIST, parent);
 		// always include type
-		e.setAttribute(TYPE.toString(), MFD_Type.SINGLE.name());
+		addAttribute(TYPE, SINGLE.name(), e);
 		// always include rate
-		e.setAttribute(A.toString(), Parsing.stripZeros(String.format("%.8g", rate)));
+		addAttribute(A, rate, "%.8g", e);
 		// always include magnitude
-		e.setAttribute(M.toString(), Parsing.stripZeros(String.format("%.3f", mag)));
+		addAttribute(M, mag, "%.3f", e);
 		if (ref != null) {
 			CH_Data refCH = (CH_Data) ref;
-			if (floats != refCH.floats) {
-				e.setAttribute(FLOATS.toString(),Boolean.toString(floats));
-			}
-			if (weight != refCH.weight) {
-				e.setAttribute(WEIGHT.toString(), Double.toString(weight));
-			}
+			if (floats != refCH.floats) addAttribute(FLOATS, floats, e);
+			if (weight != refCH.weight) addAttribute(WEIGHT, weight, e);
 		} else {
-			e.setAttribute(FLOATS.toString(),Boolean.toString(floats));
-			e.setAttribute(WEIGHT.toString(), Double.toString(weight));
+			addAttribute(FLOATS, floats, e);
+			addAttribute(WEIGHT, weight, e);
 			// at present, magScaling does not vary by source group
-			e.setAttribute(MAG_SCALING.toString(), scaling.name());
+			addAttribute(MAG_SCALING, scaling.name(), e);
 		}
 		return e;
 	}
 	
 	@Override
 	public Element appendDefaultTo(Element parent) {
-		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, parent);
-		e.setAttribute(TYPE.toString(), MFD_Type.SINGLE.name());
-		e.setAttribute(M.toString(), Parsing.stripZeros(String.format("%.3f", mag)));
+		Element e = addElement(SourceElement.MAG_FREQ_DIST, parent);
+		addAttribute(TYPE, SINGLE.name(), e);
+		addAttribute(M, mag, "%.3f", e);
 		return e;
 	}
 

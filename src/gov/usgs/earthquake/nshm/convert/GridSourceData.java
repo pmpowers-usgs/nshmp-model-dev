@@ -3,9 +3,9 @@ package gov.usgs.earthquake.nshm.convert;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.forecast.MFD_Attribute.MAGS;
-import static org.opensha.eq.forecast.MFD_Attribute.RATES;
-import static org.opensha.eq.forecast.MFD_Attribute.TYPE;
+import static org.opensha.eq.forecast.SourceAttribute.MAGS;
+import static org.opensha.eq.forecast.SourceAttribute.RATES;
+import static org.opensha.eq.forecast.SourceAttribute.TYPE;
 import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.GRID_SOURCE_SET;
 import static org.opensha.eq.forecast.SourceElement.NODE;
@@ -100,12 +100,12 @@ class GridSourceData {
 	public void writeXML(File out) throws ParserConfigurationException,
 			TransformerConfigurationException, TransformerException {
 
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory
-			.newInstance();
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
 		// root elements
 		Document doc = docBuilder.newDocument();
+		doc.setXmlStandalone(true);
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
 		root.setAttribute("file", name);
 		root.setAttribute("weight", Double.toString(weight));
@@ -126,6 +126,8 @@ class GridSourceData {
 		Transformer trans = transformerFactory.newTransformer();
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");
 		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
+
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(out);
 
@@ -233,14 +235,14 @@ class GridSourceData {
 		}
 	}
 	
-	// default source settings
-	private void addSourceAttributes(Element defaults) {
-		Element attsElem = addElement(SOURCE_ATTS, defaults);
+	// source attribute settings
+	private void addSourceAttributes(Element settings) {
+		Element attsElem = addElement(SOURCE_ATTS, settings);
 		attsElem.setAttribute("depthMap", magDepthDataToString(depthMag, depths));
 		if (!Double.isNaN(strike)) {
 			attsElem.setAttribute("strike", Double.toString(strike));
 		}
-		attsElem.setAttribute("mechs", enumValueMapToString(mechWtMap));
+		attsElem.setAttribute("mechMap", enumValueMapToString(mechWtMap));
 	}
 			
 	/*

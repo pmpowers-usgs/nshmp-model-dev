@@ -6,7 +6,6 @@ import static org.opensha.eq.fault.FocalMech.*;
 import static org.opensha.eq.forecast.SourceType.*;
 import static gov.usgs.earthquake.nshm.util.RateType.*;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
-
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 
 import java.io.File;
@@ -32,7 +31,9 @@ import org.opensha.geo.Regions;
 import org.opensha.mfd.MFDs;
 
 import gov.usgs.earthquake.nshm.util.FaultCode;
+
 import org.opensha.util.Parsing;
+
 import gov.usgs.earthquake.nshm.util.RateType;
 //import org.opensha.nshmp2.util.NSHMP_Utils;
 //import org.opensha.nshmp2.util.RateType;
@@ -41,6 +42,7 @@ import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
 //import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 //import org.opensha.sha.magdist.IncrementalMagFreqDist;
+
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -57,7 +59,18 @@ public class GridConverter {
 	// TODO clean up after dealing with CEUS
 	// there are craton notes and things like 'ceusScaleRates' that need
 	// consideration
+
+	// TODO kill FualtCode
+	private static Logger log;
 	
+	private GridConverter() {}
+	
+	static GridConverter create(Logger log) {
+		GridConverter gc = new GridConverter();
+		gc.log = checkNotNull(log);
+		return gc;
+	}
+
 	// path to binary grid files in grid source input files
 	private static final String SRC_DIR= "conf";
 	private static final String GRD_DIR = "GR_DOS/";
@@ -93,18 +106,6 @@ public class GridConverter {
 	// temp list of srcIndices used to create bounding region; list is also
 	// referenced when applying craton/margin weighs to mfds
 	private int[] srcIndices; // already sorted when built
-
-	private static Logger log;
-	static {
-		log = Utils.logger();
-		Level level = Level.INFO;
-		log.setLevel(level);
-		for (Handler h : Utils.logger().getHandlers()) {
-			h.setLevel(level);
-		}
-	}
-
-	GridConverter() {}
 	
 	public static void convert(SourceFile sf, String dir) {
 		

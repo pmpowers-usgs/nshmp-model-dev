@@ -1,5 +1,6 @@
 package gov.usgs.earthquake.nshm.convert;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
 import static org.opensha.eq.forecast.SourceType.*;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
@@ -10,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.opensha.eq.forecast.SourceType;
 
 import com.google.common.base.StandardSystemProperty;
 
@@ -38,38 +41,54 @@ class Converter {
 		List<SourceFile> files;
 		
 //		files = MGR_2008.get(WUS, FAULT);
-//		convert(files, WUS, "2008");
+//		convertFault(files, WUS, "2008");
 
-		files = MGR_2008.get(CA, FAULT);
-		convert(files, CA, "2008");
+//		files = MGR_2008.get(CA, FAULT);
+//		convertFault(files, CA, "2008");
 
+		files = MGR_2008.get(CA, GRID);
+		convertGrid(files, CA, "2008");
+		
 	}
 	
 	static void convert2014() {
 		List<SourceFile> files = MGR_2014.get(CASC, SUBDUCTION);
-		convert(files, CASC, "2014");
+//		convertInterface(files, CASC, "2014");
 	}
 
-	static void convert(List<SourceFile> files, SourceRegion region, String yr) {
+	static void convertGrid(List<SourceFile> files, SourceRegion region, 
+			String yr) {
 		String out = FCAST_DIR + yr + S;
-		
-		Logger faultLogger = createLogger("fault-convert", region, yr);
-		FaultConverter faultConverter = FaultConverter.create(faultLogger);
-
+		Logger logger = createLogger("grid-convert", region, yr);
+		GridConverter converter = GridConverter.create(logger);
 		for (SourceFile file : files) {
-			switch(file.type) {
-				case FAULT:
-					faultConverter.convert(file, out);
-					break;
-				case GRID:
-					GridConverter.convert(file, out);
-					break;
-				case SUBDUCTION:
-					SubductionConverter.convert(file, out);
-			}
+			checkArgument(file.type == GRID, "Wrong file type: %s", file.type.name());
+			converter.convert(file, out);
+		}
+	}
+
+	static void convertFault(List<SourceFile> files, SourceRegion region, 
+			String yr) {
+		String out = FCAST_DIR + yr + S;
+		Logger logger = createLogger("fault-convert", region, yr);
+		FaultConverter converter = FaultConverter.create(logger);
+		for (SourceFile file : files) {
+			checkArgument(file.type == SUBDUCTION, "Wrong file type: %s", file.type.name());
+			converter.convert(file, out);
 		}
 	}
 	
+//	static void convertInterface(List<SourceFile> files, SourceRegion region, 
+//			String yr) {
+//		String out = FCAST_DIR + yr + S;
+//		Logger logger = createLogger("interface-convert", region, yr);
+//		FaultConverter converter = SubductionConverter.create(logger);
+//		for (SourceFile file : files) {
+//			checkArgument(file.type == FAULT, "Wrong file type: %s", file.type.name());
+//			converter.convert(file, out);
+//		}
+//	}
+
 	static final SimpleDateFormat sdf = new SimpleDateFormat("[yy.MM.dd-HH.mm]");
 	
 	static Logger createLogger(String name, SourceRegion region, String yr) {

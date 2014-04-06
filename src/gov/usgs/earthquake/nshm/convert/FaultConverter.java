@@ -7,12 +7,14 @@ import static gov.usgs.earthquake.nshm.util.SourceRegion.CA;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
 import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.eq.forecast.SourceAttribute.*;
 import static org.opensha.eq.forecast.SourceElement.FAULT_SOURCE_SET;
 import static org.opensha.eq.forecast.SourceElement.GEOMETRY;
 import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE;
 import static org.opensha.eq.forecast.SourceElement.TRACE;
+import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.stripComment;
 import static org.opensha.util.Parsing.toDoubleList;
@@ -201,7 +203,7 @@ class FaultConverter {
 				read_GR(lines, fd, export);
 				break;
 			case GRB0:
-				read_GRB0(lines, fd, export.magDat);
+				read_GRB0(lines, fd, export);
 				break;
 		}
 	}
@@ -271,9 +273,10 @@ class FaultConverter {
 
 	}
 
-	private void read_GRB0(List<String> lines, SourceData fd, MagUncertainty md) {
+	private void read_GRB0(List<String> lines, SourceData fd, Exporter export) {
 		
-		checkArgument(!md.hasAleatory(), "Aleatory unc. is incompatible with GR b=0 branches");
+		checkArgument(!export.magDat.hasAleatory(),
+			"Aleatory unc. is incompatible with GR b=0 branches");
 
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
@@ -283,6 +286,8 @@ class FaultConverter {
 		}
 
 		for (GR_Data gr : grData) {
+			initRefGR(export);
+			
 			gr.weight *= 0.5;
 			fd.mfds.add(gr);
 			log(fd, MFD_Type.GR, true);
@@ -311,7 +316,7 @@ class FaultConverter {
 		List<Location> locs = Lists.newArrayList();
 		for (String ptDat : traceDat) {
 			List<Double> latlon = Parsing.toDoubleList(ptDat);
-			locs.add(Location.create(latlon.get(0), latlon.get(1), fd.top));
+			locs.add(Location.create(latlon.get(0), latlon.get(1), 0.0));
 		}
 		fd.locs = LocationList.create(locs);
 		
@@ -419,8 +424,8 @@ class FaultConverter {
 			doc.setXmlStandalone(true);
 			Element root = doc.createElement(FAULT_SOURCE_SET.toString());
 			doc.appendChild(root);
-			root.setAttribute("name", name);
-			root.setAttribute("weight", Double.toString(weight));
+			addAttribute(NAME, name, root);
+			addAttribute(WEIGHT, Double.toString(weight), root);
 
 			// reference MFDs and uncertainty
 			Element settings = addElement(SETTINGS, root);
@@ -435,7 +440,7 @@ class FaultConverter {
 			for (String name : map.keySet()) {
 				
 				Element src = addElement(SOURCE, root);
-				src.setAttribute("name", name);
+				addAttribute(NAME, name, src);
 
 				List<FaultConverter.SourceData> fDatList = map.get(name);
 				// first test that all non-MFD data of multi entries are equal
@@ -462,9 +467,10 @@ class FaultConverter {
 				// append geometry from first entry
 				FaultConverter.SourceData first = fDatList.get(0);
 				Element geom = addElement(GEOMETRY, src);
-				geom.setAttribute("dip", Double.toString(first.dip));
-				geom.setAttribute("width", Double.toString(first.width));
-				geom.setAttribute("rake", Double.toString(first.focalMech.rake()));
+				addAttribute(DIP, first.dip, geom);
+				addAttribute(WIDTH, first.width, geom);
+				addAttribute(RAKE, first.focalMech.rake(), geom);
+				addAttribute(DEPTH, first.top, geom);
 				// geom.setAttribute("mech", first.focalMech.name());
 				Element trace = addElement(TRACE, geom);
 				trace.setTextContent(first.locs.toString());

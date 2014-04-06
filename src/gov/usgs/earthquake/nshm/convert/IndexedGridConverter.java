@@ -3,7 +3,7 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkState;
 
 import static org.opensha.eq.forecast.SourceElement.*;
-import static org.opensha.eq.forecast.MFD_Attribute.*;
+import static org.opensha.eq.forecast.SourceAttribute.*;
 import static org.opensha.util.Parsing.*;
 
 import gov.usgs.earthquake.nshm.util.Utils;

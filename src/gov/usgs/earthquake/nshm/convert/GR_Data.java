@@ -1,18 +1,26 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.forecast.MFD_Attribute.*;
+import static org.opensha.eq.forecast.SourceAttribute.A;
+import static org.opensha.eq.forecast.SourceAttribute.B;
+import static org.opensha.eq.forecast.SourceAttribute.D_MAG;
+import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.forecast.SourceAttribute.M_MAX;
+import static org.opensha.eq.forecast.SourceAttribute.M_MIN;
+import static org.opensha.eq.forecast.SourceAttribute.TYPE;
+import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.mfd.MFD_Type.GR;
+import static org.opensha.mfd.MFDs.magCount;
+import static org.opensha.util.Parsing.addAttribute;
+import static org.opensha.util.Parsing.addElement;
+import gov.usgs.earthquake.nshm.convert.FaultConverter.SourceData;
+import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import gov.usgs.earthquake.nshm.convert.FaultConverter.SourceData;
-import gov.usgs.earthquake.nshm.util.Utils;
-
 import org.opensha.eq.fault.scaling.MagScalingType;
-import org.opensha.eq.forecast.SourceElement;
-import org.opensha.mfd.MFD_Type;
-import org.opensha.mfd.MFDs;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Element;
 
@@ -20,7 +28,6 @@ import org.w3c.dom.Element;
  * Wrapper for Gutenberg-Richter MFD data; handles all validation and NSHMP
  * corrections to fault and subduction GR mfds.
  * 
- * TODO this could be useful utility class in main library
  * TODO try and get rid of logger references
  */
 class GR_Data implements MFD_Data {
@@ -54,7 +61,7 @@ class GR_Data implements MFD_Data {
 	static GR_Data createForSubduction(String src) {
 		GR_Data gr = new GR_Data();
 		gr.readSource(src);
-		gr.nMag = MFDs.magCount(gr.mMin, gr.mMax, gr.dMag);
+		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
 	
@@ -67,7 +74,7 @@ class GR_Data implements MFD_Data {
 		gr.mMax = grDat.get(2);
 		gr.dMag = grDat.get(3);
 		gr.recenterMagBins();
-		gr.nMag = MFDs.magCount(gr.mMin, gr.mMax, gr.dMag);
+		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
 	
@@ -80,7 +87,7 @@ class GR_Data implements MFD_Data {
 		gr.mMin = mMin;
 		gr.mMax = mMax;
 		gr.dMag = dMag;
-		gr.nMag = MFDs.magCount(mMin, mMax, dMag);
+		gr.nMag = magCount(mMin, mMax, dMag);
 		return gr;
 	}
 	
@@ -128,7 +135,7 @@ class GR_Data implements MFD_Data {
 			log.warning("GR to CH conversion : M=" + mMin + " : " + fd.name);
 		} else {
 			mMin = mMin + dMag / 2.0;
-			mMax = mMax - dMag / 2.0 + 0.0001; // 0.0001 necessary??
+			mMax = mMax - dMag / 2.0 + 0.0001; // TODO 0.0001 necessary??
 		}
 	}
 
@@ -140,7 +147,7 @@ class GR_Data implements MFD_Data {
 	}
 
 	private void validateMagCount(Logger log, SourceData fd) {
-		nMag = MFDs.magCount(mMin, mMax, dMag);
+		nMag = magCount(mMin, mMax, dMag);
 		if (nMag < 1) {
 			RuntimeException rex = new RuntimeException(
 				"Number of mags must be \u2265 1");
@@ -194,48 +201,38 @@ class GR_Data implements MFD_Data {
 
 	@Override
 	public Element appendTo(Element parent, MFD_Data ref) {
-		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, parent);
+		Element e = addElement(MAG_FREQ_DIST, parent);
 		// always include type
-		e.setAttribute(TYPE.toString(), MFD_Type.GR.name());
+		addAttribute(TYPE, GR.name(), e);
 		// always include rate
-		e.setAttribute(A.toString(), Double.toString(aVal));
+		addAttribute(A, aVal, e);
 		if (ref != null) {
 			GR_Data refGR = (GR_Data) ref;
-			if (bVal != refGR.bVal) {
-				e.setAttribute(B.toString(),Double.toString(bVal));
-			}
-			if (mMin != refGR.mMin) {
-				e.setAttribute(M_MIN.toString(),Double.toString(mMin));
-			}
-			if (mMax != refGR.mMax) {
-				e.setAttribute(M_MAX.toString(),Double.toString(mMax));
-			}
-			if (dMag != refGR.dMag) {
-				e.setAttribute(D_MAG.toString(),Double.toString(dMag));
-			}
-			if (weight != refGR.weight) {
-				e.setAttribute(WEIGHT.toString(),Double.toString(weight));
-			}
+			if (bVal != refGR.bVal) addAttribute(B, bVal, e);
+			if (mMin != refGR.mMin) addAttribute(M_MIN, mMin, e);
+			if (mMax != refGR.mMax) addAttribute(M_MAX, mMax, e);
+			if (dMag != refGR.dMag) addAttribute(D_MAG , dMag, e);
+			if (weight != refGR.weight) addAttribute(WEIGHT, weight, e);
 		} else {
-			e.setAttribute(B.toString(), Double.toString(bVal));
-			e.setAttribute(M_MIN.toString(), Double.toString(mMin));
-			e.setAttribute(M_MAX.toString(), Double.toString(mMax));
-			e.setAttribute(D_MAG.toString(), Double.toString(dMag));
-			e.setAttribute(WEIGHT.toString(), Double.toString(weight));
+			addAttribute(B, Double.toString(bVal), e);
+			addAttribute(M_MIN, Double.toString(mMin), e);
+			addAttribute(M_MAX, Double.toString(mMax), e);
+			addAttribute(D_MAG, Double.toString(dMag), e);
+			addAttribute(WEIGHT, Double.toString(weight), e);
 			// at present, magScaling does not vary by source group
-			e.setAttribute(MAG_SCALING.toString(), scaling.name());
+			addAttribute(MAG_SCALING, scaling.name(), e);
 		}
 		return e;
 	}
 	
 	@Override
 	public Element appendDefaultTo(Element parent) {
-		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, parent);
-		e.setAttribute(TYPE.toString(), MFD_Type.GR.name());
-		e.setAttribute(B.toString(), Double.toString(bVal));
-		e.setAttribute(M_MIN.toString(), Double.toString(mMin));
-		e.setAttribute(M_MAX.toString(), Double.toString(mMax));
-		e.setAttribute(D_MAG.toString(), Double.toString(dMag));
+		Element e = addElement(MAG_FREQ_DIST, parent);
+		addAttribute(TYPE, GR.name(), e);
+		addAttribute(B, bVal, e);
+		addAttribute(M_MIN, mMin, e);
+		addAttribute(M_MAX, mMax, e);
+		addAttribute(D_MAG, dMag, e);
 		return e;
 	}
 
