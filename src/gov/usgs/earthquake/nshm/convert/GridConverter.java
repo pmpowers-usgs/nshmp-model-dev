@@ -1,12 +1,15 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static com.google.common.base.Preconditions.*;
-import static gov.usgs.earthquake.nshm.util.FaultCode.*;
-import static org.opensha.eq.fault.FocalMech.*;
-import static org.opensha.eq.forecast.SourceType.*;
-import static gov.usgs.earthquake.nshm.util.RateType.*;
-import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
+import static gov.usgs.earthquake.nshm.util.RateType.CUMULATIVE;
+import static gov.usgs.earthquake.nshm.util.RateType.INCREMENTAL;
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
+import static org.opensha.eq.fault.FocalMech.NORMAL;
+import static org.opensha.eq.fault.FocalMech.REVERSE;
+import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
+import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import gov.usgs.earthquake.nshm.util.FaultCode;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,53 +19,35 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.GriddedRegion;
-//import org.opensha.commons.geo.Direction;
-//import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.geo.Region;
 import org.opensha.geo.Regions;
-import org.opensha.mfd.MFDs;
-
-import gov.usgs.earthquake.nshm.util.FaultCode;
-
 import org.opensha.util.Parsing;
 
-import gov.usgs.earthquake.nshm.util.RateType;
-//import org.opensha.nshmp2.util.NSHMP_Utils;
-//import org.opensha.nshmp2.util.RateType;
-//import org.opensha.nshmp2.util.SourceIMR;
-import gov.usgs.earthquake.nshm.util.SourceRegion;
-import gov.usgs.earthquake.nshm.util.Utils;
-//import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-//import org.opensha.sha.magdist.IncrementalMagFreqDist;
-
-
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Ints;
 
-/**
- * 2008 NSHMP grid source parser.
+/*
+ * Convert NSHMP fault input files to XML.
+ * @author Peter Powers
  */
-public class GridConverter {
+class GridConverter {
 
 	// TODO clean up after dealing with CEUS
 	// there are craton notes and things like 'ceusScaleRates' that need
 	// consideration
 
-	// TODO kill FualtCode
-	private static Logger log;
+	// TODO kill FaultCode
 	
+	private Logger log;
 	private GridConverter() {}
 	
 	static GridConverter create(Logger log) {
@@ -107,7 +92,7 @@ public class GridConverter {
 	// referenced when applying craton/margin weighs to mfds
 	private int[] srcIndices; // already sorted when built
 	
-	public static void convert(SourceFile sf, String dir) {
+	void convert(SourceFile sf, String dir) {
 		
 		try {
 			log.info("Starting source: " + sf.name);
@@ -137,10 +122,10 @@ public class GridConverter {
 	
 			// mag data - grids always supply GR data, however, Charleston fixed
 			// strike grids are also fixed mag to we convert them to SINGLE here
-			srcDat.grDat = GR_Data.createForGrid(lines.next());
+			srcDat.grDat = GR_Data.createForGrid(lines.next(), WC_94_LENGTH);
 			if (DoubleMath.fuzzyEquals(srcDat.grDat.mMin, srcDat.grDat.mMax, 0.000001)) {
 				// if mMin == mMax, populate CH_Data field
-				srcDat.chDat = CH_Data.create(srcDat.grDat.mMin, 0.0, 1.0);
+				srcDat.chDat = CH_Data.create(srcDat.grDat.mMin, 0.0, 1.0, false, WC_94_LENGTH);
 			}
 			
 			// iflt, ibmat, maxMat, Mtaper
@@ -202,7 +187,8 @@ public class GridConverter {
 			srcDat.writeXML(new File(outPath));
 			
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "Grid parse error", e);
+			log.log(Level.SEVERE, "Grid parse error: exiting", e);
+			System.exit(1);
 		}
 
 	}

@@ -67,7 +67,6 @@ import com.google.common.primitives.Doubles;
 class FaultConverter {
 
 	private Logger log;
-	
 	private FaultConverter() {}
 	
 	static FaultConverter create(Logger log) {
@@ -168,7 +167,6 @@ class FaultConverter {
 			
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Fault parse error: exiting", e);
-			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -216,8 +214,9 @@ class FaultConverter {
 			CH_Data ch = CH_Data.create(
 				Parsing.readDouble(line, 0),
 				Parsing.readDouble(line, 1),
-				Parsing.readDouble(line, 2));
-			ch.floats = floats;
+				Parsing.readDouble(line, 2),
+				floats,
+				getScalingRel(export.region));
 			fd.mfds.add(ch);
 			log(fd, MFD_Type.CH, floats);
 		}
@@ -225,10 +224,14 @@ class FaultConverter {
 	
 	private void initRefCH(Exporter export) {
 		if (export.refCH == null) {
-			export.refCH = CH_Data.create(0.0, 0.0, 1.0);
-			// single mags will generally float if associated with GR file
-			export.refCH.floats = export.name.contains(".gr.") ? true : false;
-			export.refCH.scaling = getScalingRel(export.region);
+			export.refCH = CH_Data.create(
+				6.5, 0.0, 1.0,
+				false,
+				getScalingRel(export.region));
+			
+			// the only time single mags will float is if they are
+			// coming from a GR conversion in a ch file; charactersitic
+			// magnitude is smaller than mag scaling would predict
 		}
 	}
 	
@@ -238,7 +241,8 @@ class FaultConverter {
 	
 	private void initRefGR(Exporter export) {
 		if (export.refGR == null) {
-			export.refGR = GR_Data.createForGridExport(0.0, 0.8, 6.55, 7.5, 0.1);
+			export.refGR = GR_Data.create(0.0, 0.8, 6.55, 7.5, 0.1, 1.0,
+				getScalingRel(export.region));
 			export.refGR.weight = 1.0;
 			export.refGR.scaling = getScalingRel(export.region);
 		}
@@ -248,7 +252,7 @@ class FaultConverter {
 		
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
-			GR_Data gr = GR_Data.createForFault(line, fd, log);
+			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.region), log);
 			grData.add(gr);
 		}
 
@@ -262,10 +266,12 @@ class FaultConverter {
 			} else {
 				initRefCH(export);
 				
-				CH_Data ch = CH_Data.create(gr.mMin, MFDs.grRate(gr.aVal,
-					gr.bVal, gr.mMin), gr.weight);
-				ch.floats = true;
-				ch.scaling = getScalingRel(export.region);
+				CH_Data ch = CH_Data.create(
+					gr.mMin, 
+					MFDs.grRate(gr.aVal, gr.bVal, gr.mMin),
+					gr.weight,
+					true,
+					getScalingRel(export.region));
 				fd.mfds.add(ch);
 				log(fd, MFD_Type.CH, true);
 			}
@@ -280,7 +286,7 @@ class FaultConverter {
 
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
-			GR_Data gr = GR_Data.createForFault(line, fd, log);
+			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.region), log);
 			checkArgument(gr.mMax > gr.mMin, "GR b=0 branch can't handle floating CH (mMin=mMax)");
 			grData.add(gr);
 		}
@@ -295,9 +301,14 @@ class FaultConverter {
 			// adjust for b=0, preserving cumulative moment rate
 			double tmr = Utils.totalMoRate(gr.mMin, gr.nMag, gr.dMag, gr.aVal, gr.bVal);
 			double tsm = Utils.totalMoRate(gr.mMin, gr.nMag, gr.dMag, 0, 0);
-			GR_Data grB0 = GR_Data.copyOf(gr);
-			grB0.aVal = Math.log10(tmr / tsm);
-			grB0.bVal = 0;
+			GR_Data grB0 = GR_Data.create(
+				Math.log10(tmr / tsm),
+				0.0,
+				gr.mMin,
+				gr.mMax,
+				gr.dMag,
+				gr.weight,
+				gr.scaling);
 			fd.mfds.add(grB0);
 			log(fd, MFD_Type.GRB0, true);
 		} 
@@ -425,7 +436,7 @@ class FaultConverter {
 			Element root = doc.createElement(FAULT_SOURCE_SET.toString());
 			doc.appendChild(root);
 			addAttribute(NAME, name, root);
-			addAttribute(WEIGHT, Double.toString(weight), root);
+			addAttribute(WEIGHT, weight, root);
 
 			// reference MFDs and uncertainty
 			Element settings = addElement(SETTINGS, root);
@@ -471,7 +482,6 @@ class FaultConverter {
 				addAttribute(WIDTH, first.width, geom);
 				addAttribute(RAKE, first.focalMech.rake(), geom);
 				addAttribute(DEPTH, first.top, geom);
-				// geom.setAttribute("mech", first.focalMech.name());
 				Element trace = addElement(TRACE, geom);
 				trace.setTextContent(first.locs.toString());
 			}

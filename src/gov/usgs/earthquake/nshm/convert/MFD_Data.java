@@ -10,5 +10,4 @@ interface MFD_Data {
 
 	public Element appendTo(Element parent, MFD_Data ref);
 	
-	public Element appendDefaultTo(Element parent);
 }

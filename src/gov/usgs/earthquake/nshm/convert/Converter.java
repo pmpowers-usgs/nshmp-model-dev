@@ -34,7 +34,7 @@ class Converter {
 	
 	public static void main(String[] args) {
 		convert2008();
-//		convert2014();
+		convert2014();
 	}
 	
 	static void convert2008() {
@@ -46,14 +46,19 @@ class Converter {
 //		files = MGR_2008.get(CA, FAULT);
 //		convertFault(files, CA, "2008");
 
-		files = MGR_2008.get(CA, GRID);
-		convertGrid(files, CA, "2008");
+//		files = MGR_2008.get(CA, GRID);
+//		convertGrid(files, CA, "2008");
+		
+//		files = MGR_2008.get(CASC, SUBDUCTION);
+//		convertInterface(files, CA, "2008");
 		
 	}
 	
 	static void convert2014() {
-		List<SourceFile> files = MGR_2014.get(CASC, SUBDUCTION);
-//		convertInterface(files, CASC, "2014");
+		List<SourceFile> files;
+		
+		files = MGR_2014.get(CASC, SUBDUCTION);
+		convertInterface(files, CASC, "2014");
 	}
 
 	static void convertGrid(List<SourceFile> files, SourceRegion region, 
@@ -73,21 +78,21 @@ class Converter {
 		Logger logger = createLogger("fault-convert", region, yr);
 		FaultConverter converter = FaultConverter.create(logger);
 		for (SourceFile file : files) {
-			checkArgument(file.type == SUBDUCTION, "Wrong file type: %s", file.type.name());
+			checkArgument(file.type == FAULT, "Wrong file type: %s", file.type.name());
 			converter.convert(file, out);
 		}
 	}
 	
-//	static void convertInterface(List<SourceFile> files, SourceRegion region, 
-//			String yr) {
-//		String out = FCAST_DIR + yr + S;
-//		Logger logger = createLogger("interface-convert", region, yr);
-//		FaultConverter converter = SubductionConverter.create(logger);
-//		for (SourceFile file : files) {
-//			checkArgument(file.type == FAULT, "Wrong file type: %s", file.type.name());
-//			converter.convert(file, out);
-//		}
-//	}
+	static void convertInterface(List<SourceFile> files, SourceRegion region, 
+			String yr) {
+		String out = FCAST_DIR + yr + S;
+		Logger logger = createLogger("interface-convert", region, yr);
+		SubductionConverter converter = SubductionConverter.create(logger);
+		for (SourceFile file : files) {
+			checkArgument(file.type == SUBDUCTION, "Wrong file type: %s", file.type.name());
+			converter.convert(file, out);
+		}
+	}
 
 	static final SimpleDateFormat sdf = new SimpleDateFormat("[yy.MM.dd-HH.mm]");
 	

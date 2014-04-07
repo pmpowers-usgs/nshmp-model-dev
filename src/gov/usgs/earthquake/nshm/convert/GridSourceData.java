@@ -3,14 +3,28 @@ package gov.usgs.earthquake.nshm.convert;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
+import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.eq.forecast.SourceAttribute.A;
+import static org.opensha.eq.forecast.SourceAttribute.B;
+import static org.opensha.eq.forecast.SourceAttribute.DEPTH_MAP;
 import static org.opensha.eq.forecast.SourceAttribute.MAGS;
+import static org.opensha.eq.forecast.SourceAttribute.MECH_MAP;
+import static org.opensha.eq.forecast.SourceAttribute.M_MAX;
+import static org.opensha.eq.forecast.SourceAttribute.NAME;
 import static org.opensha.eq.forecast.SourceAttribute.RATES;
+import static org.opensha.eq.forecast.SourceAttribute.STRIKE;
 import static org.opensha.eq.forecast.SourceAttribute.TYPE;
-import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
 import static org.opensha.eq.forecast.SourceElement.GRID_SOURCE_SET;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.NODE;
 import static org.opensha.eq.forecast.SourceElement.NODES;
+import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE_ATTS;
+import static org.opensha.mfd.MFD_Type.GR;
+import static org.opensha.mfd.MFD_Type.INCR;
+import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.FaultCode;
@@ -34,11 +48,9 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
-import org.opensha.eq.forecast.SourceElement;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.mfd.GutenbergRichterMFD;
 import org.opensha.mfd.IncrementalMFD;
-import org.opensha.mfd.MFD_Type;
 import org.opensha.mfd.MFDs;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
@@ -107,8 +119,8 @@ class GridSourceData {
 		Document doc = docBuilder.newDocument();
 		doc.setXmlStandalone(true);
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
-		root.setAttribute("file", name);
-		root.setAttribute("weight", Double.toString(weight));
+		addAttribute(NAME, name, root);
+		addAttribute(WEIGHT, weight, root);
 		doc.appendChild(root);
 		
 		if (chDat != null) { // single mag defaults e.g. charleston
@@ -136,8 +148,9 @@ class GridSourceData {
 	
 	// single magnitude grids (e.e.g Charleston)
 	private void writeSingleMagGrid(Element root) {
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, root);
-		chDat.appendDefaultTo(mfdRef);
+		Element settings = addElement(SETTINGS, root);
+		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		chDat.appendTo(mfdRef, null);
 		addSourceAttributes(mfdRef);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
@@ -146,18 +159,19 @@ class GridSourceData {
 			Element nodeElem = addElement(NODE, nodesElem);
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
 			double singleMagRate = MFDs.incrRate(aVal, grDat.bVal, chDat.mag);
-			nodeElem.setAttribute("a", String.format("%.8g",singleMagRate));
+			addAttribute(A, singleMagRate, "%.8g", nodeElem);
 		}
 	}
 	
 	// large mblg CEUS grids with craton-margin tapers etc...
 	private void writeLargeCeusGrid(Element root) {
-		Element defaults = addElement(MAG_FREQ_DIST_REF, root);
-		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, defaults);
-		e.setAttribute(TYPE.toString(), MFD_Type.INCR.name());
-		e.setAttribute(MAGS.toString(), Parsing.toString(Doubles.asList(
-			name.contains(".AB.") ? abMags : jMags), "%.2f"));
-		addSourceAttributes(defaults);
+		Element settings = addElement(SETTINGS, root);
+		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		Element e = addElement(MAG_FREQ_DIST, mfdRef);
+		addAttribute(TYPE, INCR, e);
+		addAttribute(MAGS, Parsing.toString(Doubles.asList(
+			name.contains(".AB.") ? abMags : jMags), "%.2f"), e);
+		addSourceAttributes(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -170,15 +184,18 @@ class GridSourceData {
 	
 	// for grids with wtGrid
 	private void writeMixedGrid(Element root) {
-		Element defaults = addElement(MAG_FREQ_DIST_REF, root);
-		grDat.appendDefaultTo(defaults);
-		Element e = Parsing.addElement(SourceElement.MAG_FREQ_DIST, defaults);
-		e.setAttribute(TYPE.toString(), MFD_Type.INCR.name());
+		Element settings = addElement(SETTINGS, root);
+		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		grDat.appendTo(mfdRef, null);
+		Element e = addElement(MAG_FREQ_DIST, mfdRef);
+		addAttribute(TYPE, INCR, e);
 		// default mags go up to default grid mMax; mags will be overridden
 		// where node mMax is higher
 		double[] mags = DataUtils.buildSequence(grDat.mMin, grDat.mMax, 0.1, true);
-		e.setAttribute(MAGS.toString(), Parsing.toString(Doubles.asList(mags), "%.2f"));
-		addSourceAttributes(defaults);
+		double[] rates = new double[mags.length];
+		addAttribute(MAGS, Parsing.toString(Doubles.asList(mags), "%.2f"), e);
+		addAttribute(RATES, Parsing.toString(Doubles.asList(rates), "%.1f"), e);
+		addSourceAttributes(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -192,10 +209,10 @@ class GridSourceData {
 			boolean ignoreWt = mMaxDat[i] <= mTaper;
 			if (wtIsOne || ignoreWt) {
 				writeStandardMFDdata(nodeElem, i);
-				nodeElem.setAttribute(TYPE.toString(), MFD_Type.GR.name());
+				addAttribute(TYPE, GR, nodeElem);
 			} else {
 				addWUS_MFD(i, nodeElem);
-				nodeElem.setAttribute(TYPE.toString(), MFD_Type.INCR.name());
+				addAttribute(TYPE, INCR, nodeElem);
 			}
 		}
 		
@@ -203,8 +220,9 @@ class GridSourceData {
 	
 	// standard grid without customizations requiring incremental MFDs
 	private void writeStandardGrid(Element root) {
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, root);
-		grDat.appendTo(mfdRef);
+		Element settings = addElement(SETTINGS, root);
+		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		grDat.appendTo(mfdRef, null);
 		addSourceAttributes(mfdRef);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
@@ -217,20 +235,18 @@ class GridSourceData {
 	}
 	
 	private void writeStandardMFDdata(Element nodeElem, int i) {
-		nodeElem.setAttribute("a", String.format("%.8g",aDat[i]));
+		addAttribute(TYPE, GR, nodeElem);
+		addAttribute(A, aDat[i], "%.8g", nodeElem);
 		if (bGrid) {
 			double nodebVal = bDat[i];
 			if (!DoubleMath.fuzzyEquals(nodebVal, grDat.bVal, 0.000001)) {
-				nodeElem.setAttribute("b", Parsing.stripZeros(
-					String.format("%.6f", nodebVal)));
+				addAttribute(B, nodebVal, "%.6f", nodeElem);
 			}
 		}
 		if (mMaxGrid) {
 			double nodeMMax = mMaxDat[i] - grDat.dMag / 2.0;
-			if (!DoubleMath.fuzzyEquals(nodeMMax, grDat.mMax, 0.000001) 
-					&& nodeMMax != 0.0) {
-				nodeElem.setAttribute("mMax", Parsing.stripZeros(
-					String.format("%.6f",nodeMMax)));
+			if (!DoubleMath.fuzzyEquals(nodeMMax, grDat.mMax, 0.000001) && nodeMMax != 0.0) {
+				addAttribute(M_MAX, nodeMMax, "%.6f", nodeElem);
 			}
 		}
 	}
@@ -238,11 +254,9 @@ class GridSourceData {
 	// source attribute settings
 	private void addSourceAttributes(Element settings) {
 		Element attsElem = addElement(SOURCE_ATTS, settings);
-		attsElem.setAttribute("depthMap", magDepthDataToString(depthMag, depths));
-		if (!Double.isNaN(strike)) {
-			attsElem.setAttribute("strike", Double.toString(strike));
-		}
-		attsElem.setAttribute("mechMap", enumValueMapToString(mechWtMap));
+		addAttribute(DEPTH_MAP, magDepthDataToString(depthMag, depths), attsElem);
+		addAttribute(MECH_MAP, enumValueMapToString(mechWtMap), attsElem);
+		addAttribute(STRIKE, strike, attsElem);
 	}
 			
 	/*
@@ -316,8 +330,8 @@ class GridSourceData {
 //		if (nodeMax <= grDat.mMax) {
 		// mfdMax is either gridMax or some higher value
 		double bVal = bGrid ? bDat[i] : grDat.bVal;
-		GR_Data grNode = GR_Data.createForGridExport(aDat[i], bVal, grDat.mMin,
-			mfdMax, grDat.dMag);
+		GR_Data grNode = GR_Data.create(aDat[i], bVal, grDat.mMin, mfdMax, grDat.dMag, 1.0,
+			WC_94_LENGTH);
 		GutenbergRichterMFD mfd = MFDs.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
 		mfd.scaleToIncrRate(grNode.mMin, MFDs.incrRate(grNode.aVal, 
@@ -325,10 +339,10 @@ class GridSourceData {
 		if (cutoffMax <= mfdMax) mfd.zeroAboveMag2(cutoffMax);
 		wusScaleRates(mfd, i);
 		// if node mMax <= gridMax add rates for defualt mags as atts
-		node.setAttribute(RATES.toString(), Parsing.toString(mfd.yValues(), "%.8g"));
+		addAttribute(RATES, Parsing.toString(mfd.yValues(), "%.8g"), node);
 		// if node mMax > gridMax add mags as atts as well
 		if (mfdMax > grDat.mMax) {
-			node.setAttribute(MAGS.toString(), Parsing.toString(mfd.xValues(), "%.2f"));
+			addAttribute(MAGS, Parsing.toString(mfd.xValues(), "%.2f"), node);
 		}
 	}
 
@@ -353,15 +367,15 @@ class GridSourceData {
 		double nodeMax = mMaxDat[i] <= 0 ? grDat.mMax : mMaxDat[i] - grDat.dMag / 2.0;
 		double mfdMax = name.contains(".AB.") ? abMax : jMax;
 		
-		GR_Data grNode = GR_Data.createForGridExport(aDat[i], bDat[i],
-			grDat.mMin, mfdMax, grDat.dMag);
+		GR_Data grNode = GR_Data.create(aDat[i], bDat[i], grDat.mMin, mfdMax,
+			grDat.dMag, 1.0, WC_94_LENGTH);
 		GutenbergRichterMFD mfd = MFDs.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
 		// a-value is stored as log10(a)
 		mfd.scaleToIncrRate(grNode.mMin, MFDs.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
 		if (cutoffMax < mfdMax) mfd.zeroAboveMag2(cutoffMax);
 		ceusScaleRates(mfd, i);
-		node.setAttribute(RATES.toString(), Parsing.toString(mfd.yValues(), "%.8g"));
+		addAttribute(RATES, Parsing.toString(mfd.yValues(), "%.8g"), node);
 	}
 
 	private static double jMax = 7.15;
@@ -412,6 +426,5 @@ class GridSourceData {
 			marginFlags = Utils.readBoolGrid(margin, nRows, nCols);
 		}
 	}
-
 
 }

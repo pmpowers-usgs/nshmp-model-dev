@@ -27,44 +27,39 @@ class CH_Data implements MFD_Data {
 	boolean floats;
 	MagScalingType scaling;
 		
-	private CH_Data(double mag, double rate, double weight) {
+	private CH_Data(double mag, double rate, double weight, boolean floats, MagScalingType scaling) {
 		this.mag = mag;
 		this.rate = rate;
 		this.weight = weight;
+		this.floats = floats;
+		this.scaling = scaling;
 	}
 	
-	static CH_Data create(double mag, double rate, double weight) {
-		return new CH_Data(mag, rate, weight);
+	static CH_Data create(double mag, double rate, double weight, boolean floats,
+			MagScalingType scaling) {
+		return new CH_Data(mag, rate, weight, floats, scaling);
 	}
 
 	@Override
 	public Element appendTo(Element parent, MFD_Data ref) {
 		Element e = addElement(MAG_FREQ_DIST, parent);
 		// always include type
-		addAttribute(TYPE, SINGLE.name(), e);
+		addAttribute(TYPE, SINGLE, e);
 		// always include rate
 		addAttribute(A, rate, "%.8g", e);
-		// always include magnitude
-		addAttribute(M, mag, "%.3f", e);
 		if (ref != null) {
 			CH_Data refCH = (CH_Data) ref;
+			if (mag != refCH.mag) addAttribute(M, mag, "%.3f", e);
 			if (floats != refCH.floats) addAttribute(FLOATS, floats, e);
 			if (weight != refCH.weight) addAttribute(WEIGHT, weight, e);
+			if (scaling != refCH.scaling) addAttribute(MAG_SCALING, scaling.name(), e);
 		} else {
+			addAttribute(M, mag, "%.3f", e);
 			addAttribute(FLOATS, floats, e);
 			addAttribute(WEIGHT, weight, e);
-			// at present, magScaling does not vary by source group
 			addAttribute(MAG_SCALING, scaling.name(), e);
 		}
 		return e;
 	}
 	
-	@Override
-	public Element appendDefaultTo(Element parent) {
-		Element e = addElement(SourceElement.MAG_FREQ_DIST, parent);
-		addAttribute(TYPE, SINGLE.name(), e);
-		addAttribute(M, mag, "%.3f", e);
-		return e;
-	}
-
 }

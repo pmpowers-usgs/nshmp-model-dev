@@ -45,7 +45,7 @@ class GR_Data implements MFD_Data {
 	private GR_Data() {}
 	
 	/* For parsing WUS fault sources */
-	static GR_Data createForFault(String src, SourceData fd, Logger log) {
+	static GR_Data createForFault(String src, SourceData fd, MagScalingType scaling, Logger log) {
 		GR_Data gr = new GR_Data();
 		gr.readSource(src);
 		// check for too small a dMag
@@ -54,19 +54,21 @@ class GR_Data implements MFD_Data {
 		gr.recenterMagBins(log, fd);
 		// check mag count
 		gr.validateMagCount(log, fd);
+		gr.scaling = scaling;
 		return gr;
 	}
 
 	/* For parsing subduction sources */
-	static GR_Data createForSubduction(String src) {
+	static GR_Data createForSubduction(String src, MagScalingType scaling) {
 		GR_Data gr = new GR_Data();
 		gr.readSource(src);
+		gr.scaling = scaling;
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
 	
 	/* For parsing grid sources; mag bins are recentered */
-	static GR_Data createForGrid(String src) {
+	static GR_Data createForGrid(String src, MagScalingType scaling) {
 		GR_Data gr = new GR_Data();
 		List<Double> grDat = Parsing.toDoubleList(src);
 		gr.bVal = grDat.get(0);
@@ -74,36 +76,27 @@ class GR_Data implements MFD_Data {
 		gr.mMax = grDat.get(2);
 		gr.dMag = grDat.get(3);
 		gr.recenterMagBins();
+		gr.scaling = scaling;
+		gr.weight = 1.0;
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
 	
 	/* For final assembly and export of grid mfds */
-	static GR_Data createForGridExport(double aVal, double bVal, double mMin,
-			double mMax, double dMag) {
+	static GR_Data create(double aVal, double bVal, double mMin,
+			double mMax, double dMag, double weight, MagScalingType scaling) {
 		GR_Data gr = new GR_Data();
 		gr.aVal = aVal;
 		gr.bVal = bVal;
 		gr.mMin = mMin;
 		gr.mMax = mMax;
 		gr.dMag = dMag;
+		gr.weight = weight;
+		gr.scaling = scaling;
 		gr.nMag = magCount(mMin, mMax, dMag);
 		return gr;
 	}
 	
-	/* Make a copy */
-	static GR_Data copyOf(GR_Data gr) {
-		GR_Data grNew = new GR_Data();
-		grNew.aVal = gr.aVal;
-		grNew.bVal = gr.bVal;
-		grNew.mMin = gr.mMin;
-		grNew.mMax = gr.mMax;
-		grNew.dMag = gr.dMag;
-		grNew.weight = gr.weight;
-		grNew.nMag = gr.nMag;
-		return grNew;
-	}
-
 	private void readSource(String src) {
 		List<Double> grDat = Parsing.toDoubleList(src);
 		aVal = grDat.get(0);
@@ -203,7 +196,7 @@ class GR_Data implements MFD_Data {
 	public Element appendTo(Element parent, MFD_Data ref) {
 		Element e = addElement(MAG_FREQ_DIST, parent);
 		// always include type
-		addAttribute(TYPE, GR.name(), e);
+		addAttribute(TYPE, GR, e);
 		// always include rate
 		addAttribute(A, aVal, e);
 		if (ref != null) {
@@ -213,6 +206,7 @@ class GR_Data implements MFD_Data {
 			if (mMax != refGR.mMax) addAttribute(M_MAX, mMax, e);
 			if (dMag != refGR.dMag) addAttribute(D_MAG , dMag, e);
 			if (weight != refGR.weight) addAttribute(WEIGHT, weight, e);
+			if (scaling != refGR.scaling) addAttribute(MAG_SCALING, scaling, e);
 		} else {
 			addAttribute(B, Double.toString(bVal), e);
 			addAttribute(M_MIN, Double.toString(mMin), e);
@@ -220,23 +214,10 @@ class GR_Data implements MFD_Data {
 			addAttribute(D_MAG, Double.toString(dMag), e);
 			addAttribute(WEIGHT, Double.toString(weight), e);
 			// at present, magScaling does not vary by source group
-			addAttribute(MAG_SCALING, scaling.name(), e);
+			addAttribute(MAG_SCALING, scaling, e);
 		}
 		return e;
-	}
-	
-	@Override
-	public Element appendDefaultTo(Element parent) {
-		Element e = addElement(MAG_FREQ_DIST, parent);
-		addAttribute(TYPE, GR.name(), e);
-		addAttribute(B, bVal, e);
-		addAttribute(M_MIN, mMin, e);
-		addAttribute(M_MAX, mMax, e);
-		addAttribute(D_MAG, dMag, e);
-		return e;
-	}
-
-	
+	}	
 	
 	private static final String LF = System.getProperty("line.separator");
 	
