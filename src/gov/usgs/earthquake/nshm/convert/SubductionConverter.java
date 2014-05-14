@@ -172,7 +172,6 @@ class SubductionConverter {
 	
 	private static void generateTraces(Iterator<String> it, SourceData ss) {
 		boolean reverse = ss.file.name.startsWith("sub");
-		System.out.println(reverse);
 		ss.upperTrace = generateTrace(it, readInt(it.next(), 0), reverse);
 		ss.lowerTrace = generateTrace(it, readInt(it.next(), 0), reverse);
 	}

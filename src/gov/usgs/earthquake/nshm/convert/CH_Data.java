@@ -45,15 +45,15 @@ class CH_Data implements MFD_Data {
 		Element e = addElement(MAG_FREQ_DIST, parent);
 		// always include type
 		addAttribute(TYPE, SINGLE, e);
-		// always include rate
-		addAttribute(A, rate, "%.8g", e);
 		if (ref != null) {
 			CH_Data refCH = (CH_Data) ref;
+			if (rate != refCH.rate) addAttribute(A, rate, "%.8g", e);
 			if (mag != refCH.mag) addAttribute(M, mag, "%.3f", e);
 			if (floats != refCH.floats) addAttribute(FLOATS, floats, e);
 			if (weight != refCH.weight) addAttribute(WEIGHT, weight, e);
 			if (scaling != refCH.scaling) addAttribute(MAG_SCALING, scaling.name(), e);
 		} else {
+			addAttribute(A, rate, "%.8g", e);
 			addAttribute(M, mag, "%.3f", e);
 			addAttribute(FLOATS, floats, e);
 			addAttribute(WEIGHT, weight, e);

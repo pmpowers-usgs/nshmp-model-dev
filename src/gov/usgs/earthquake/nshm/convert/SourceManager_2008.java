@@ -163,7 +163,7 @@ class SourceManager_2008 extends SourceManager {
 	 * Returns the weight for the supplied NMSZ cluster model file name and
 	 * fault model group index (1-5, west to east)
 	 */
-	static double getClusterWeight(String name, int group) {
+	public double getClusterWeight(String name, int group) {
 		double[] wts = (name.contains(".1000.")) ? CL_WTS_1000 : CL_WTS_BASE;
 		return wts[group-1];
 	}

@@ -151,7 +151,7 @@ class GridSourceData {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
 		chDat.appendTo(mfdRef, null);
-		addSourceAttributes(mfdRef);
+		addSourceAttributes(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -223,7 +223,7 @@ class GridSourceData {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
 		grDat.appendTo(mfdRef, null);
-		addSourceAttributes(mfdRef);
+		addSourceAttributes(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];

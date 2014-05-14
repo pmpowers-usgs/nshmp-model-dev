@@ -563,8 +563,8 @@ public class Utils {
 //	}
 	
 	
-	public static Logger logger(String logPath, Level level) {
-		Logger log = Logger.getLogger("gov.usgs.earthquake.nshmp");
+	public static Logger logger(String name, String logPath, Level level) {
+		Logger log = Logger.getLogger(name);
 		log.setLevel(level);
 		log.setUseParentHandlers(false);
 

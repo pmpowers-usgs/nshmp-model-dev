@@ -3,7 +3,6 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.StandardSystemProperty.LINE_SEPARATOR;
-import static gov.usgs.earthquake.nshm.util.SourceRegion.CA;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
 import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
@@ -93,8 +92,11 @@ class FaultConverter {
 			// where the starting index would be 4. (The identifying number is
 			// necessary to distinguish some faults, e.g. Seattle Fault in orwa_c.in)
 			// CA files generally start at idx=3; general WUS case is 4
-			int nameIdx = (sf.region == CA || sf.region == CEUS) ? 3 : 
-						  (sf.name.equals("wasatch.3dip.74.in")) ? 4 : 5;
+			//
+			// int nameIdx = (sf.region == CA || sf.region == CEUS) ? 3 :
+			// now test CA by name as region has been moved to WUS
+			int nameIdx = (isCA(sf.name) || sf.region == CEUS)
+				? 3 : (sf.name.equals("wasatch.3dip.74.in")) ? 4 : 5;
 	
 			Iterator<String> lines = sf.lineIterator();
 	
@@ -216,43 +218,38 @@ class FaultConverter {
 				Parsing.readDouble(line, 1),
 				Parsing.readDouble(line, 2),
 				floats,
-				getScalingRel(export.region));
+				getScalingRel(export.name));
 			fd.mfds.add(ch);
 			log(fd, MFD_Type.CH, floats);
 		}
 	}
 	
 	private void initRefCH(Exporter export) {
-		if (export.refCH == null) {
-			export.refCH = CH_Data.create(
-				6.5, 0.0, 1.0,
-				false,
-				getScalingRel(export.region));
-			
-			// the only time single mags will float is if they are
-			// coming from a GR conversion in a ch file; charactersitic
-			// magnitude is smaller than mag scaling would predict
-		}
+		if (export.refCH != null) return;
+		export.refCH = CH_Data.create(6.5, 0.0, 1.0, false, getScalingRel(export.name));
+		// the only time single mags will float is if they are
+		// coming from a GR conversion in a ch file; charactersitic
+		// magnitude is smaller than mag scaling would predict
 	}
 	
-	private static MagScalingType getScalingRel(SourceRegion region) {
-		return region == SourceRegion.CA ? NSHMP_CA : WC_94_LENGTH;
+	private static boolean isCA(String name) {
+		return name.startsWith("aFault") || name.startsWith("bFault");
+	}
+	
+	private static MagScalingType getScalingRel(String name) {
+		return isCA(name) ? NSHMP_CA : WC_94_LENGTH;
 	}
 	
 	private void initRefGR(Exporter export) {
-		if (export.refGR == null) {
-			export.refGR = GR_Data.create(0.0, 0.8, 6.55, 7.5, 0.1, 1.0,
-				getScalingRel(export.region));
-			export.refGR.weight = 1.0;
-			export.refGR.scaling = getScalingRel(export.region);
-		}
+		if (export.refGR != null) return;
+		export.refGR = GR_Data.create(0.0, 0.8, 6.55, 7.5, 0.1, 1.0, getScalingRel(export.name));
 	}
 
 	private void read_GR(List<String> lines, SourceData fd, Exporter export) {
 		
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
-			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.region), log);
+			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.name), log);
 			grData.add(gr);
 		}
 
@@ -271,7 +268,7 @@ class FaultConverter {
 					MFDs.grRate(gr.aVal, gr.bVal, gr.mMin),
 					gr.weight,
 					true,
-					getScalingRel(export.region));
+					getScalingRel(export.name));
 				fd.mfds.add(ch);
 				log(fd, MFD_Type.CH, true);
 			}
@@ -286,7 +283,7 @@ class FaultConverter {
 
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
-			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.region), log);
+			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.name), log);
 			checkArgument(gr.mMax > gr.mMin, "GR b=0 branch can't handle floating CH (mMin=mMax)");
 			grData.add(gr);
 		}
@@ -415,7 +412,7 @@ class FaultConverter {
 	
 	static class Exporter {
 		
-		String name = "Unnamed Source Set";
+		String name = "Unnamed Fault Source Set";
 		double weight = 1.0;
 		SourceRegion region = null;
 		ListMultimap<String, FaultConverter.SourceData> map = LinkedListMultimap.create();
@@ -494,9 +491,6 @@ class FaultConverter {
 			trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(out);
-
-			// Output to console for testing
-			// StreamResult result = new StreamResult(System.out);
 
 			trans.transform(source, result);
 		}

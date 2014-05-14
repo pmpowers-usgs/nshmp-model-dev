@@ -1,10 +1,13 @@
 package gov.usgs.earthquake.nshm.convert;
 
+import static gov.usgs.earthquake.nshm.util.SourceRegion.CA;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CASC;
+import static gov.usgs.earthquake.nshm.util.SourceRegion.WUS;
 import static org.opensha.eq.forecast.SourceType.CLUSTER;
 import static org.opensha.eq.forecast.SourceType.FAULT;
 import static org.opensha.eq.forecast.SourceType.GRID;
-import static org.opensha.eq.forecast.SourceType.SUBDUCTION;
+import static org.opensha.eq.forecast.SourceType.INTERFACE;
+import static org.opensha.eq.forecast.SourceType.SLAB;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 
 import java.io.File;
@@ -138,14 +141,21 @@ abstract class SourceManager {
 	SourceFile create(String resource, double weight) {
 		List<String> parts = Lists.newArrayList(Parsing.splitOnSlash(resource));
 		SourceRegion region = SourceRegion.valueOf(parts.get(0));
+		String typeFolder = parts.get(1);
 		SourceType type = null;
 		if (region == CASC) {
-			type = SUBDUCTION;
-		} else if (resource.contains("cluster")) {
+			type = INTERFACE;
+		} else if (resource.contains("cluster") || resource.contains("_clu")) {
 			type = CLUSTER;
+		} else if (typeFolder.equals("gridded")) {
+			type = resource.contains("deep") ? SLAB : GRID;
 		} else {
-			type = (parts.get(1).equals("gridded")) ? GRID : FAULT;
+			type = FAULT;
 		}
+		// move CA and CASC inputs to WUS, 2008 and 2014
+		if (region == CASC) region = WUS;
+		if (region == CA) region = WUS;
+		
 		URL url = null;
 		try {
 			url = new File(path() + resource).toURI().toURL();
@@ -162,4 +172,7 @@ abstract class SourceManager {
 	/* Implementations should poluate file list here */
 	abstract void init();
 
+	/* implementations return weights used to combine cluster sources */
+	abstract double getClusterWeight(String name, int group);
+	
 }

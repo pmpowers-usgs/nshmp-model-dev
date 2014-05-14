@@ -130,8 +130,7 @@ class GridConverter {
 			
 			// iflt, ibmat, maxMat, Mtaper
 			// iflt = 0 -> no finite faults
-			// iflt = 1 -> apply finite fault corrections for M>6 assuming random
-			// strike
+			// iflt = 1 -> apply finite fault corrections for M>6 assuming random strike
 			// iflt = 2 -> use finite line faults for M>6 and fix strike
 			// iflt = 3 -> use finite faults with Johston mblg to Mw converter
 			// iflt = 4 -> use finite faults with Boore and Atkinson mblg to Mw
@@ -172,19 +171,17 @@ class GridConverter {
 			
 			log.info(srcDat.toString());
 
-			
 			initDataGrids(srcDat);
-	//		srcIMR = SourceIMR.imrForSource(GRIDDED, srcRegion, srcName, fltCode);
-			
-	//		GridERF erf = createGridSource();
-	//		return erf;
 			
 			String S = File.separator;
-			String outPath = dir + S + sf.region + S + sf.type + S + 
-					sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
-			File outFile = new File(outPath);
+			String outPath = dir + S + sf.region + S + sf.type + S;
+			if (sf.name.contains("2007all8")) {
+				outPath += "mb-" + (sf.name.contains(".AB.") ? "AtkinBoore" : "Johnson") + S;
+			}
+			String outName = sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
+			File outFile = new File(outPath, outName);
 			Files.createParentDirs(outFile);
-			srcDat.writeXML(new File(outPath));
+			srcDat.writeXML(outFile);
 			
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Grid parse error: exiting", e);
@@ -396,67 +393,5 @@ class GridConverter {
 		Arrays.fill(dat, value);
 		return dat;
 	}
-
-
-
-//	/////////////// CEUS Customizations ///////////////
-//
-//	// wtmj_cra: full weight up to 6.55; Mmax=6.85 @ 0.2 wt
-//	// wtmj_ext: full weight up to 6.85; Mmax=7.15 @ 0.2 wt
-//	// wtmab_cra: full weight up to 6.75; Mmax=7.05 @ 0.2 wt
-//	// wtmab_ext: full weight up to 7.15; Mmax=7.35 @ 0.2 wt
-//	private static double[] wtmj_cra =  { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.7, 0.2, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-//	private static double[] wtmj_ext =  { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.7, 0.7, 0.2, 0.0, 0.0, 0.0 };
-//	private static double[] wtmab_cra = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.9, 0.7, 0.2, 0.0, 0.0, 0.0, 0.0 };
-//	private static double[] wtmab_ext = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.7, 0.2, 0.0 };
-//	private static boolean[] cratonFlags;
-//	private static boolean[] marginFlags;
-//	
-//	
-//	private void ceusScaleRates() {
-//		initMasks();
-//		
-//		// set weights by file name
-//		double[] craWt = wtmj_cra;
-//		double[] marWt = wtmj_ext;
-//		if (srcName.contains(".AB.")) {
-//			craWt = wtmab_cra;
-//			marWt = wtmab_ext;
-//		}
-//		double[] weights;
-//		
-//		// adjust mfds
-//		for (int i=0; i<srcIndices.length; i++) {
-//			IncrementalMFD mfd = mfdList.get(i);
-//			if (mfd == null) continue;
-//			int flagIdx = srcIndices[i];
-//			boolean craFlag = cratonFlags[flagIdx];
-//			boolean marFlag = marginFlags[flagIdx];
-//			if ((craFlag | marFlag) == false) continue;
-//			weights = craFlag ? craWt : marWt;
-//			applyWeight(mfd, weights);
-//		}
-//	}
-//	
-//	private void applyWeight(IncrementalMFD mfd, double[] weights) {
-//		for (int i=0; i<mfd.getNum(); i++) {
-//			double weight = weights[i];
-//			if (weight == 1.0) continue;
-//			mfd.set(i, mfd.getY(i) * weight);
-//		}
-//	}
-//
-//	private void initMasks() {
-//		// this is only used for CEUS so we don't have to worry about having
-//		// the wrong dimensions set for these static fields
-//		if (cratonFlags == null) {
-//			URL craton = Utils.getResource("/imr/craton");
-//			URL margin = Utils.getResource("/imr/margin");
-//			int nRows = (int) Math.rint((maxLat - minLat) / dLat) + 1;
-//			int nCols = (int) Math.rint((maxLon - minLon) / dLon) + 1;
-//			cratonFlags = NSHMP_Utils.readBoolGrid(craton, nRows, nCols);
-//			marginFlags = NSHMP_Utils.readBoolGrid(margin, nRows, nCols);
-//		}
-//	}
 
 }
