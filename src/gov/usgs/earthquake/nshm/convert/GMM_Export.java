@@ -43,7 +43,7 @@ import static org.opensha.gmm.GMM.YOUNGS_97_INTER;
 import static org.opensha.gmm.GMM.YOUNGS_97_SLAB;
 import static org.opensha.gmm.GMM.ZHAO_06_INTER;
 import static org.opensha.gmm.GMM.ZHAO_06_SLAB;
-import static org.opensha.gmm.GMM_Attribute.NAME;
+import static org.opensha.gmm.GMM_Attribute.ID;
 import static org.opensha.gmm.GMM_Attribute.WEIGHT;
 import static org.opensha.gmm.GMM_Attribute.MAX_DISTANCE;
 import static org.opensha.gmm.GMM_Element.GROUND_MOTION_MODELS;
@@ -282,7 +282,7 @@ public class GMM_Export {
 			addAttribute(MAX_DISTANCE, cutoffList.get(count++), gmmSetElem);
 			for (Entry<GMM, Double> entry : gmmMap.entrySet()) {
 				Element gmmElem = addElement(MODEL, gmmSetElem);
-				addAttribute(NAME, entry.getKey().name(), gmmElem);
+				addAttribute(ID, entry.getKey().name(), gmmElem);
 				addAttribute(WEIGHT, entry.getValue(), gmmElem);
 			}
 		}

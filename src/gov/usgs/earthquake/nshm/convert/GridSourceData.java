@@ -21,7 +21,7 @@ import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.NODE;
 import static org.opensha.eq.forecast.SourceElement.NODES;
 import static org.opensha.eq.forecast.SourceElement.SETTINGS;
-import static org.opensha.eq.forecast.SourceElement.SOURCE_ATTS;
+import static org.opensha.eq.forecast.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.mfd.MFD_Type.GR;
 import static org.opensha.mfd.MFD_Type.INCR;
 import static org.opensha.util.Parsing.addAttribute;
@@ -253,7 +253,7 @@ class GridSourceData {
 	
 	// source attribute settings
 	private void addSourceAttributes(Element settings) {
-		Element attsElem = addElement(SOURCE_ATTS, settings);
+		Element attsElem = addElement(SOURCE_PROPERTIES, settings);
 		addAttribute(DEPTH_MAP, magDepthDataToString(depthMag, depths), attsElem);
 		addAttribute(MECH_MAP, enumValueMapToString(mechWtMap), attsElem);
 		addAttribute(STRIKE, strike, attsElem);
@@ -319,8 +319,10 @@ class GridSourceData {
 	
 	/////////////// WUS Incremental ///////////////
 	
-	// there are many nodes where mMax = 6.5 and a weight is applied that ultimately is unnecessary
-	// build incremental default mags based on mMax of file; if node mMax is greater, then add mags attribute to it
+	// there are many nodes where mMax = 6.5 and a weight is applied
+	// that ultimately is unnecessar; build incremental default mags
+	// based on mMax of file; if node mMax is greater, then add mags
+	// attribute to it
 	
 	private void addWUS_MFD(int i, Element node) {
 		double cutoffMax = mMaxDat[i] <= 0 ? grDat.mMax + grDat.dMag / 2. : mMaxDat[i];
