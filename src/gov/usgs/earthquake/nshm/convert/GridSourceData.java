@@ -8,6 +8,7 @@ import static org.opensha.eq.forecast.SourceAttribute.A;
 import static org.opensha.eq.forecast.SourceAttribute.B;
 import static org.opensha.eq.forecast.SourceAttribute.DEPTH_MAP;
 import static org.opensha.eq.forecast.SourceAttribute.MAGS;
+import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.forecast.SourceAttribute.MECH_MAP;
 import static org.opensha.eq.forecast.SourceAttribute.M_MAX;
 import static org.opensha.eq.forecast.SourceAttribute.NAME;
@@ -33,6 +34,7 @@ import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -169,8 +171,12 @@ class GridSourceData {
 		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
 		Element e = addElement(MAG_FREQ_DIST, mfdRef);
 		addAttribute(TYPE, INCR, e);
-		addAttribute(MAGS, Parsing.toString(Doubles.asList(
-			name.contains(".AB.") ? abMags : jMags), "%.2f"), e);
+		List<Double> mags = Doubles.asList(name.contains(".AB.") ? abMags : jMags);
+		addAttribute(MAGS, Parsing.toString(mags, "%.2f"), e);
+		List<Double> rates = Doubles.asList(new double[mags.size()]);
+		addAttribute(RATES, Parsing.toString(rates, "%.1f"), e);
+		addAttribute(MAG_SCALING, grDat.scaling, e);
+		addAttribute(WEIGHT, grDat.weight, e);
 		addSourceAttributes(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
@@ -195,6 +201,8 @@ class GridSourceData {
 		double[] rates = new double[mags.length];
 		addAttribute(MAGS, Parsing.toString(Doubles.asList(mags), "%.2f"), e);
 		addAttribute(RATES, Parsing.toString(Doubles.asList(rates), "%.1f"), e);
+		addAttribute(MAG_SCALING, grDat.scaling, e);
+		addAttribute(WEIGHT, grDat.weight, e);
 		addSourceAttributes(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
