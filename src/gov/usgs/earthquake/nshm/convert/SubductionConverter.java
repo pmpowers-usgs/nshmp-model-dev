@@ -3,12 +3,15 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.MFD_Type.GR;
 import static org.opensha.eq.fault.scaling.MagScalingType.GEOMAT;
+import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.forecast.SourceAttribute.NAME;
 import static org.opensha.eq.forecast.SourceAttribute.RAKE;
 import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
 import static org.opensha.eq.forecast.SourceElement.GEOMETRY;
 import static org.opensha.eq.forecast.SourceElement.LOWER_TRACE;
+import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE;
+import static org.opensha.eq.forecast.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.forecast.SourceElement.SUBDUCTION_SOURCE_SET;
 import static org.opensha.eq.forecast.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addAttribute;
@@ -134,7 +137,7 @@ class SubductionConverter {
 		// makes distinction between GR and CH
 		for (String line : lines) {
 			if (type == GR) {
-				GR_Data gr = GR_Data.createForSubduction(line, GEOMAT);
+				GR_Data gr = GR_Data.createForSubduction(line);
 				if (gr.nMag > 1) {
 					ss.mfds.add(gr);
 					log(ss, GR, true);
@@ -144,8 +147,7 @@ class SubductionConverter {
 						gr.mMin,
 						MFDs.grRate(gr.aVal, gr.bVal, gr.mMin),
 						gr.weight,
-						false,
-						GEOMAT);
+						false);
 					ss.mfds.add(ch);
 					log(ss, MFD_Type.CH, ch.floats);
 				}
@@ -154,8 +156,7 @@ class SubductionConverter {
 					Parsing.readDouble(line, 0),
 					Parsing.readDouble(line, 1),
 					Parsing.readDouble(line, 2),
-					false,
-					GEOMAT);
+					false);
 				ss.mfds.add(ch);
 				log(ss, MFD_Type.CH, ch.floats);
 			} else {
@@ -238,6 +239,11 @@ class SubductionConverter {
 			addAttribute(NAME, file, root);
 			addAttribute(WEIGHT, weight, root);
 
+			// source properties
+			Element settings = addElement(SETTINGS, root);
+			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+			addAttribute(MAG_SCALING, GEOMAT, propsElem);
+			
 			for (Entry<String , SourceData> entry : srcMap.entrySet()) {
 				Element src = addElement(SOURCE, root);
 				addAttribute(NAME, entry.getKey(), src);

@@ -25,19 +25,16 @@ class CH_Data implements MFD_Data {
 	double rate;
 	double weight;
 	boolean floats;
-	MagScalingType scaling;
 		
-	private CH_Data(double mag, double rate, double weight, boolean floats, MagScalingType scaling) {
+	private CH_Data(double mag, double rate, double weight, boolean floats) {
 		this.mag = mag;
 		this.rate = rate;
 		this.weight = weight;
 		this.floats = floats;
-		this.scaling = scaling;
 	}
 	
-	static CH_Data create(double mag, double rate, double weight, boolean floats,
-			MagScalingType scaling) {
-		return new CH_Data(mag, rate, weight, floats, scaling);
+	static CH_Data create(double mag, double rate, double weight, boolean floats) {
+		return new CH_Data(mag, rate, weight, floats);
 	}
 
 	@Override
@@ -51,13 +48,11 @@ class CH_Data implements MFD_Data {
 			if (mag != refCH.mag) addAttribute(M, mag, "%.3f", e);
 			if (floats != refCH.floats) addAttribute(FLOATS, floats, e);
 			if (weight != refCH.weight) addAttribute(WEIGHT, weight, e);
-			if (scaling != refCH.scaling) addAttribute(MAG_SCALING, scaling.name(), e);
 		} else {
 			addAttribute(A, rate, "%.8g", e);
 			addAttribute(M, mag, "%.3f", e);
 			addAttribute(FLOATS, floats, e);
 			addAttribute(WEIGHT, weight, e);
-			addAttribute(MAG_SCALING, scaling.name(), e);
 		}
 		return e;
 	}

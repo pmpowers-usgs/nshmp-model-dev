@@ -3,7 +3,6 @@ package gov.usgs.earthquake.nshm.convert;
 import static org.opensha.eq.forecast.SourceAttribute.A;
 import static org.opensha.eq.forecast.SourceAttribute.B;
 import static org.opensha.eq.forecast.SourceAttribute.D_MAG;
-import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.forecast.SourceAttribute.M_MAX;
 import static org.opensha.eq.forecast.SourceAttribute.M_MIN;
 import static org.opensha.eq.forecast.SourceAttribute.TYPE;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Element;
 
@@ -39,13 +37,12 @@ class GR_Data implements MFD_Data {
 	double dMag;
 	double weight;
 	int nMag;
-	MagScalingType scaling;
 
 	/* Used internally */
 	private GR_Data() {}
 	
 	/* For parsing WUS fault sources */
-	static GR_Data createForFault(String src, SourceData fd, MagScalingType scaling, Logger log) {
+	static GR_Data createForFault(String src, SourceData fd, Logger log) {
 		GR_Data gr = new GR_Data();
 		gr.readSource(src);
 		// check for too small a dMag
@@ -54,21 +51,19 @@ class GR_Data implements MFD_Data {
 		gr.recenterMagBins(log, fd);
 		// check mag count
 		gr.validateMagCount(log, fd);
-		gr.scaling = scaling;
 		return gr;
 	}
 
 	/* For parsing subduction sources */
-	static GR_Data createForSubduction(String src, MagScalingType scaling) {
+	static GR_Data createForSubduction(String src) {
 		GR_Data gr = new GR_Data();
 		gr.readSource(src);
-		gr.scaling = scaling;
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
 	
 	/* For parsing grid sources; mag bins are recentered */
-	static GR_Data createForGrid(String src, MagScalingType scaling) {
+	static GR_Data createForGrid(String src) {
 		GR_Data gr = new GR_Data();
 		List<Double> grDat = Parsing.toDoubleList(src);
 		gr.bVal = grDat.get(0);
@@ -76,7 +71,6 @@ class GR_Data implements MFD_Data {
 		gr.mMax = grDat.get(2);
 		gr.dMag = grDat.get(3);
 		gr.recenterMagBins();
-		gr.scaling = scaling;
 		gr.weight = 1.0;
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
@@ -84,7 +78,7 @@ class GR_Data implements MFD_Data {
 	
 	/* For final assembly and export of grid mfds */
 	static GR_Data create(double aVal, double bVal, double mMin,
-			double mMax, double dMag, double weight, MagScalingType scaling) {
+			double mMax, double dMag, double weight) {
 		GR_Data gr = new GR_Data();
 		gr.aVal = aVal;
 		gr.bVal = bVal;
@@ -92,7 +86,6 @@ class GR_Data implements MFD_Data {
 		gr.mMax = mMax;
 		gr.dMag = dMag;
 		gr.weight = weight;
-		gr.scaling = scaling;
 		gr.nMag = magCount(mMin, mMax, dMag);
 		return gr;
 	}
@@ -206,15 +199,12 @@ class GR_Data implements MFD_Data {
 			if (mMax != refGR.mMax) addAttribute(M_MAX, mMax, e);
 			if (dMag != refGR.dMag) addAttribute(D_MAG , dMag, e);
 			if (weight != refGR.weight) addAttribute(WEIGHT, weight, e);
-			if (scaling != refGR.scaling) addAttribute(MAG_SCALING, scaling, e);
 		} else {
 			addAttribute(B, Double.toString(bVal), e);
 			addAttribute(M_MIN, Double.toString(mMin), e);
 			addAttribute(M_MAX, Double.toString(mMax), e);
 			addAttribute(D_MAG, Double.toString(dMag), e);
 			addAttribute(WEIGHT, Double.toString(weight), e);
-			// at present, magScaling does not vary by source group
-			addAttribute(MAG_SCALING, scaling, e);
 		}
 		return e;
 	}	

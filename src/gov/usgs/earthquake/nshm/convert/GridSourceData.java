@@ -153,7 +153,7 @@ class GridSourceData {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
 		chDat.appendTo(mfdRef, null);
-		addSourceAttributes(settings);
+		addSourceProperties(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -175,9 +175,8 @@ class GridSourceData {
 		addAttribute(MAGS, Parsing.toString(mags, "%.2f"), e);
 		List<Double> rates = Doubles.asList(new double[mags.size()]);
 		addAttribute(RATES, Parsing.toString(rates, "%.1f"), e);
-		addAttribute(MAG_SCALING, grDat.scaling, e);
 		addAttribute(WEIGHT, grDat.weight, e);
-		addSourceAttributes(settings);
+		addSourceProperties(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -201,9 +200,8 @@ class GridSourceData {
 		double[] rates = new double[mags.length];
 		addAttribute(MAGS, Parsing.toString(Doubles.asList(mags), "%.2f"), e);
 		addAttribute(RATES, Parsing.toString(Doubles.asList(rates), "%.1f"), e);
-		addAttribute(MAG_SCALING, grDat.scaling, e);
 		addAttribute(WEIGHT, grDat.weight, e);
-		addSourceAttributes(settings);
+		addSourceProperties(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -231,7 +229,7 @@ class GridSourceData {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
 		grDat.appendTo(mfdRef, null);
-		addSourceAttributes(settings);
+		addSourceProperties(settings);
 		Element nodesElem = addElement(NODES, root);
 		for (int i=0; i<aDat.length; i++) {
 			double aVal = aDat[i];
@@ -260,11 +258,12 @@ class GridSourceData {
 	}
 	
 	// source attribute settings
-	private void addSourceAttributes(Element settings) {
-		Element attsElem = addElement(SOURCE_PROPERTIES, settings);
-		addAttribute(DEPTH_MAP, magDepthDataToString(depthMag, depths), attsElem);
-		addAttribute(MECH_MAP, enumValueMapToString(mechWtMap), attsElem);
-		addAttribute(STRIKE, strike, attsElem);
+	private void addSourceProperties(Element settings) {
+		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+		addAttribute(DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
+		addAttribute(MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
+		addAttribute(STRIKE, strike, propsElem);
+		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
 	}
 			
 	/*
@@ -340,12 +339,10 @@ class GridSourceData {
 //		if (nodeMax <= grDat.mMax) {
 		// mfdMax is either gridMax or some higher value
 		double bVal = bGrid ? bDat[i] : grDat.bVal;
-		GR_Data grNode = GR_Data.create(aDat[i], bVal, grDat.mMin, mfdMax, grDat.dMag, 1.0,
-			WC_94_LENGTH);
+		GR_Data grNode = GR_Data.create(aDat[i], bVal, grDat.mMin, mfdMax, grDat.dMag, 1.0);
 		GutenbergRichterMFD mfd = MFDs.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
-		mfd.scaleToIncrRate(grNode.mMin, MFDs.incrRate(grNode.aVal, 
-			grNode.bVal, grNode.mMin));
+		mfd.scaleToIncrRate(grNode.mMin, MFDs.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
 		if (cutoffMax <= mfdMax) mfd.zeroAboveMag2(cutoffMax);
 		wusScaleRates(mfd, i);
 		// if node mMax <= gridMax add rates for defualt mags as atts
@@ -377,8 +374,7 @@ class GridSourceData {
 		double nodeMax = mMaxDat[i] <= 0 ? grDat.mMax : mMaxDat[i] - grDat.dMag / 2.0;
 		double mfdMax = name.contains(".AB.") ? abMax : jMax;
 		
-		GR_Data grNode = GR_Data.create(aDat[i], bDat[i], grDat.mMin, mfdMax,
-			grDat.dMag, 1.0, WC_94_LENGTH);
+		GR_Data grNode = GR_Data.create(aDat[i], bDat[i], grDat.mMin, mfdMax, grDat.dMag, 1.0);
 		GutenbergRichterMFD mfd = MFDs.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
 		// a-value is stored as log10(a)

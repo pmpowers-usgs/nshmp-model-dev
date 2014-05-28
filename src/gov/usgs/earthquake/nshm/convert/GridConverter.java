@@ -122,10 +122,10 @@ class GridConverter {
 	
 			// mag data - grids always supply GR data, however, Charleston fixed
 			// strike grids are also fixed mag to we convert them to SINGLE here
-			srcDat.grDat = GR_Data.createForGrid(lines.next(), WC_94_LENGTH);
+			srcDat.grDat = GR_Data.createForGrid(lines.next());
 			if (DoubleMath.fuzzyEquals(srcDat.grDat.mMin, srcDat.grDat.mMax, 0.000001)) {
 				// if mMin == mMax, populate CH_Data field
-				srcDat.chDat = CH_Data.create(srcDat.grDat.mMin, 0.0, 1.0, false, WC_94_LENGTH);
+				srcDat.chDat = CH_Data.create(srcDat.grDat.mMin, 0.0, 1.0, false);
 			}
 			
 			// iflt, ibmat, maxMat, Mtaper

@@ -7,6 +7,7 @@ import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
 import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
 import static org.opensha.eq.forecast.SourceAttribute.DEPTH;
 import static org.opensha.eq.forecast.SourceAttribute.DIP;
+import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.forecast.SourceAttribute.NAME;
 import static org.opensha.eq.forecast.SourceAttribute.RAKE;
 import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
@@ -17,6 +18,7 @@ import static org.opensha.eq.forecast.SourceElement.GEOMETRY;
 import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE;
+import static org.opensha.eq.forecast.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.forecast.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
@@ -192,8 +194,7 @@ class ClusterConverter {
 		if (export.refCH == null) {
 			export.refCH = CH_Data.create(
 				0.0, rate, 1.0,
-				false,
-				getScalingRel(export.region));
+				false);
 			
 			// the only time single mags will float is if they are
 			// coming from a GR conversion in a ch file; charactersitic
@@ -218,8 +219,7 @@ class ClusterConverter {
 				Parsing.readDouble(line, 0),
 				rate,
 				Parsing.readDouble(line, 2),
-				floats,
-				getScalingRel(export.region));
+				floats);
 			sd.mfds.add(ch);
 			log(sd, MFD_Type.CH, floats);
 
@@ -383,6 +383,10 @@ class ClusterConverter {
 				refCH.appendTo(mfdRef, null);
 			}
 			magDat.appendTo(settings);
+			
+			// source properties
+			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+			addAttribute(MAG_SCALING, getScalingRel(region), propsElem);
 
 			for (Entry<String, ClusterData> entry : map.entrySet()) {
 				ClusterData cd = entry.getValue();

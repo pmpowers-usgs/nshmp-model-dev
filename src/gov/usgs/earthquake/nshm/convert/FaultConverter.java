@@ -12,6 +12,7 @@ import static org.opensha.eq.forecast.SourceElement.GEOMETRY;
 import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
 import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE;
+import static org.opensha.eq.forecast.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.forecast.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
@@ -217,8 +218,7 @@ class FaultConverter {
 				Parsing.readDouble(line, 0),
 				Parsing.readDouble(line, 1),
 				Parsing.readDouble(line, 2),
-				floats,
-				getScalingRel(export.name));
+				floats);
 			fd.mfds.add(ch);
 			log(fd, MFD_Type.CH, floats);
 		}
@@ -226,7 +226,7 @@ class FaultConverter {
 	
 	private void initRefCH(Exporter export) {
 		if (export.refCH != null) return;
-		export.refCH = CH_Data.create(6.5, 0.0, 1.0, false, getScalingRel(export.name));
+		export.refCH = CH_Data.create(6.5, 0.0, 1.0, false);
 		// the only time single mags will float is if they are
 		// coming from a GR conversion in a ch file; charactersitic
 		// magnitude is smaller than mag scaling would predict
@@ -242,14 +242,14 @@ class FaultConverter {
 	
 	private void initRefGR(Exporter export) {
 		if (export.refGR != null) return;
-		export.refGR = GR_Data.create(0.0, 0.8, 6.55, 7.5, 0.1, 1.0, getScalingRel(export.name));
+		export.refGR = GR_Data.create(0.0, 0.8, 6.55, 7.5, 0.1, 1.0);
 	}
 
 	private void read_GR(List<String> lines, SourceData fd, Exporter export) {
 		
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
-			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.name), log);
+			GR_Data gr = GR_Data.createForFault(line, fd, log);
 			grData.add(gr);
 		}
 
@@ -267,8 +267,7 @@ class FaultConverter {
 					gr.mMin, 
 					MFDs.grRate(gr.aVal, gr.bVal, gr.mMin),
 					gr.weight,
-					true,
-					getScalingRel(export.name));
+					true);
 				fd.mfds.add(ch);
 				log(fd, MFD_Type.CH, true);
 			}
@@ -283,7 +282,7 @@ class FaultConverter {
 
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
-			GR_Data gr = GR_Data.createForFault(line, fd, getScalingRel(export.name), log);
+			GR_Data gr = GR_Data.createForFault(line, fd, log);
 			checkArgument(gr.mMax > gr.mMin, "GR b=0 branch can't handle floating CH (mMin=mMax)");
 			grData.add(gr);
 		}
@@ -304,8 +303,7 @@ class FaultConverter {
 				gr.mMin,
 				gr.mMax,
 				gr.dMag,
-				gr.weight,
-				gr.scaling);
+				gr.weight);
 			fd.mfds.add(grB0);
 			log(fd, MFD_Type.GRB0, true);
 		} 
@@ -445,6 +443,10 @@ class FaultConverter {
 			}
 			magDat.appendTo(settings);
 
+			// source properties
+			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+			addAttribute(MAG_SCALING, getScalingRel(name), propsElem);
+			
 			for (String name : map.keySet()) {
 				
 				Element src = addElement(SOURCE, root);
