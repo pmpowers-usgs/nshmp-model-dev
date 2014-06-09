@@ -158,7 +158,11 @@ class GridConverter {
 			readRateInfo(lines.next(), srcDat);
 	
 			// read strike or rjb array
-			if (srcDat.fltCode == FIXED) srcDat.strike = Parsing.readDouble(lines.next(), 0);
+			if (srcDat.fltCode == FIXED) {
+				double strike = Parsing.readDouble(lines.next(), 0);
+				if (strike < 0.0) strike += 360.0;
+				srcDat.strike = strike;
+			}
 			
 			// done reading; skip atten rel configs
 	

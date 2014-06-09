@@ -6,10 +6,10 @@ import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
 import static org.opensha.eq.forecast.SourceAttribute.A;
 import static org.opensha.eq.forecast.SourceAttribute.B;
-import static org.opensha.eq.forecast.SourceAttribute.DEPTH_MAP;
+import static org.opensha.eq.forecast.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha.eq.forecast.SourceAttribute.MAGS;
 import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
-import static org.opensha.eq.forecast.SourceAttribute.MECH_MAP;
+import static org.opensha.eq.forecast.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.forecast.SourceAttribute.M_MAX;
 import static org.opensha.eq.forecast.SourceAttribute.NAME;
 import static org.opensha.eq.forecast.SourceAttribute.RATES;
@@ -260,8 +260,8 @@ class GridSourceData {
 	// source attribute settings
 	private void addSourceProperties(Element settings) {
 		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-		addAttribute(DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
-		addAttribute(MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
+		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
+		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
 		addAttribute(STRIKE, strike, propsElem);
 		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
 	}
