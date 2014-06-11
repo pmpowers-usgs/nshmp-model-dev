@@ -7,7 +7,7 @@ package gov.usgs.earthquake.nshm.util;
 public enum SourceRegion {
 	
 	/** Central and Eastern US region. */
-	CEUS("Centeral & Eastern US"),
+	CEUS("Central & Eastern US"),
 	
 	/** Wester US region. */
 	WUS("Western US"),

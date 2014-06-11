@@ -161,6 +161,7 @@ public class IndexedFaultConverter {
         	sectOut.setAttribute("name", cleanName(sectIn.getAttribute("sectionName")));
         	sectOut.setAttribute("index", sectIn.getAttribute("sectionId"));
         	Element geomOut = addElement(GEOMETRY, sectOut);
+        	// TODO rem reformat (below) uses stripZeros
         	geomOut.setAttribute("dip", Parsing.reformat(sectIn.getAttribute("aveDip"), "%.1f"));
         	geomOut.setAttribute("dipDir", Parsing.reformat(sectIn.getAttribute("dipDirection"), "%.3f"));
         	geomOut.setAttribute("upperDepth", Parsing.reformat(sectIn.getAttribute("aveUpperDepth"), Location.FORMAT));
