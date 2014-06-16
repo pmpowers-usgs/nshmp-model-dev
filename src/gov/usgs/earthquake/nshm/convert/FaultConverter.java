@@ -44,7 +44,7 @@ import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.eq.forecast.MagUncertainty;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
-import org.opensha.mfd.MFDs;
+import org.opensha.mfd.Mfds;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -282,7 +282,7 @@ class FaultConverter {
 				
 				CH_Data ch = CH_Data.create(
 					gr.mMin, 
-					MFDs.grRate(gr.aVal, gr.bVal, gr.mMin),
+					Mfds.grRate(gr.aVal, gr.bVal, gr.mMin),
 					gr.weight,
 					true);
 				fd.mfds.add(ch);

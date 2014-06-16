@@ -1,57 +1,57 @@
 package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opensha.gmm.GMM.AB_03_CASC_SLAB;
-import static org.opensha.gmm.GMM.AB_03_GLOB_INTER;
-import static org.opensha.gmm.GMM.AB_03_GLOB_SLAB;
-import static org.opensha.gmm.GMM.AB_06_140BAR;
-import static org.opensha.gmm.GMM.AB_06_140BAR_AB;
-import static org.opensha.gmm.GMM.AB_06_140BAR_J;
-import static org.opensha.gmm.GMM.AB_06_200BAR;
-import static org.opensha.gmm.GMM.AB_06_200BAR_AB;
-import static org.opensha.gmm.GMM.AB_06_200BAR_J;
-import static org.opensha.gmm.GMM.AB_06_PRIME;
-import static org.opensha.gmm.GMM.AM_09_INTER;
-import static org.opensha.gmm.GMM.ASK_14;
-import static org.opensha.gmm.GMM.ATKINSON_08_PRIME;
-import static org.opensha.gmm.GMM.BA_08;
-import static org.opensha.gmm.GMM.BCHYDRO_12_INTER;
-import static org.opensha.gmm.GMM.BCHYDRO_12_SLAB;
-import static org.opensha.gmm.GMM.BSSA_14;
-import static org.opensha.gmm.GMM.CAMPBELL_03;
-import static org.opensha.gmm.GMM.CAMPBELL_03_AB;
-import static org.opensha.gmm.GMM.CAMPBELL_03_J;
-import static org.opensha.gmm.GMM.CB_08;
-import static org.opensha.gmm.GMM.CB_14;
-import static org.opensha.gmm.GMM.CY_08;
-import static org.opensha.gmm.GMM.CY_14;
-import static org.opensha.gmm.GMM.FRANKEL_96;
-import static org.opensha.gmm.GMM.FRANKEL_96_AB;
-import static org.opensha.gmm.GMM.FRANKEL_96_J;
-import static org.opensha.gmm.GMM.IDRISS_14;
-import static org.opensha.gmm.GMM.PEZESHK_11;
-import static org.opensha.gmm.GMM.SILVA_02;
-import static org.opensha.gmm.GMM.SILVA_02_AB;
-import static org.opensha.gmm.GMM.SILVA_02_J;
-import static org.opensha.gmm.GMM.SOMERVILLE_01;
-import static org.opensha.gmm.GMM.TORO_97_MB;
-import static org.opensha.gmm.GMM.TORO_97_MW;
-import static org.opensha.gmm.GMM.TP_05;
-import static org.opensha.gmm.GMM.TP_05_AB;
-import static org.opensha.gmm.GMM.TP_05_J;
-import static org.opensha.gmm.GMM.YOUNGS_97_INTER;
-import static org.opensha.gmm.GMM.YOUNGS_97_SLAB;
-import static org.opensha.gmm.GMM.ZHAO_06_INTER;
-import static org.opensha.gmm.GMM.ZHAO_06_SLAB;
-import static org.opensha.gmm.GMM_Attribute.ID;
-import static org.opensha.gmm.GMM_Attribute.WEIGHT;
-import static org.opensha.gmm.GMM_Attribute.MAX_DISTANCE;
-import static org.opensha.gmm.GMM_Attribute.VALUES;
-import static org.opensha.gmm.GMM_Attribute.WEIGHTS;
-import static org.opensha.gmm.GMM_Element.GROUND_MOTION_MODELS;
-import static org.opensha.gmm.GMM_Element.MODEL_SET;
-import static org.opensha.gmm.GMM_Element.MODEL;
-import static org.opensha.gmm.GMM_Element.UNCERTAINTY;
+import static org.opensha.gmm.Gmm.AB_03_CASC_SLAB;
+import static org.opensha.gmm.Gmm.AB_03_GLOB_INTER;
+import static org.opensha.gmm.Gmm.AB_03_GLOB_SLAB;
+import static org.opensha.gmm.Gmm.AB_06_140BAR;
+import static org.opensha.gmm.Gmm.AB_06_140BAR_AB;
+import static org.opensha.gmm.Gmm.AB_06_140BAR_J;
+import static org.opensha.gmm.Gmm.AB_06_200BAR;
+import static org.opensha.gmm.Gmm.AB_06_200BAR_AB;
+import static org.opensha.gmm.Gmm.AB_06_200BAR_J;
+import static org.opensha.gmm.Gmm.AB_06_PRIME;
+import static org.opensha.gmm.Gmm.AM_09_INTER;
+import static org.opensha.gmm.Gmm.ASK_14;
+import static org.opensha.gmm.Gmm.ATKINSON_08_PRIME;
+import static org.opensha.gmm.Gmm.BA_08;
+import static org.opensha.gmm.Gmm.BCHYDRO_12_INTER;
+import static org.opensha.gmm.Gmm.BCHYDRO_12_SLAB;
+import static org.opensha.gmm.Gmm.BSSA_14;
+import static org.opensha.gmm.Gmm.CAMPBELL_03;
+import static org.opensha.gmm.Gmm.CAMPBELL_03_AB;
+import static org.opensha.gmm.Gmm.CAMPBELL_03_J;
+import static org.opensha.gmm.Gmm.CB_08;
+import static org.opensha.gmm.Gmm.CB_14;
+import static org.opensha.gmm.Gmm.CY_08;
+import static org.opensha.gmm.Gmm.CY_14;
+import static org.opensha.gmm.Gmm.FRANKEL_96;
+import static org.opensha.gmm.Gmm.FRANKEL_96_AB;
+import static org.opensha.gmm.Gmm.FRANKEL_96_J;
+import static org.opensha.gmm.Gmm.IDRISS_14;
+import static org.opensha.gmm.Gmm.PEZESHK_11;
+import static org.opensha.gmm.Gmm.SILVA_02;
+import static org.opensha.gmm.Gmm.SILVA_02_AB;
+import static org.opensha.gmm.Gmm.SILVA_02_J;
+import static org.opensha.gmm.Gmm.SOMERVILLE_01;
+import static org.opensha.gmm.Gmm.TORO_97_MB;
+import static org.opensha.gmm.Gmm.TORO_97_MW;
+import static org.opensha.gmm.Gmm.TP_05;
+import static org.opensha.gmm.Gmm.TP_05_AB;
+import static org.opensha.gmm.Gmm.TP_05_J;
+import static org.opensha.gmm.Gmm.YOUNGS_97_INTER;
+import static org.opensha.gmm.Gmm.YOUNGS_97_SLAB;
+import static org.opensha.gmm.Gmm.ZHAO_06_INTER;
+import static org.opensha.gmm.Gmm.ZHAO_06_SLAB;
+import static org.opensha.gmm.GmmAttribute.ID;
+import static org.opensha.gmm.GmmAttribute.WEIGHT;
+import static org.opensha.gmm.GmmAttribute.MAX_DISTANCE;
+import static org.opensha.gmm.GmmAttribute.VALUES;
+import static org.opensha.gmm.GmmAttribute.WEIGHTS;
+import static org.opensha.gmm.GmmElement.GROUND_MOTION_MODELS;
+import static org.opensha.gmm.GmmElement.MODEL_SET;
+import static org.opensha.gmm.GmmElement.MODEL;
+import static org.opensha.gmm.GmmElement.UNCERTAINTY;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
@@ -72,7 +72,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.eq.forecast.SourceType;
-import org.opensha.gmm.GMM;
+import org.opensha.gmm.Gmm;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -97,22 +97,22 @@ public class GMM_Export {
 	
 	// need to break out CEUS mb converted grids as their GMMs would effectively
 	// override the CEUS grid GMM's in the t08 table below
-	private Map<GMM, Double> ceusGridMap08;
-	private Map<GMM, Double> ceusGridMap14;
-	private Map<GMM, Double> ceusGridMap08_J;
-	private Map<GMM, Double> ceusGridMap08_AB;
-	private Map<GMM, Double> ceusMap14_rCut;
-	private Map<GMM, Double> ceusFaultMap08;
-	private Map<GMM, Double> ceusFaultMap14;
+	private Map<Gmm, Double> ceusGridMap08;
+	private Map<Gmm, Double> ceusGridMap14;
+	private Map<Gmm, Double> ceusGridMap08_J;
+	private Map<Gmm, Double> ceusGridMap08_AB;
+	private Map<Gmm, Double> ceusMap14_rCut;
+	private Map<Gmm, Double> ceusFaultMap08;
+	private Map<Gmm, Double> ceusFaultMap14;
 
-	private Map<GMM, Double> wusGridMap08;
-	private Map<GMM, Double> wusGridMap14;
-	private Map<GMM, Double> wusFaultMap08;
-	private Map<GMM, Double> wusFaultMap14;
-	private Map<GMM, Double> wusInterfaceMap08;
-	private Map<GMM, Double> wusInterfaceMap14;
-	private Map<GMM, Double> wusSlabMap08;
-	private Map<GMM, Double> wusSlabMap14;
+	private Map<Gmm, Double> wusGridMap08;
+	private Map<Gmm, Double> wusGridMap14;
+	private Map<Gmm, Double> wusFaultMap08;
+	private Map<Gmm, Double> wusFaultMap14;
+	private Map<Gmm, Double> wusInterfaceMap08;
+	private Map<Gmm, Double> wusInterfaceMap14;
+	private Map<Gmm, Double> wusSlabMap08;
+	private Map<Gmm, Double> wusSlabMap14;
 
 	// additional epistemic uncertainty on ground motion
 	private static final double[] WUS_UNC_WTS = { 0.185, 0.630, 0.185 };
@@ -285,7 +285,7 @@ public class GMM_Export {
 
 
 	
-	private void writeFile(File dest, List<Map<GMM, Double>> gmmMapList, List<Double> cutoffList,
+	private void writeFile(File dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
 			double[] uncValues, double[] uncWeights) throws ParserConfigurationException,
 			TransformerException {
 
@@ -309,10 +309,10 @@ public class GMM_Export {
 		}
 
 		int count = 0;
-		for (Map<GMM, Double> gmmMap : gmmMapList) {
+		for (Map<Gmm, Double> gmmMap : gmmMapList) {
 			Element gmmSetElem = addElement(MODEL_SET, root);
 			addAttribute(MAX_DISTANCE, cutoffList.get(count++), gmmSetElem);
-			for (Entry<GMM, Double> entry : gmmMap.entrySet()) {
+			for (Entry<Gmm, Double> entry : gmmMap.entrySet()) {
 				Element gmmElem = addElement(MODEL, gmmSetElem);
 				addAttribute(ID, entry.getKey().name(), gmmElem);
 				addAttribute(WEIGHT, entry.getValue(), gmmElem);
@@ -332,12 +332,12 @@ public class GMM_Export {
 	
 	private void initMaps() {
 		
-		wusFaultMap08 = Maps.newEnumMap(GMM.class);
+		wusFaultMap08 = Maps.newEnumMap(Gmm.class);
 		wusFaultMap08.put(BA_08,     0.3333);
 		wusFaultMap08.put(CB_08,     0.3333);
 		wusFaultMap08.put(CY_08,     0.3334);
 
-		wusFaultMap14 = Maps.newEnumMap(GMM.class);
+		wusFaultMap14 = Maps.newEnumMap(Gmm.class);
 		wusFaultMap14.put(ASK_14,    0.22);
 		wusFaultMap14.put(BSSA_14,   0.22);
 		wusFaultMap14.put(CB_14,     0.22);
@@ -348,24 +348,24 @@ public class GMM_Export {
 		wusGridMap14 = wusFaultMap14;
 		
 		
-		wusInterfaceMap08 = Maps.newEnumMap(GMM.class);
+		wusInterfaceMap08 = Maps.newEnumMap(Gmm.class);
 		wusInterfaceMap08.put(AB_03_GLOB_INTER,  0.25);
 		wusInterfaceMap08.put(YOUNGS_97_INTER,   0.25);
 		wusInterfaceMap08.put(ZHAO_06_INTER,     0.50);
 
-		wusInterfaceMap14 = Maps.newEnumMap(GMM.class);
+		wusInterfaceMap14 = Maps.newEnumMap(Gmm.class);
 		wusInterfaceMap14.put(AB_03_GLOB_INTER,  0.10);
 		wusInterfaceMap14.put(AM_09_INTER,       0.30);
 		wusInterfaceMap14.put(BCHYDRO_12_INTER,  0.30);
 		wusInterfaceMap14.put(ZHAO_06_INTER,     0.30);
 		
 		
-		wusSlabMap08 = Maps.newEnumMap(GMM.class);
+		wusSlabMap08 = Maps.newEnumMap(Gmm.class);
 		wusSlabMap08.put(AB_03_CASC_SLAB,  0.25);
 		wusSlabMap08.put(AB_03_GLOB_SLAB,  0.25);
 		wusSlabMap08.put(YOUNGS_97_SLAB,   0.50);
 		
-		wusSlabMap14 = Maps.newEnumMap(GMM.class);
+		wusSlabMap14 = Maps.newEnumMap(Gmm.class);
 		wusSlabMap14.put(AB_03_CASC_SLAB,  0.1665);
 		wusSlabMap14.put(AB_03_GLOB_SLAB,  0.1665);
 		wusSlabMap14.put(BCHYDRO_12_SLAB,  0.3330);
@@ -373,7 +373,7 @@ public class GMM_Export {
 		
 		
 		
-		ceusFaultMap08 = Maps.newEnumMap(GMM.class);
+		ceusFaultMap08 = Maps.newEnumMap(Gmm.class);
 		ceusFaultMap08.put(AB_06_140BAR,      0.1);
 		ceusFaultMap08.put(AB_06_200BAR,      0.1);
 		ceusFaultMap08.put(CAMPBELL_03,       0.1);
@@ -384,7 +384,7 @@ public class GMM_Export {
 		ceusFaultMap08.put(TP_05,             0.1);
 		
 
-		ceusFaultMap14 = Maps.newEnumMap(GMM.class);
+		ceusFaultMap14 = Maps.newEnumMap(Gmm.class);
 		ceusFaultMap14.put(AB_06_PRIME,       0.22);
 		ceusFaultMap14.put(ATKINSON_08_PRIME, 0.08);
 		ceusFaultMap14.put(CAMPBELL_03,       0.11);
@@ -400,7 +400,7 @@ public class GMM_Export {
 		ceusGridMap08 = ceusFaultMap08;
 
 		// for mb conversions
-		ceusGridMap08_J = Maps.newEnumMap(GMM.class);
+		ceusGridMap08_J = Maps.newEnumMap(Gmm.class);
 		ceusGridMap08_J.put(AB_06_140BAR_J,       0.125);
 		ceusGridMap08_J.put(AB_06_200BAR_J,       0.125);
 		ceusGridMap08_J.put(CAMPBELL_03_J,        0.125);
@@ -409,7 +409,7 @@ public class GMM_Export {
 		ceusGridMap08_J.put(TORO_97_MB,           0.250);
 		ceusGridMap08_J.put(TP_05_J,              0.125);
 
-		ceusGridMap08_AB = Maps.newEnumMap(GMM.class);
+		ceusGridMap08_AB = Maps.newEnumMap(Gmm.class);
 		ceusGridMap08_AB.put(AB_06_140BAR_AB,     0.125);
 		ceusGridMap08_AB.put(AB_06_200BAR_AB,     0.125);
 		ceusGridMap08_AB.put(CAMPBELL_03_AB,      0.125);
@@ -418,7 +418,7 @@ public class GMM_Export {
 		ceusGridMap08_AB.put(TORO_97_MB,          0.250);
 		ceusGridMap08_AB.put(TP_05_AB,            0.125);
 
-		ceusGridMap14 = Maps.newEnumMap(GMM.class);
+		ceusGridMap14 = Maps.newEnumMap(Gmm.class);
 		ceusGridMap14.put(AB_06_PRIME,        0.25);
 		ceusGridMap14.put(ATKINSON_08_PRIME,  0.08);
 		ceusGridMap14.put(CAMPBELL_03,        0.13);
@@ -430,7 +430,7 @@ public class GMM_Export {
 		
 		
 		// map for fault and grid is the same beyond 500km
-		ceusMap14_rCut = Maps.newEnumMap(GMM.class);
+		ceusMap14_rCut = Maps.newEnumMap(Gmm.class);
 		ceusMap14_rCut.put(AB_06_PRIME,       0.30);
 		ceusMap14_rCut.put(CAMPBELL_03,       0.17);
 		ceusMap14_rCut.put(FRANKEL_96,        0.16);

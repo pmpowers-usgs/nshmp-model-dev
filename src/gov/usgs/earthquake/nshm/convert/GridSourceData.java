@@ -23,8 +23,8 @@ import static org.opensha.eq.forecast.SourceElement.NODE;
 import static org.opensha.eq.forecast.SourceElement.NODES;
 import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE_PROPERTIES;
-import static org.opensha.mfd.MFD_Type.GR;
-import static org.opensha.mfd.MFD_Type.INCR;
+import static org.opensha.mfd.MfdType.GR;
+import static org.opensha.mfd.MfdType.INCR;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
@@ -51,9 +51,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.GriddedRegion;
-import org.opensha.mfd.GutenbergRichterMFD;
-import org.opensha.mfd.IncrementalMFD;
-import org.opensha.mfd.MFDs;
+import org.opensha.mfd.GutenbergRichterMfd;
+import org.opensha.mfd.IncrementalMfd;
+import org.opensha.mfd.Mfds;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -160,7 +160,7 @@ class GridSourceData {
 			if (aVal <= 0.0) continue;
 			Element nodeElem = addElement(NODE, nodesElem);
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
-			double singleMagRate = MFDs.incrRate(aVal, grDat.bVal, chDat.mag);
+			double singleMagRate = Mfds.incrRate(aVal, grDat.bVal, chDat.mag);
 			addAttribute(A, singleMagRate, "%.8g", nodeElem);
 		}
 	}
@@ -340,9 +340,9 @@ class GridSourceData {
 		// mfdMax is either gridMax or some higher value
 		double bVal = bGrid ? bDat[i] : grDat.bVal;
 		GR_Data grNode = GR_Data.create(aDat[i], bVal, grDat.mMin, mfdMax, grDat.dMag, 1.0);
-		GutenbergRichterMFD mfd = MFDs.newGutenbergRichterMoBalancedMFD(
+		GutenbergRichterMfd mfd = Mfds.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
-		mfd.scaleToIncrRate(grNode.mMin, MFDs.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
+		mfd.scaleToIncrRate(grNode.mMin, Mfds.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
 		if (cutoffMax <= mfdMax) mfd.zeroAboveMag2(cutoffMax);
 		wusScaleRates(mfd, i);
 		// if node mMax <= gridMax add rates for defualt mags as atts
@@ -353,7 +353,7 @@ class GridSourceData {
 		}
 	}
 
-	private void wusScaleRates(IncrementalMFD mfd, int idx) {
+	private void wusScaleRates(IncrementalMfd mfd, int idx) {
 		for (int i = 0; i < mfd.getNum(); i++) {
 			if (mfd.getX(i) > mTaper) mfd.set(i, mfd.getY(i) * wgtDat[idx]);
 		}
@@ -375,10 +375,10 @@ class GridSourceData {
 		double mfdMax = name.contains(".AB.") ? abMax : jMax;
 		
 		GR_Data grNode = GR_Data.create(aDat[i], bDat[i], grDat.mMin, mfdMax, grDat.dMag, 1.0);
-		GutenbergRichterMFD mfd = MFDs.newGutenbergRichterMoBalancedMFD(
+		GutenbergRichterMfd mfd = Mfds.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
 		// a-value is stored as log10(a)
-		mfd.scaleToIncrRate(grNode.mMin, MFDs.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
+		mfd.scaleToIncrRate(grNode.mMin, Mfds.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
 		if (cutoffMax < mfdMax) mfd.zeroAboveMag2(cutoffMax);
 		ceusScaleRates(mfd, i);
 		addAttribute(RATES, Parsing.toString(mfd.yValues(), "%.8g"), node);
@@ -401,7 +401,7 @@ class GridSourceData {
 	private static boolean[] marginFlags;
 	
 	
-	private void ceusScaleRates(IncrementalMFD mfd, int idx) {
+	private void ceusScaleRates(IncrementalMfd mfd, int idx) {
 		initMasks();
 		boolean craFlag = cratonFlags[idx];
 		boolean marFlag = marginFlags[idx];
@@ -412,7 +412,7 @@ class GridSourceData {
 		applyWeight(mfd, weights);
 	}
 	
-	private void applyWeight(IncrementalMFD mfd, double[] weights) {
+	private void applyWeight(IncrementalMfd mfd, double[] weights) {
 		for (int i=0; i<mfd.getNum(); i++) {
 			double weight = weights[i];
 			if (weight == 1.0) continue;

@@ -7,7 +7,7 @@ import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.forecast.SourceAttribute.TYPE;
 import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
 import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
-import static org.opensha.mfd.MFD_Type.SINGLE;
+import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 

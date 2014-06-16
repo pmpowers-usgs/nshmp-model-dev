@@ -5,7 +5,7 @@ import java.util.List;
 import org.opensha.eq.Magnitudes;
 import org.opensha.geo.GeoTools;
 import org.opensha.geo.LocationList;
-import org.opensha.mfd.MFDs;
+import org.opensha.mfd.Mfds;
 
 import com.google.common.collect.Lists;
 
@@ -54,7 +54,7 @@ class ModelReducer {
 
 		double toMo = 0.0;
 		for (double mag : mags) {
-			toMo += Magnitudes.magToMoment(mag) * MFDs.grRate(0, b, mag);
+			toMo += Magnitudes.magToMoment(mag) * Mfds.grRate(0, b, mag);
 		}
 		double grRateCalc = Math.log10(moRate / toMo);
 		System.out.println(grRateCalc);
@@ -63,7 +63,7 @@ class ModelReducer {
 		
 		toMo = 0.0;
 		for (double mag : mags) {
-			toMo += Magnitudes.magToMoment(mag) * MFDs.grRate(grRate, b, mag);
+			toMo += Magnitudes.magToMoment(mag) * Mfds.grRate(grRate, b, mag);
 		}
 		toMo = toMo / Magnitudes.magToMoment(mMax);
 		System.out.println(toMo);
@@ -109,7 +109,7 @@ class ModelReducer {
 	static double slipFromGR(double mMin, double mMax, double dMag, double a, double b, double dip, double W, double L) {
 		double totMo = 0.0;
 		for (double mag = mMin + dMag/2.0; mag <= mMax; mag+=dMag) {
-			totMo += Magnitudes.magToMoment(mag) * MFDs.grRate(a, b, mag);
+			totMo += Magnitudes.magToMoment(mag) * Mfds.grRate(a, b, mag);
 		}
 		double chRate = totMo / Magnitudes.magToMoment(mMax);
 		return slipFromCH(mMax, chRate, dip, W, L);

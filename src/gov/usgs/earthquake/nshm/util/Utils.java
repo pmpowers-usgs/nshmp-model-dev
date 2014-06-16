@@ -31,7 +31,7 @@ import org.opensha.geo.GriddedRegion;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.geo.Regions;
-import org.opensha.mfd.MFDs;
+import org.opensha.mfd.Mfds;
 //import org.opensha.commons.calc.GaussianDistCalc;
 //import org.opensha.commons.data.function.DiscretizedFunc;
 //import org.opensha.commons.exceptions.IMRException;
@@ -493,7 +493,7 @@ public class Utils {
 		double M;
 		for (int i = 0; i < nMag; i++) {
 			M = mMin + i * dMag;
-			moRate += MFDs.grRate(a, b, M) * Magnitudes.magToMoment(M);
+			moRate += Mfds.grRate(a, b, M) * Magnitudes.magToMoment(M);
 		}
 		return moRate;
 	}

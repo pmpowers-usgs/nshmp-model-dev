@@ -41,7 +41,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
-import org.opensha.mfd.MFDs;
+import org.opensha.mfd.Mfds;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -145,7 +145,7 @@ class SubductionConverter {
 					// in 2008 CH ruptures were defined with GR trickery
 					CH_Data ch = CH_Data.create(
 						gr.mMin,
-						MFDs.grRate(gr.aVal, gr.bVal, gr.mMin),
+						Mfds.grRate(gr.aVal, gr.bVal, gr.mMin),
 						gr.weight,
 						false);
 					ss.mfds.add(ch);
