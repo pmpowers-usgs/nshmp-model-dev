@@ -304,11 +304,7 @@ public class GMM_Export {
 		
 		if (uncValues != null) {
 			Element unc = addElement(UNCERTAINTY, root);
-			if (uncValues.length > 1) {
-				addAttribute(VALUES, uncValues, unc);
-			} else {
-				addAttribute(VALUES, uncValues[0], unc);
-			}
+			addAttribute(VALUES, uncValues, unc);
 			addAttribute(WEIGHTS, uncWeights, unc);
 		}
 
