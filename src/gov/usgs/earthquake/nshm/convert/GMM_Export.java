@@ -46,9 +46,12 @@ import static org.opensha.gmm.GMM.ZHAO_06_SLAB;
 import static org.opensha.gmm.GMM_Attribute.ID;
 import static org.opensha.gmm.GMM_Attribute.WEIGHT;
 import static org.opensha.gmm.GMM_Attribute.MAX_DISTANCE;
+import static org.opensha.gmm.GMM_Attribute.VALUES;
+import static org.opensha.gmm.GMM_Attribute.WEIGHTS;
 import static org.opensha.gmm.GMM_Element.GROUND_MOTION_MODELS;
 import static org.opensha.gmm.GMM_Element.MODEL_SET;
 import static org.opensha.gmm.GMM_Element.MODEL;
+import static org.opensha.gmm.GMM_Element.UNCERTAINTY;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
@@ -111,7 +114,11 @@ public class GMM_Export {
 	private Map<GMM, Double> wusSlabMap08;
 	private Map<GMM, Double> wusSlabMap14;
 
-	
+	// additional epistemic uncertainty on ground motion
+	private static final double[] WUS_UNC_WTS = { 0.185, 0.630, 0.185 };
+	private static final double[] WUS_UNC_08 = { 0.375, 0.230, 0.400, 0.210, 0.225, 0.360, 0.245, 0.230, 0.310 };
+	private static final double[] WUS_UNC_14 = { 0.375, 0.250, 0.400, 0.220, 0.230, 0.360, 0.220, 0.230, 0.330 };
+
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
 	private static final String MODEL_PATH = "forecasts" + S;
 	private static final String GMM_FILE = "gmm.xml";
@@ -122,7 +129,6 @@ public class GMM_Export {
 		GMM_Export exporter = new GMM_Export();
 		exporter.createCEUS_2008();
 		exporter.createWUS_2008();
-		
 	}
 	
 	GMM_Export() {
@@ -140,25 +146,30 @@ public class GMM_Export {
 				case CLUSTER:
 					writeFile(dest, 
 						Lists.newArrayList(ceusFaultMap08),
-						Lists.newArrayList(CEUS_R_CUT_08));
+						Lists.newArrayList(CEUS_R_CUT_08),
+						null, null);
 					break;
 				case FAULT:
 					writeFile(dest,
 						Lists.newArrayList(ceusFaultMap08),
-						Lists.newArrayList(CEUS_R_CUT_08));
+						Lists.newArrayList(CEUS_R_CUT_08),
+						null, null);
 					break;
 				case GRID:
 					writeFile(dest,
 						Lists.newArrayList(ceusGridMap08),
-						Lists.newArrayList(CEUS_R_CUT_08));
+						Lists.newArrayList(CEUS_R_CUT_08),
+						null, null);
 					File mb_ab = new File(typeDir + S + "mb-AtkinBoore" + S + GMM_FILE);
 					writeFile(mb_ab,
 						Lists.newArrayList(ceusGridMap08_AB),
-						Lists.newArrayList(CEUS_R_CUT_08));
+						Lists.newArrayList(CEUS_R_CUT_08),
+						null, null);
 					File mb_j = new File(typeDir + S + "mb-Johnson" + S + GMM_FILE);
 					writeFile(mb_j,
 						Lists.newArrayList(ceusGridMap08_J),
-						Lists.newArrayList(CEUS_R_CUT_08));
+						Lists.newArrayList(CEUS_R_CUT_08),
+						null, null);
 					break;
 			}
 		}
@@ -175,17 +186,20 @@ public class GMM_Export {
 				case CLUSTER:
 					writeFile(dest,
 						Lists.newArrayList(ceusFaultMap14, ceusMap14_rCut),
-						Lists.newArrayList(CEUS_R_CUT_14_A, CEUS_R_CUT_14_B));
+						Lists.newArrayList(CEUS_R_CUT_14_A, CEUS_R_CUT_14_B),
+						null, null);
 					break;
 				case FAULT:
 					writeFile(dest,
 						Lists.newArrayList(ceusFaultMap14, ceusMap14_rCut),
-						Lists.newArrayList(CEUS_R_CUT_14_A, CEUS_R_CUT_14_B));
+						Lists.newArrayList(CEUS_R_CUT_14_A, CEUS_R_CUT_14_B),
+						null, null);
 					break;
 				case GRID:
 					writeFile(dest,
 						Lists.newArrayList(ceusGridMap14, ceusMap14_rCut),
-						Lists.newArrayList(CEUS_R_CUT_14_A, CEUS_R_CUT_14_B));
+						Lists.newArrayList(CEUS_R_CUT_14_A, CEUS_R_CUT_14_B),
+						null, null);
 					break;
 			}
 		}
@@ -202,22 +216,26 @@ public class GMM_Export {
 				case FAULT:
 					writeFile(dest,
 						Lists.newArrayList(wusFaultMap08),
-						Lists.newArrayList(WUS_R_CUT_08));
+						Lists.newArrayList(WUS_R_CUT_08),
+						WUS_UNC_08, WUS_UNC_WTS);
 					break;
 				case GRID:
 					writeFile(dest,
 						Lists.newArrayList(wusGridMap08),
-						Lists.newArrayList(WUS_R_CUT_08));
+						Lists.newArrayList(WUS_R_CUT_08),
+						WUS_UNC_08, WUS_UNC_WTS);
 					break;
 				case INTERFACE:
 					writeFile(dest,
 						Lists.newArrayList(wusInterfaceMap08),
-						Lists.newArrayList(INTERFACE_R_CUT));
+						Lists.newArrayList(INTERFACE_R_CUT),
+						null, null);
 					break;
 				case SLAB:
 					writeFile(dest,
 						Lists.newArrayList(wusSlabMap08),
-						Lists.newArrayList(WUS_R_CUT_08));
+						Lists.newArrayList(WUS_R_CUT_08),
+						null, null);
 					break;
 			}
 		}
@@ -234,27 +252,32 @@ public class GMM_Export {
 				case CLUSTER:
 					writeFile(dest,
 						Lists.newArrayList(wusFaultMap14),
-						Lists.newArrayList(WUS_R_CUT_14));
+						Lists.newArrayList(WUS_R_CUT_14),
+						null, null);
 					break;
 				case FAULT:
 					writeFile(dest,
 						Lists.newArrayList(wusFaultMap14),
-						Lists.newArrayList(WUS_R_CUT_14));
+						Lists.newArrayList(WUS_R_CUT_14),
+						null, null);
 					break;
 				case GRID:
 					writeFile(dest,
 						Lists.newArrayList(wusGridMap14),
-						Lists.newArrayList(WUS_R_CUT_14));
+						Lists.newArrayList(WUS_R_CUT_14),
+						null, null);
 					break;
 				case INTERFACE:
 					writeFile(dest,
 						Lists.newArrayList(wusInterfaceMap14),
-						Lists.newArrayList(INTERFACE_R_CUT));
+						Lists.newArrayList(INTERFACE_R_CUT),
+						null, null);
 					break;
 				case SLAB:
 					writeFile(dest,
 						Lists.newArrayList(wusSlabMap14),
-						Lists.newArrayList(WUS_R_CUT_14));
+						Lists.newArrayList(WUS_R_CUT_14),
+						null, null);
 					break;
 			}
 		}
@@ -262,9 +285,12 @@ public class GMM_Export {
 
 
 	
-	private void writeFile(File dest, List<Map<GMM, Double>> gmmMapList, List<Double> cutoffList)
-			throws ParserConfigurationException,			TransformerException {
+	private void writeFile(File dest, List<Map<GMM, Double>> gmmMapList, List<Double> cutoffList,
+			double[] uncValues, double[] uncWeights) throws ParserConfigurationException,
+			TransformerException {
 
+		// uncValues and uncWeights may be null
+		
 		checkArgument(gmmMapList.size() == cutoffList.size());
 		
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -276,6 +302,16 @@ public class GMM_Export {
 		Element root = doc.createElement(GROUND_MOTION_MODELS.toString());
 		doc.appendChild(root);
 		
+		if (uncValues != null) {
+			Element unc = addElement(UNCERTAINTY, root);
+			if (uncValues.length > 1) {
+				addAttribute(VALUES, uncValues, unc);
+			} else {
+				addAttribute(VALUES, uncValues[0], unc);
+			}
+			addAttribute(WEIGHTS, uncWeights, unc);
+		}
+
 		int count = 0;
 		for (Map<GMM, Double> gmmMap : gmmMapList) {
 			Element gmmSetElem = addElement(MODEL_SET, root);

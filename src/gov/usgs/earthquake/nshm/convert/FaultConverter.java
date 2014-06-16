@@ -108,7 +108,9 @@ class FaultConverter {
 			lines.next(); // distance sampling on fault and dMove
 
 			// load magnitude uncertainty data
-			export.magDat = readMagUncertainty(Parsing.toLineList(lines, 4));
+			List<String> uncLines = Parsing.toLineList(lines, 4);
+			export.magDat = readMagUncertainty(uncLines);
+			export.hasAleatory = hasAleatory(uncLines);
 			if (log.isLoggable(Level.INFO)) {
 				log.info(export.magDat.toString());
 			}
@@ -192,6 +194,21 @@ class FaultConverter {
 		return MagUncertainty.create(epiDeltas, epiWeights, epiCutoff,
 			aleaSigma, aleaCount, moBalance, aleaCutoff);
 	}
+	
+	private boolean hasAleatory(List<String> src) {
+		
+		// this is a little redundant wrt readMagUncertainty(List<String> src),
+		// but we'd rather keep everything private in MagUncertainty class 
+		// rather than add methods just for parsing.
+		
+		// aleatory
+		List<Double> aleatoryMagDat = toDoubleList(stripComment(src.get(3), '!'));
+		double aleaSigma = Math.abs(aleatoryMagDat.get(0));
+		int aleaCount = aleatoryMagDat.get(1).intValue() * 2 + 1;
+
+		return aleaCount > 1 && aleaSigma != 0.0;
+	}
+
 
 	
 	private void read_MFDs(SourceData fd, MFD_Type type, 
@@ -272,12 +289,11 @@ class FaultConverter {
 				log(fd, MFD_Type.CH, true);
 			}
 		}
-
 	}
 
 	private void read_GRB0(List<String> lines, SourceData fd, Exporter export) {
 		
-		checkArgument(!export.magDat.hasAleatory(),
+		checkArgument(!export.hasAleatory,
 			"Aleatory unc. is incompatible with GR b=0 branches");
 
 		List<GR_Data> grData = new ArrayList<GR_Data>();
@@ -415,6 +431,7 @@ class FaultConverter {
 		SourceRegion region = null;
 		ListMultimap<String, FaultConverter.SourceData> map = LinkedListMultimap.create();
 		MagUncertainty magDat;
+		boolean hasAleatory;
 		
 		CH_Data refCH;
 		GR_Data refGR;
