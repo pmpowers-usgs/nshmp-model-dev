@@ -1,17 +1,25 @@
 package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkState;
-
-import static org.opensha.eq.forecast.SourceElement.*;
-import static org.opensha.eq.forecast.SourceAttribute.*;
-import static org.opensha.util.Parsing.*;
-
+import static org.opensha.eq.forecast.SourceAttribute.MAGS;
+import static org.opensha.eq.forecast.SourceAttribute.NAME;
+import static org.opensha.eq.forecast.SourceAttribute.RATES;
+import static org.opensha.eq.forecast.SourceAttribute.TYPE;
+import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
+import static org.opensha.eq.forecast.SourceElement.GRID_SOURCE_SET;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.forecast.SourceElement.NODE;
+import static org.opensha.eq.forecast.SourceElement.NODES;
+import static org.opensha.eq.forecast.SourceElement.SETTINGS;
+import static org.opensha.mfd.MfdType.INCR;
+import static org.opensha.util.Parsing.addAttribute;
+import static org.opensha.util.Parsing.addElement;
 import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -31,14 +39,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.opensha.data.DataUtils;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.geo.Location;
-import org.opensha.mfd.MFD_Type;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.base.StandardSystemProperty;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -51,26 +57,8 @@ import com.google.common.primitives.Doubles;
  */
 public class IndexedGridConverter {
 
-	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
-	private static final String SOL_PATH = "/Users/pmpowers/projects/svn/OpenSHA/tmp/tmpsol/";
-	private static final String SOL_NAME = "UC33brAvg_FM31_ABM_ELLB";
 	private static final String GRID_XML = "grid_sources.xml";
-	
-	public static void main(String[] args) throws Exception {
 		
-		String ref = "UCERF3.3 Branch Average: FM31_ABM_ELLB";
-//		File gridIn = new File(SOL_PATH + SOL_NAME + S + GRID_XML_IN);
-		File outDir = new File(SOL_PATH + SOL_NAME);
-		outDir.mkdir();
-		File gridOut = new File(outDir, GRID_XML);
-		
-		ZipFile zip = new ZipFile(SOL_PATH + SOL_NAME + ".zip");
-		ZipEntry entry = zip.getEntry(GRID_XML);
-		InputStream gridIn = zip.getInputStream(entry);
-		processGridFile(gridIn, gridOut, ref);
-		zip.close();
-	}
-	
 	// Using strings for gird mag MFD parsing because of printed rounding errors
 	// in source files
 	private static final double[] mags;
@@ -83,6 +71,19 @@ public class IndexedGridConverter {
 			.transform(Parsing.formatDoubleFunction("%.2f")).toList());
 	}
 			
+	static void processGridFile(String solDirPath, String sol, String outDirPath, double weight) throws Exception {
+		
+		File outDir = new File(outDirPath + sol);
+		outDir.mkdirs();
+		File gridOut = new File(outDir, GRID_XML);
+
+		ZipFile zip = new ZipFile(solDirPath + sol + ".zip");
+		ZipEntry entry = zip.getEntry(GRID_XML);		
+		InputStream gridIn = zip.getInputStream(entry);
+		processGridFile(gridIn, gridOut, sol, weight);
+		
+		zip.close();
+	}
 	
 	/*
 	 * Converts and condenses a grid file that accompanies a UC3 branch average
@@ -90,7 +91,7 @@ public class IndexedGridConverter {
 	 * therefore be processed and output in order and maintin consistency with
 	 * desired grid source output format.
 	 */
-	private static void processGridFile(InputStream in, File out, String id)
+	private static void processGridFile(InputStream in, File out, String id, double weight)
 			throws ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException,
 			IOException {
@@ -105,13 +106,14 @@ public class IndexedGridConverter {
         // file out
         Document docOut = dBuilder.newDocument();
         Element rootOut = docOut.createElement(GRID_SOURCE_SET.toString());
-        rootOut.setAttribute("id", id);
         docOut.appendChild(rootOut);
-        Element defaults = addElement(DEFAULTS, rootOut);
-        Element mfd = addElement(MAG_FREQ_DIST, defaults);
-        mfd.setAttribute(TYPE.toString(), MFD_Type.INCR.name());
-        mfd.setAttribute(MAGS.toString(),  Parsing.toString(
-			Doubles.asList(mags), "%.2f"));
+        addAttribute(NAME, id, rootOut);
+        addAttribute(WEIGHT, weight, rootOut);
+        Element settings = addElement(SETTINGS, rootOut);
+        Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+        Element mfd = addElement(MAG_FREQ_DIST, mfdRef);
+        addAttribute(TYPE, INCR, mfd);
+		addAttribute(MAGS, Parsing.toString(Doubles.asList(mags), "%.2f"), mfd);
         Element nodesOut = addElement(NODES, rootOut);
         
         // file in
@@ -126,7 +128,7 @@ public class IndexedGridConverter {
         	// add to out
         	Element nodeOut = addElement(NODE, nodesOut);
         	nodeOut.setTextContent(Utils.locToString(loc));
-        	nodeOut.setAttribute(RATES.toString(), Parsing.toString(rates, "%.8g"));
+			addAttribute(RATES, Parsing.toString(rates, "%.8g"), nodeOut);
         }
        
 		TransformerFactory transFactory = TransformerFactory.newInstance();
