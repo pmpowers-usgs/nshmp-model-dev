@@ -44,13 +44,13 @@ import com.google.common.collect.Lists;
 class IndexedFaultConverter {
 
 	static final String SECTION_XML_IN = "fault_sections.xml";
-	static final String SECTION_XML_OUT = "sections.xml";
+	static final String SECTION_XML_OUT = SECTION_XML_IN;
 
 	static final String RUPTURES_BIN_IN = "rup_sections.bin";
 	static final String MAGS_BIN_IN = "mags.bin";
 	static final String RATES_BIN_IN = "rates.bin";
 	static final String RAKES_BIN_IN = "rakes.bin";
-	static final String RUPTURES_XML_OUT = "ruptures.xml";
+	static final String RUPTURES_XML_OUT = "fault_ruptures.xml";
 
 	// @formatter:off
 	static void processSolution(String solDirPath, String sol, String outDirPath, double weight)
