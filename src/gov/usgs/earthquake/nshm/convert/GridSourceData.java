@@ -274,7 +274,7 @@ class GridSourceData {
 	 * 		[6.5::[5.0:1.0]; 10.0::[1.0:1.0]]	standard two depth
 	 * 		[10.0::[50.0:1.0]]					standard single dpeth
 	 */
-	private static String magDepthDataToString(double mag, double[] depths) {
+	static String magDepthDataToString(double mag, double[] depths) {
 		StringBuffer sb = new StringBuffer("[");
 		if (DoubleMath.fuzzyEquals(depths[0], depths[1], 0.000001)) {
 			sb.append("10.0::[").append(depths[0]);

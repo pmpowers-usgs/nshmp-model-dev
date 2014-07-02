@@ -58,7 +58,7 @@ class GridConverter {
 
 	// path to binary grid files in grid source input files
 	private static final String SRC_DIR= "conf";
-	private static final String GRD_DIR = "GR_DOS/";
+//	private static final String GRD_DIR = "GR_DOS/";
 	
 	// parsed
 //	private String srcName;
