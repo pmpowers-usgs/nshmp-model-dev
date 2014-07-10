@@ -28,7 +28,7 @@ import org.w3c.dom.Element;
  * 
  * TODO try and get rid of logger references
  */
-class GR_Data implements MFD_Data {
+public class GR_Data implements MFD_Data {
 
 	double aVal;
 	double bVal;
@@ -77,7 +77,7 @@ class GR_Data implements MFD_Data {
 	}
 	
 	/* For final assembly and export of grid mfds */
-	static GR_Data create(double aVal, double bVal, double mMin,
+	public static GR_Data create(double aVal, double bVal, double mMin,
 			double mMax, double dMag, double weight) {
 		GR_Data gr = new GR_Data();
 		gr.aVal = aVal;
@@ -188,10 +188,16 @@ class GR_Data implements MFD_Data {
 	@Override
 	public Element appendTo(Element parent, MFD_Data ref) {
 		Element e = addElement(MAG_FREQ_DIST, parent);
+		addAttributesToElement(e, ref);
+		return e;
+	}	
+	
+	/* for use with some gird source parsers/converters */
+	public void addAttributesToElement(Element e, MFD_Data ref) {
 		// always include type
 		addAttribute(TYPE, GR, e);
 		// always include rate
-		addAttribute(A, aVal, e);
+		addAttribute(A, aVal, "%.8g", e);
 		if (ref != null) {
 			GR_Data refGR = (GR_Data) ref;
 			if (bVal != refGR.bVal) addAttribute(B, bVal, e);
@@ -206,8 +212,7 @@ class GR_Data implements MFD_Data {
 			addAttribute(D_MAG, Double.toString(dMag), e);
 			addAttribute(WEIGHT, Double.toString(weight), e);
 		}
-		return e;
-	}	
+	}
 	
 	private static final String LF = System.getProperty("line.separator");
 	

@@ -44,19 +44,22 @@ import static org.opensha.gmm.Gmm.YOUNGS_97_SLAB;
 import static org.opensha.gmm.Gmm.ZHAO_06_INTER;
 import static org.opensha.gmm.Gmm.ZHAO_06_SLAB;
 import static org.opensha.gmm.GmmAttribute.ID;
-import static org.opensha.gmm.GmmAttribute.WEIGHT;
 import static org.opensha.gmm.GmmAttribute.MAX_DISTANCE;
 import static org.opensha.gmm.GmmAttribute.VALUES;
+import static org.opensha.gmm.GmmAttribute.WEIGHT;
 import static org.opensha.gmm.GmmAttribute.WEIGHTS;
 import static org.opensha.gmm.GmmElement.GROUND_MOTION_MODELS;
-import static org.opensha.gmm.GmmElement.MODEL_SET;
 import static org.opensha.gmm.GmmElement.MODEL;
+import static org.opensha.gmm.GmmElement.MODEL_SET;
 import static org.opensha.gmm.GmmElement.UNCERTAINTY;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,10 +120,10 @@ public class GMM_Export {
 	// additional epistemic uncertainty on ground motion
 	private static final double[] WUS_UNC_WTS = { 0.185, 0.630, 0.185 };
 	private static final double[] WUS_UNC_08 = { 0.375, 0.230, 0.400, 0.210, 0.225, 0.360, 0.245, 0.230, 0.310 };
-	private static final double[] WUS_UNC_14 = { 0.375, 0.250, 0.400, 0.220, 0.230, 0.360, 0.220, 0.230, 0.330 };
+	private static final double[] WUS_UNC_14 = { 0.370, 0.250, 0.400, 0.220, 0.230, 0.360, 0.220, 0.230, 0.330 };
 
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
-	private static final String MODEL_PATH = "forecasts" + S;
+	private static final String FORECAST_DIR = "forecasts";
 	private static final String GMM_FILE = "gmm.xml";
 	private static final String CEUS_DIR = SourceRegion.CEUS.toString();
 	private static final String WUS_DIR = SourceRegion.WUS.toString();
@@ -137,11 +140,11 @@ public class GMM_Export {
 	
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createCEUS_2008() throws Exception {
-		String modelPath = MODEL_PATH + "2008" + S + CEUS_DIR + S;
+		Path modelDir = Paths.get(FORECAST_DIR, "2008", CEUS_DIR);
 		for (SourceType type : SourceType.values()) {
-			File typeDir = new File(modelPath + S + type.toString());
-			if (!typeDir.exists()) continue;
-			File dest = new File(typeDir, GMM_FILE);
+			Path typeDir = modelDir.resolve(type.toString());
+			if (!Files.exists(typeDir)) continue;
+			Path dest = typeDir.resolve(GMM_FILE);
 			switch (type) {
 				case CLUSTER:
 					writeFile(dest, 
@@ -160,12 +163,12 @@ public class GMM_Export {
 						Lists.newArrayList(ceusGridMap08),
 						Lists.newArrayList(CEUS_R_CUT_08),
 						null, null);
-					File mb_ab = new File(typeDir + S + "mb-AtkinBoore" + S + GMM_FILE);
+					Path mb_ab = typeDir.resolve("mb-AtkinBoore").resolve(GMM_FILE);
 					writeFile(mb_ab,
 						Lists.newArrayList(ceusGridMap08_AB),
 						Lists.newArrayList(CEUS_R_CUT_08),
 						null, null);
-					File mb_j = new File(typeDir + S + "mb-Johnson" + S + GMM_FILE);
+					Path mb_j = typeDir.resolve("mb-Johnson").resolve(GMM_FILE);
 					writeFile(mb_j,
 						Lists.newArrayList(ceusGridMap08_J),
 						Lists.newArrayList(CEUS_R_CUT_08),
@@ -177,11 +180,11 @@ public class GMM_Export {
 	
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createCEUS_2014() throws Exception {
-		String modelPath = MODEL_PATH + "2014" + S + CEUS_DIR + S;
+		Path modelDir = Paths.get(FORECAST_DIR, "2014", CEUS_DIR);
 		for (SourceType type : SourceType.values()) {
-			File typeDir = new File(modelPath + S + type.toString());
-			if (!typeDir.exists()) continue;
-			File dest = new File(typeDir, GMM_FILE);
+			Path typeDir = modelDir.resolve(type.toString());
+			if (!Files.exists(typeDir)) continue;
+			Path dest = typeDir.resolve(GMM_FILE);
 			switch (type) {
 				case CLUSTER:
 					writeFile(dest,
@@ -207,11 +210,11 @@ public class GMM_Export {
 
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createWUS_2008() throws Exception {
-		String modelPath = MODEL_PATH + "2008" + S + WUS_DIR + S;
+		Path modelDir = Paths.get(FORECAST_DIR, "2008", WUS_DIR);
 		for (SourceType type : SourceType.values()) {
-			File typeDir = new File(modelPath + S + type.toString());
-			if (!typeDir.exists()) continue;
-			File dest = new File(typeDir, GMM_FILE);
+			Path typeDir = modelDir.resolve(type.toString());
+			if (!Files.exists(typeDir)) continue;
+			Path dest = typeDir.resolve(GMM_FILE);
 			switch (type) {
 				case FAULT:
 					writeFile(dest,
@@ -243,11 +246,11 @@ public class GMM_Export {
 	
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createWUS_2014() throws Exception {
-		String modelPath = MODEL_PATH + "2014" + S + WUS_DIR + S;
+		Path modelDir = Paths.get(FORECAST_DIR, "2014", WUS_DIR);
 		for (SourceType type : SourceType.values()) {
-			File typeDir = new File(modelPath + S + type.toString());
-			if (!typeDir.exists()) continue;
-			File dest = new File(typeDir, GMM_FILE);
+			Path typeDir = modelDir.resolve(type.toString());
+			if (!Files.exists(typeDir)) continue;
+			Path dest = typeDir.resolve(GMM_FILE);
 			switch (type) {
 				case CLUSTER:
 					writeFile(dest,
@@ -285,9 +288,9 @@ public class GMM_Export {
 
 
 	
-	private void writeFile(File dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
+	static void writeFile(Path dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
 			double[] uncValues, double[] uncWeights) throws ParserConfigurationException,
-			TransformerException {
+			TransformerException, IOException {
 
 		// uncValues and uncWeights may be null
 		
@@ -326,7 +329,8 @@ public class GMM_Export {
 		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
 		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(dest);
+		Files.createDirectories(dest.getParent());
+		StreamResult result = new StreamResult(Files.newOutputStream(dest));
 		trans.transform(source, result);
 	}
 	

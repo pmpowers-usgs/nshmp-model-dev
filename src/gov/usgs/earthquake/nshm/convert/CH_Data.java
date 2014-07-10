@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
  * Wrapper for characteristic (single) MFD data.
  * @author Peter Powers
  */
-class CH_Data implements MFD_Data {
+public class CH_Data implements MFD_Data {
 	
 	double mag;
 	double rate;
@@ -33,7 +33,7 @@ class CH_Data implements MFD_Data {
 		this.floats = floats;
 	}
 	
-	static CH_Data create(double mag, double rate, double weight, boolean floats) {
+	public static CH_Data create(double mag, double rate, double weight, boolean floats) {
 		return new CH_Data(mag, rate, weight, floats);
 	}
 
