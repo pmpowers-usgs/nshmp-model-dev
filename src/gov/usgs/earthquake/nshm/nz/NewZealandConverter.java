@@ -41,6 +41,7 @@ import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.convert.CH_Data;
+import gov.usgs.earthquake.nshm.convert.GMM_Export;
 import gov.usgs.earthquake.nshm.convert.GR_Data;
 import gov.usgs.earthquake.nshm.nz.NewZealandParser.FaultData;
 import gov.usgs.earthquake.nshm.util.Utils;
@@ -76,6 +77,7 @@ import org.w3c.dom.Element;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multisets;
 import com.google.common.math.DoubleMath;
 
@@ -84,11 +86,13 @@ import com.google.common.math.DoubleMath;
  * 
  * @author Peter Powers
  */
+@SuppressWarnings("unchecked")
 class NewZealandConverter {
 
 
 	private static final Path FCAST_DIR = Paths.get("forecasts", "nz");
 	private static final String GMM_FILE = "gmm.xml";
+	private static final String SOURCES_FILE = "sources.xml";
 
 	private NewZealandParser parser;
 
@@ -104,10 +108,29 @@ class NewZealandConverter {
 		NewZealandConverter converter = create();
 		converter.convertFault(FCAST_DIR);
 		converter.convertGrid(FCAST_DIR);
-		converter.addGmms();
+		
+		// gmms get written along with source files; to ensure
+		// that updates ocurr if a gmm. file already exists, a
+		// gmm file is always created (and possibly overwritten)
+		// when each source file is written; this does result in
+		// some redundant file writing, but who cares
 	}
 	
-	private static final Map<Gmm, Double> volcGmms = ImmutableMap.of(MCV, v1)
+	static Map<Gmm, Double> volcGmmMap = ImmutableMap.of(MCVERRY_00_VOLCANIC, 1.0);
+	static List<Map<Gmm, Double>> volcGmmList= Lists.newArrayList(volcGmmMap);
+	static List<Double> volcDistList = Lists.newArrayList(200.0);
+	
+	static Map<Gmm, Double> crustGmmMap = ImmutableMap.of(MCVERRY_00_CRUSTAL, 1.0);
+	static List<Map<Gmm, Double>> crustGmmList= Lists.newArrayList(crustGmmMap);
+	static List<Double> crustDistList = Lists.newArrayList(200.0);
+	
+	static Map<Gmm, Double> interGmmMap = ImmutableMap.of(MCVERRY_00_INTERFACE, 1.0);
+	static List<Map<Gmm, Double>> interGmmList= Lists.newArrayList(interGmmMap);
+	static List<Double> interDistList = Lists.newArrayList(500.0);
+	
+	static Map<Gmm, Double> slabGmmMap = ImmutableMap.of(MCVERRY_00_SLAB, 1.0);
+	static List<Map<Gmm, Double>> slabGmmList= Lists.newArrayList(slabGmmMap);
+	static List<Double> slabDistList = Lists.newArrayList(500.0);
 
 	private void convertFault(Path outDir) throws Exception {
 
@@ -115,7 +138,7 @@ class NewZealandConverter {
 		for (TectonicSetting tect : parser.tectonicSettings()) {
 			if (tect == VOLCANIC) {
 
-				Path outPath = Paths.get(FAULT.toString(), "volcanic", "sources.xml");
+				Path outPath = Paths.get(FAULT.toString(), "volcanic", SOURCES_FILE);
 				Path out = outDir.resolve(outPath);
 				FaultExporter export = new FaultExporter(false);
 				export.faultDataList = parser.getSourceDataList(tect);
@@ -123,9 +146,13 @@ class NewZealandConverter {
 				export.chRef = CH_Data.create(7.5, 0.0, 1.0, false);
 				export.writeXML(out);
 
+				Path gmmPath = Paths.get(FAULT.toString(), "volcanic", GMM_FILE);
+				out = outDir.resolve(gmmPath);
+				GMM_Export.writeFile(out, volcGmmList, volcDistList, null, null);
+
 			} else if (tect == ACTIVE_SHALLOW_CRUST) {
 
-				Path outPath = Paths.get(FAULT.toString(), "tectonic", "sources.xml");
+				Path outPath = Paths.get(FAULT.toString(), "tectonic", SOURCES_FILE);
 				Path out = outDir.resolve(outPath);
 				FaultExporter export = new FaultExporter(false);
 				export.faultDataList = parser.getSourceDataList(tect);
@@ -133,15 +160,23 @@ class NewZealandConverter {
 				export.chRef = CH_Data.create(7.5, 0.0, 1.0, false);
 				export.writeXML(out);
 
+				Path gmmPath = Paths.get(FAULT.toString(), "tectonic", GMM_FILE);
+				out = outDir.resolve(gmmPath);
+				GMM_Export.writeFile(out, crustGmmList, crustDistList, null, null);
+
 			} else if (tect == SUBDUCTION_INTERFACE) {
 
-				Path outPath = Paths.get(INTERFACE.toString(), "sources.xml");
+				Path outPath = Paths.get(INTERFACE.toString(), SOURCES_FILE);
 				Path out = outDir.resolve(outPath);
 				FaultExporter export = new FaultExporter(true);
 				export.faultDataList = parser.getSourceDataList(tect);
 				export.setName = "Interface Sources";
 				export.chRef = CH_Data.create(7.5, 0.0, 1.0, false);
 				export.writeXML(out);
+
+				Path gmmPath = Paths.get(INTERFACE.toString(), GMM_FILE);
+				out = outDir.resolve(gmmPath);
+				GMM_Export.writeFile(out, interGmmList, interDistList, null, null);
 
 			} else {
 				throw new IllegalStateException(tect.toString());
@@ -208,6 +243,12 @@ class NewZealandConverter {
 				Path out = outDir.resolve(outPath);
 				export.writeXML(out);
 				
+				Path gmmPath = createGmmPath(id, depth);
+				out = outDir.resolve(gmmPath);
+				List<Map<Gmm, Double>> gmmMapList = getGmmMapList(id, depth);
+				List<Double> distanceList = getDistList(id, depth);
+				GMM_Export.writeFile(out, gmmMapList, distanceList, null, null);
+				
 			}
 		}
 		// ensure all lines in parser were processed
@@ -216,8 +257,9 @@ class NewZealandConverter {
 
 	}
 	
+	private static final double SLAB_DEPTH_CUT = 40.0;
 	private static String createGridName(NZ_SourceID id, double depth) {
-		String tect = ((depth < 40.0) ? (id == NV) ? "Volcanic Grid " : "Tectonic Grid " : "Slab ");
+		String tect = ((depth < SLAB_DEPTH_CUT) ? (id == NV) ? "Volcanic Grid " : "Tectonic Grid " : "Slab ");
 		String depthStr = " [" + ((int) depth) + "km";
 		String style = (id == NV || id == NN) ? "; normal]" : (id == RV) ? "; reverse]"
 			: (id == SR) ? "; reverse-oblique]" : "; strike-slip]";
@@ -226,11 +268,25 @@ class NewZealandConverter {
 	
 	private static Path createGridPath(NZ_SourceID id, double depth) {
 		String name = "sources-" + id.toString().toLowerCase()  + "-" + ((int) depth) + "km.xml";
-		String dir = (depth < 40.0) ? GRID.toString() : SLAB.toString();
-		String subDir = (depth < 40.0) ? (id == NV) ? "volcanic" : "tectonic" : "";
+		String dir = (depth < SLAB_DEPTH_CUT) ? GRID.toString() : SLAB.toString();
+		String subDir = (depth < SLAB_DEPTH_CUT) ? (id == NV) ? "volcanic" : "tectonic" : "";
 		return Paths.get(dir, subDir, name);
 	}
 	
+	private static Path createGmmPath(NZ_SourceID id, double depth) {
+		String dir = (depth < SLAB_DEPTH_CUT) ? GRID.toString() : SLAB.toString();
+		String subDir = (depth < SLAB_DEPTH_CUT) ? (id == NV) ? "volcanic" : "tectonic" : "";
+		return Paths.get(dir, subDir, GMM_FILE);
+	}
+	
+	private static List<Map<Gmm, Double>> getGmmMapList(NZ_SourceID id, double depth) {
+		return (depth < SLAB_DEPTH_CUT) ? (id == NV) ? volcGmmList : crustGmmList : slabGmmList;
+	}
+
+	private static List<Double> getDistList(NZ_SourceID id, double depth) {
+		return (depth < SLAB_DEPTH_CUT) ? (id == NV) ? volcDistList : crustDistList : slabDistList;
+	}
+
 	// returns the most common value
 	private static double findDefault(Collection<Double> values) {
 		return Multisets.copyHighestCountFirst(HashMultiset.create(values)).iterator().next();

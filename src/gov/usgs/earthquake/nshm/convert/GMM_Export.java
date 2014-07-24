@@ -288,7 +288,7 @@ public class GMM_Export {
 
 
 	
-	static void writeFile(Path dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
+	public static void writeFile(Path dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
 			double[] uncValues, double[] uncWeights) throws ParserConfigurationException,
 			TransformerException, IOException {
 
