@@ -25,7 +25,7 @@ class Converter {
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
 	private static final SourceManager MGR_2008 = SourceManager_2008.instance();
 	private static final SourceManager MGR_2014 = SourceManager_2014.instance();
-	private static final String FCAST_DIR = "forecasts" + S;
+	private static final String FCAST_DIR = "models" + S;
 	
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("[yy-MM-dd-HH-mm]");
 	private static final String LOG_DIR = FCAST_DIR + "logs" + S;
