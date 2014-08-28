@@ -1,18 +1,18 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.forecast.SourceAttribute.A;
-import static org.opensha.eq.forecast.SourceAttribute.FLOATS;
-import static org.opensha.eq.forecast.SourceAttribute.M;
-import static org.opensha.eq.forecast.SourceAttribute.MAG_SCALING;
-import static org.opensha.eq.forecast.SourceAttribute.TYPE;
-import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
-import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.eq.model.SourceAttribute.A;
+import static org.opensha.eq.model.SourceAttribute.FLOATS;
+import static org.opensha.eq.model.SourceAttribute.M;
+import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.model.SourceAttribute.TYPE;
+import static org.opensha.eq.model.SourceAttribute.WEIGHT;
+import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST;
 import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 
 import org.opensha.eq.fault.scaling.MagScalingType;
-import org.opensha.eq.forecast.SourceElement;
+import org.opensha.eq.model.SourceElement;
 import org.w3c.dom.Element;
 
 /*

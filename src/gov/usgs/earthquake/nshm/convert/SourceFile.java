@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 
-import org.opensha.eq.forecast.SourceType;
+import org.opensha.eq.model.SourceType;
 
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 

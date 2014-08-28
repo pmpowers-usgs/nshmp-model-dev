@@ -1,13 +1,13 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.forecast.SourceAttribute.A;
-import static org.opensha.eq.forecast.SourceAttribute.B;
-import static org.opensha.eq.forecast.SourceAttribute.D_MAG;
-import static org.opensha.eq.forecast.SourceAttribute.M_MAX;
-import static org.opensha.eq.forecast.SourceAttribute.M_MIN;
-import static org.opensha.eq.forecast.SourceAttribute.TYPE;
-import static org.opensha.eq.forecast.SourceAttribute.WEIGHT;
-import static org.opensha.eq.forecast.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.eq.model.SourceAttribute.A;
+import static org.opensha.eq.model.SourceAttribute.B;
+import static org.opensha.eq.model.SourceAttribute.D_MAG;
+import static org.opensha.eq.model.SourceAttribute.M_MAX;
+import static org.opensha.eq.model.SourceAttribute.M_MIN;
+import static org.opensha.eq.model.SourceAttribute.TYPE;
+import static org.opensha.eq.model.SourceAttribute.WEIGHT;
+import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST;
 import static org.opensha.mfd.MfdType.GR;
 import static org.opensha.mfd.Mfds.magCount;
 import static org.opensha.util.Parsing.addAttribute;
