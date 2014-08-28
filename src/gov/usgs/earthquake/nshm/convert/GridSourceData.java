@@ -25,6 +25,7 @@ import static org.opensha.eq.forecast.SourceElement.SETTINGS;
 import static org.opensha.eq.forecast.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.mfd.MfdType.GR;
 import static org.opensha.mfd.MfdType.INCR;
+import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
@@ -162,6 +163,7 @@ class GridSourceData {
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
 			double singleMagRate = Mfds.incrRate(aVal, grDat.bVal, chDat.mag);
 			addAttribute(A, singleMagRate, "%.8g", nodeElem);
+			addAttribute(TYPE, SINGLE, nodeElem);
 		}
 	}
 	
@@ -184,6 +186,7 @@ class GridSourceData {
 			Element nodeElem = addElement(NODE, nodesElem);
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
 			addCEUS_MFD(i, nodeElem);
+			addAttribute(TYPE, INCR, nodeElem);
 		}
 	}
 	
