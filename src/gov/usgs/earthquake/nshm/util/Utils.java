@@ -577,7 +577,7 @@ public class Utils {
 				b.append(Strings.padStart(l.toString(), 7, ' '));
 				if (l == Level.SEVERE || l == Level.WARNING) {
 					String cName = lr.getSourceClassName();
-					b.append(" \u0040 ")
+					b.append(" @ ")
 						.append(cName.substring(cName.lastIndexOf(".") + 1))
 						.append(".")
 						.append(lr.getSourceMethodName())

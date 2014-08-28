@@ -40,7 +40,7 @@ public class GR_Data implements MFD_Data {
 
 	/* Used internally */
 	private GR_Data() {}
-	
+
 	/* For parsing WUS fault sources */
 	static GR_Data createForFault(String src, SourceData fd, Logger log) {
 		GR_Data gr = new GR_Data();
@@ -61,7 +61,7 @@ public class GR_Data implements MFD_Data {
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
-	
+
 	/* For parsing grid sources; mag bins are recentered */
 	static GR_Data createForGrid(String src) {
 		GR_Data gr = new GR_Data();
@@ -75,10 +75,10 @@ public class GR_Data implements MFD_Data {
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
 		return gr;
 	}
-	
+
 	/* For final assembly and export of grid mfds */
-	public static GR_Data create(double aVal, double bVal, double mMin,
-			double mMax, double dMag, double weight) {
+	public static GR_Data create(double aVal, double bVal, double mMin, double mMax, double dMag,
+			double weight) {
 		GR_Data gr = new GR_Data();
 		gr.aVal = aVal;
 		gr.bVal = bVal;
@@ -89,7 +89,7 @@ public class GR_Data implements MFD_Data {
 		gr.nMag = magCount(mMin, mMax, dMag);
 		return gr;
 	}
-	
+
 	private void readSource(String src) {
 		List<Double> grDat = Parsing.toDoubleList(src);
 		aVal = grDat.get(0);
@@ -104,11 +104,11 @@ public class GR_Data implements MFD_Data {
 		}
 		nMag = 0;
 	}
-	
+
 	private void validateDeltaMag(Logger log, SourceData fd) {
 		if (dMag <= 0.004) {
-			StringBuilder sb = new StringBuilder().append("GR dMag [")
-				.append(dMag).append("] is being increased to 0.1");
+			StringBuilder sb = new StringBuilder().append("GR dMag [").append(dMag)
+				.append("] is being increased to 0.1");
 			appendFaultDat(sb, fd);
 			log.warning(sb.toString());
 			dMag = 0.1;
@@ -135,63 +135,20 @@ public class GR_Data implements MFD_Data {
 	private void validateMagCount(Logger log, SourceData fd) {
 		nMag = magCount(mMin, mMax, dMag);
 		if (nMag < 1) {
-			RuntimeException rex = new RuntimeException(
-				"Number of mags must be \u2265 1");
-			StringBuilder sb = new StringBuilder()
-				.append("GR nMag is less than 1");
+			RuntimeException rex = new RuntimeException("Number of mags must be ≥ 1");
+			StringBuilder sb = new StringBuilder().append("GR nMag < 1");
 			appendFaultDat(sb, fd);
 			log.log(Level.WARNING, sb.toString(), rex);
 			throw rex;
 		}
 	}
 
-	// TODO clean if not necessary
-//	/*
-//	 * Returns true if (1) multi-mag and mMax-epi < 6.5 or (2) single-mag and
-//	 * mMax-epi-2s < 6.5
-//	 */
-//	boolean hasMagExceptions(Logger log, FaultData fd, MagUncertaintyData md) {
-//		if (nMag > 1) {
-//			// for multi mag consider only epistemic uncertainty
-//			double mMaxAdj = mMax + md.epiDeltas[0];
-//			if (mMaxAdj < 6.5) {
-//				StringBuilder sb = new StringBuilder()
-//					.append("Multi mag GR mMax [").append(mMax)
-//					.append("] with epistemic unc. [").append(mMaxAdj)
-//					.append("] is \u003C 6.5");
-//				appendFaultDat(sb, fd);
-//				log.warning(sb.toString());
-//				return true;
-//			}
-//		} else if (nMag == 1) {
-//			// for single mag consider epistemic and aleatory uncertainty
-//			double mMaxAdj = md.aleaMinMag(mMax + md.epiDeltas[0]);
-//			if (mMaxAdj < 6.5) {
-//				StringBuilder sb = new StringBuilder()
-//					.append("Single mag GR mMax [").append(mMax)
-//					.append("] with epistemic and aleatory unc. [")
-//					.append(mMaxAdj).append("] is \u003C 6.5");
-//				appendFaultDat(sb, fd);
-//				log.warning(sb.toString());
-//				return true;
-//			}
-//		} else {
-//			// log empty mfd
-//			StringBuilder sb = new StringBuilder()
-//				.append("GR MFD with no mags");
-//			appendFaultDat(sb, fd);
-//			log.warning(sb.toString());
-//		}
-//		return false;
-//	}
-
-	@Override
-	public Element appendTo(Element parent, MFD_Data ref) {
+	@Override public Element appendTo(Element parent, MFD_Data ref) {
 		Element e = addElement(MAG_FREQ_DIST, parent);
 		addAttributesToElement(e, ref);
 		return e;
-	}	
-	
+	}
+
 	/* for use with some gird source parsers/converters */
 	public void addAttributesToElement(Element e, MFD_Data ref) {
 		// always include type
@@ -203,7 +160,7 @@ public class GR_Data implements MFD_Data {
 			if (bVal != refGR.bVal) addAttribute(B, bVal, e);
 			if (mMin != refGR.mMin) addAttribute(M_MIN, mMin, e);
 			if (mMax != refGR.mMax) addAttribute(M_MAX, mMax, e);
-			if (dMag != refGR.dMag) addAttribute(D_MAG , dMag, e);
+			if (dMag != refGR.dMag) addAttribute(D_MAG, dMag, e);
 			if (weight != refGR.weight) addAttribute(WEIGHT, weight, e);
 		} else {
 			addAttribute(B, Double.toString(bVal), e);
@@ -213,17 +170,16 @@ public class GR_Data implements MFD_Data {
 			addAttribute(WEIGHT, Double.toString(weight), e);
 		}
 	}
-	
+
 	private static final String LF = System.getProperty("line.separator");
-	
+
 	/*
 	 * Convenience method to append to supplied <code>StringBuilder</code> fault
 	 * and file information.
 	 */
 	static void appendFaultDat(StringBuilder b, SourceData fd) {
-		b.append(LF).append(Utils.WARN_INDENT)
-			.append(fd.name).append(LF)
-			.append(Utils.WARN_INDENT).append(fd.file);
+		b.append(LF).append(Utils.WARN_INDENT).append(fd.name).append(LF).append(Utils.WARN_INDENT)
+			.append(fd.file);
 	}
 
 }
