@@ -6,7 +6,13 @@ import static com.google.common.base.StandardSystemProperty.LINE_SEPARATOR;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
 import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
-import static org.opensha.eq.model.SourceAttribute.*;
+import static org.opensha.eq.model.SourceAttribute.DEPTH;
+import static org.opensha.eq.model.SourceAttribute.DIP;
+import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.model.SourceAttribute.NAME;
+import static org.opensha.eq.model.SourceAttribute.RAKE;
+import static org.opensha.eq.model.SourceAttribute.WEIGHT;
+import static org.opensha.eq.model.SourceAttribute.WIDTH;
 import static org.opensha.eq.model.SourceElement.FAULT_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.GEOMETRY;
 import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST_REF;
@@ -16,8 +22,10 @@ import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.model.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
+import static org.opensha.util.Parsing.splitToDoubleList;
+import static org.opensha.util.Parsing.splitToList;
 import static org.opensha.util.Parsing.stripComment;
-import static org.opensha.util.Parsing.toDoubleList;
+import static org.opensha.util.Parsing.Delimiter.SPACE;
 import gov.usgs.earthquake.nshm.util.MFD_Type;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
@@ -119,7 +127,7 @@ class FaultConverter {
 				
 				// collect data on source name line
 				SourceData fDat = new SourceData();
-				List<String> srcInfo = Parsing.toStringList(lines.next());
+				List<String> srcInfo = splitToList(lines.next(), SPACE);
 				MFD_Type mfdType = MFD_Type.typeForID(Integer.valueOf(srcInfo.get(0)));
 				fDat.file = sf;
 				fDat.focalMech = Utils.typeForID(Integer.valueOf(srcInfo.get(1)));
@@ -179,12 +187,12 @@ class FaultConverter {
 	private MagUncertainty readMagUncertainty(List<String> src) {
 		
 		// epistemic
-		double[] epiDeltas = Doubles.toArray(toDoubleList(src.get(1)));
-		double[] epiWeights = Doubles.toArray(toDoubleList(src.get(2)));
+		double[] epiDeltas = Doubles.toArray(splitToDoubleList(src.get(1), SPACE));
+		double[] epiWeights = Doubles.toArray(splitToDoubleList(src.get(2), SPACE));
 		double epiCutoff = 6.5;
 		
 		// aleatory
-		List<Double> aleatoryMagDat = toDoubleList(stripComment(src.get(3), '!'));
+		List<Double> aleatoryMagDat = splitToDoubleList(stripComment(src.get(3), '!'), SPACE);
 		double aleatorySigmaTmp = aleatoryMagDat.get(0);
 		boolean moBalance = aleatorySigmaTmp > 0.0;
 		double aleaSigma = Math.abs(aleatorySigmaTmp);
@@ -202,7 +210,7 @@ class FaultConverter {
 		// rather than add methods just for parsing.
 		
 		// aleatory
-		List<Double> aleatoryMagDat = toDoubleList(stripComment(src.get(3), '!'));
+		List<Double> aleatoryMagDat = splitToDoubleList(stripComment(src.get(3), '!'), SPACE);
 		double aleaSigma = Math.abs(aleatoryMagDat.get(0));
 		int aleaCount = aleatoryMagDat.get(1).intValue() * 2 + 1;
 
@@ -337,7 +345,7 @@ class FaultConverter {
 		List<String> traceDat = Parsing.toLineList(it, traceCount);
 		List<Location> locs = Lists.newArrayList();
 		for (String ptDat : traceDat) {
-			List<Double> latlon = Parsing.toDoubleList(ptDat);
+			List<Double> latlon = splitToDoubleList(ptDat, SPACE);
 			locs.add(Location.create(latlon.get(0), latlon.get(1), 0.0));
 		}
 		fd.locs = LocationList.create(locs);
@@ -351,7 +359,7 @@ class FaultConverter {
 	}
 	
 	private static void readFaultGeom(String line, SourceData fd) {
-		List<Double> fltDat = Parsing.toDoubleList(line);
+		List<Double> fltDat = splitToDoubleList(line, SPACE);
 		fd.dip = fltDat.get(0);
 		fd.width = fltDat.get(1);
 		fd.top = fltDat.get(2);

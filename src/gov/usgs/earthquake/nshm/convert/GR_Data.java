@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.opensha.util.Parsing;
+import org.opensha.util.Parsing.Delimiter;
 import org.w3c.dom.Element;
 
 /*
@@ -65,7 +66,7 @@ public class GR_Data implements MFD_Data {
 	/* For parsing grid sources; mag bins are recentered */
 	static GR_Data createForGrid(String src) {
 		GR_Data gr = new GR_Data();
-		List<Double> grDat = Parsing.toDoubleList(src);
+		List<Double> grDat = Parsing.splitToDoubleList(src, Delimiter.SPACE);
 		gr.bVal = grDat.get(0);
 		gr.mMin = grDat.get(1);
 		gr.mMax = grDat.get(2);
@@ -91,7 +92,7 @@ public class GR_Data implements MFD_Data {
 	}
 
 	private void readSource(String src) {
-		List<Double> grDat = Parsing.toDoubleList(src);
+		List<Double> grDat = Parsing.splitToDoubleList(src, Delimiter.SPACE);
 		aVal = grDat.get(0);
 		bVal = grDat.get(1);
 		mMin = grDat.get(2);

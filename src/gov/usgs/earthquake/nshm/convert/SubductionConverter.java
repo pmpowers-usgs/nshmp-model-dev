@@ -19,7 +19,8 @@ import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.readInt;
 import gov.usgs.earthquake.nshm.util.MFD_Type;
 import gov.usgs.earthquake.nshm.util.Utils;
-
+import static org.opensha.util.Parsing.*;
+import static org.opensha.util.Parsing.Delimiter.*;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -89,7 +90,7 @@ class SubductionConverter {
 				
 				// collect data on source name line
 				SourceData fDat = new SourceData();
-				List<String> srcInfo = Parsing.toStringList(lines.next());
+				List<String> srcInfo = splitToList(lines.next(), SPACE);
 				MFD_Type mfdType = MFD_Type.typeForID(Integer.valueOf(srcInfo.get(0)));
 				fDat.file = sf;
 				fDat.focalMech = Utils.typeForID(Integer.valueOf(srcInfo.get(1)));
@@ -181,7 +182,7 @@ class SubductionConverter {
 		List<String> traceDat = Parsing.toLineList(it, size);
 		LocationList.Builder builder = LocationList.builder();
 		for (String ptDat : traceDat) {
-			List<Double> latlon = Parsing.toDoubleList(ptDat);
+			List<Double> latlon = splitToDoubleList(ptDat, SPACE);
 			builder.add(Location.create(latlon.get(0), latlon.get(1), latlon.get(2)));
 		}
 		LocationList locs = builder.build();

@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.opensha.eq.model.SourceType;
 import org.opensha.util.Parsing;
+import org.opensha.util.Parsing.Delimiter;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -139,7 +140,7 @@ abstract class SourceManager {
 	// @formatter:on
 	
 	SourceFile create(String resource, double weight) {
-		List<String> parts = Lists.newArrayList(Parsing.splitOnSlash(resource));
+		List<String> parts = Lists.newArrayList(Parsing.split(resource, Delimiter.SLASH));
 		SourceRegion region = SourceRegion.valueOf(parts.get(0));
 		String typeFolder = parts.get(1);
 		SourceType type = null;

@@ -60,6 +60,7 @@ import org.opensha.geo.LocationList;
 import org.opensha.geo.Region;
 import org.opensha.geo.Regions;
 import org.opensha.util.Parsing;
+import org.opensha.util.Parsing.Delimiter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -297,7 +298,7 @@ public class IndexedGridConverter {
 		double[] data = new double[lines.size()];
 		int count = 0;
 		for (String line : lines) {
-			data[count] = Double.valueOf(Iterables.get(Parsing.splitOnSpaces(line), 2));
+			data[count] = Double.valueOf(Iterables.get(Parsing.split(line, Delimiter.SPACE), 2));
 			count++;
 		}
 		return data;

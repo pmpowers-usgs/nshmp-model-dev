@@ -8,7 +8,8 @@ import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.util.Parsing.splitToDoubleList;
+import static org.opensha.util.Parsing.Delimiter.SPACE;
 import gov.usgs.earthquake.nshm.util.FaultCode;
 
 import java.io.File;
@@ -201,7 +202,7 @@ class GridConverter {
 	 * fixed values for M<6.5 and M>=6.5
 	 */
 	private static void readRuptureTop(String line, GridSourceData gsd) {
-		List<Double> depthDat = Parsing.toDoubleList(line);
+		List<Double> depthDat = splitToDoubleList(line, SPACE);
 		int numDepths = depthDat.get(0).intValue();
 		double loMagDepth, hiMagDepth;
 		if (numDepths == 1) {
@@ -215,7 +216,7 @@ class GridConverter {
 	}
 
 	private static void readMechWeights(String line, GridSourceData gsd) {
-		List<Double> weights = Parsing.toDoubleList(line);
+		List<Double> weights = splitToDoubleList(line, SPACE);
 		Map<FocalMech, Double> map = Maps.newEnumMap(FocalMech.class);
 		map.put(STRIKE_SLIP, weights.get(0));
 		map.put(REVERSE, weights.get(1));
@@ -224,20 +225,20 @@ class GridConverter {
 	}
 
 	private static void readLookupArrayDat(String line, GridSourceData gsd) {
-		List<Double> rDat = Parsing.toDoubleList(line);
+		List<Double> rDat = splitToDoubleList(line, SPACE);
 		gsd.dR = rDat.get(0).intValue();
 		gsd.rMax = rDat.get(1).intValue();
 	}
 
 	private static void readSourceLatRange(String line, GridSourceData gsd) {
-		List<Double> latDat = Parsing.toDoubleList(line);
+		List<Double> latDat = splitToDoubleList(line, SPACE);
 		gsd.minLat = latDat.get(0);
 		gsd.maxLat = latDat.get(1);
 		gsd.dLat = latDat.get(2);
 	}
 
 	private static void readSourceLonRange(String line, GridSourceData gsd) {
-		List<Double> lonDat = Parsing.toDoubleList(line);
+		List<Double> lonDat = splitToDoubleList(line, SPACE);
 		gsd.minLon = lonDat.get(0);
 		gsd.maxLon = lonDat.get(1);
 		gsd.dLon = lonDat.get(2);
@@ -252,7 +253,7 @@ class GridConverter {
 	}
 
 	private static void readRateInfo(String line, GridSourceData gsd) {
-		List<Double> rateDat = Parsing.toDoubleList(line);
+		List<Double> rateDat = splitToDoubleList(line, SPACE);
 		gsd.timeSpan =  rateDat.get(0);
 		gsd.rateType = (rateDat.get(1).intValue() == 0) ? 
 			INCREMENTAL : CUMULATIVE;
