@@ -17,8 +17,8 @@ import static org.opensha.eq.model.SourceAttribute.STRIKE;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
@@ -196,8 +196,8 @@ public class IndexedGridConverter {
         
         Element settings = addElement(SETTINGS, rootOut);
         
-        Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
-        Element mfd = addElement(MAG_FREQ_DIST, mfdRef);
+        Element mfdRef = addElement(DEFAULT_MFDS, settings);
+        Element mfd = addElement(INCREMENTAL_MFD, mfdRef);
         addAttribute(TYPE, INCR, mfd);
         List<Double> magList = Doubles.asList(mags);
 		addAttribute(MAGS, Parsing.toString(magList, "%.2f"), mfd);

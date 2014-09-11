@@ -13,7 +13,7 @@ import static org.opensha.eq.model.SourceAttribute.WIDTH;
 import static org.opensha.eq.model.SourceElement.CLUSTER;
 import static org.opensha.eq.model.SourceElement.CLUSTER_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.GEOMETRY;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
@@ -378,7 +378,7 @@ class ClusterConverter {
 			Element settings = addElement(SETTINGS, root);
 			Element mfdRef;
 			if (refCH != null) {
-				mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+				mfdRef = addElement(DEFAULT_MFDS, settings);
 				refCH.appendTo(mfdRef, null);
 			}
 			magDat.appendTo(settings);

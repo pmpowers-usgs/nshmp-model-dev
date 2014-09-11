@@ -15,9 +15,9 @@ import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceAttribute.WIDTH;
 import static org.opensha.eq.model.SourceElement.GEOMETRY;
-import static org.opensha.eq.model.SourceElement.INDEXED_FAULT_SECTIONS;
-import static org.opensha.eq.model.SourceElement.INDEXED_FAULT_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.model.SourceElement.SYSTEM_FAULT_SECTIONS;
+import static org.opensha.eq.model.SourceElement.SYSTEM_SOURCE_SET;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.SECTION;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE;
@@ -152,14 +152,14 @@ class IndexedFaultConverter {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.newDocument();
-		Element root = doc.createElement(INDEXED_FAULT_SOURCE_SET.toString());
+		Element root = doc.createElement(SYSTEM_SOURCE_SET.toString());
 		doc.appendChild(root);
 		addAttribute(NAME, id, root);
 		addAttribute(WEIGHT, weight, root);
 
 		// settings and defaults
 		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		CH_Data refCH = CH_Data.create(6.5, 0.0, 1.0, false);
 		refCH.appendTo(mfdRef, null);
 
@@ -226,7 +226,7 @@ class IndexedFaultConverter {
 
 		// file out
 		Document docOut = dBuilder.newDocument();
-		Element rootOut = docOut.createElement(INDEXED_FAULT_SECTIONS.toString());
+		Element rootOut = docOut.createElement(SYSTEM_FAULT_SECTIONS.toString());
 		addAttribute(NAME, id, rootOut);
 		docOut.appendChild(rootOut);
 

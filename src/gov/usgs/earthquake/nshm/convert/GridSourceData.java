@@ -17,8 +17,8 @@ import static org.opensha.eq.model.SourceAttribute.STRIKE;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
@@ -152,7 +152,7 @@ class GridSourceData {
 	// single magnitude grids (e.e.g Charleston)
 	private void writeSingleMagGrid(Element root) {
 		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		chDat.appendTo(mfdRef, null);
 		addSourceProperties(settings);
 		Element nodesElem = addElement(NODES, root);
@@ -170,8 +170,8 @@ class GridSourceData {
 	// large mblg CEUS grids with craton-margin tapers etc...
 	private void writeLargeCeusGrid(Element root) {
 		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
-		Element e = addElement(MAG_FREQ_DIST, mfdRef);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
+		Element e = addElement(INCREMENTAL_MFD, mfdRef);
 		addAttribute(TYPE, INCR, e);
 		List<Double> mags = Doubles.asList(name.contains(".AB.") ? abMags : jMags);
 		addAttribute(MAGS, Parsing.toString(mags, "%.2f"), e);
@@ -193,9 +193,9 @@ class GridSourceData {
 	// for grids with wtGrid
 	private void writeMixedGrid(Element root) {
 		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		grDat.appendTo(mfdRef, null);
-		Element e = addElement(MAG_FREQ_DIST, mfdRef);
+		Element e = addElement(INCREMENTAL_MFD, mfdRef);
 		addAttribute(TYPE, INCR, e);
 		// default mags go up to default grid mMax; mags will be overridden
 		// where node mMax is higher
@@ -230,7 +230,7 @@ class GridSourceData {
 	// standard grid without customizations requiring incremental MFDs
 	private void writeStandardGrid(Element root) {
 		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		grDat.appendTo(mfdRef, null);
 		addSourceProperties(settings);
 		Element nodesElem = addElement(NODES, root);

@@ -6,7 +6,7 @@ import static org.opensha.eq.model.SourceAttribute.M;
 import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
@@ -39,7 +39,7 @@ public class CH_Data implements MFD_Data {
 
 	@Override
 	public Element appendTo(Element parent, MFD_Data ref) {
-		Element e = addElement(MAG_FREQ_DIST, parent);
+		Element e = addElement(INCREMENTAL_MFD, parent);
 		// always include type
 		addAttribute(TYPE, SINGLE, e);
 		if (ref != null) {

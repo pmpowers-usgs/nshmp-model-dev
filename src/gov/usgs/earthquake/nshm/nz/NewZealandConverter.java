@@ -25,7 +25,7 @@ import static org.opensha.eq.model.SourceAttribute.WIDTH;
 import static org.opensha.eq.model.SourceElement.FAULT_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.GEOMETRY;
 import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST_REF;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
@@ -345,7 +345,7 @@ class NewZealandConverter {
 		GR_Data refGR = GR_Data.create(0.0, bValDefault, mMin, mMaxDefault, 0.1, 1.0);
 
 		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		refGR.appendTo(mfdRef, null);
 		addSourceProperties(settings, id, locs.get(0).depth());
 		Element nodesElem = addElement(NODES, root);
@@ -416,7 +416,7 @@ class NewZealandConverter {
 
 			 // reference MFDs and uncertainty
 			 Element settings = addElement(SETTINGS, root);
-			 Element mfdRef = addElement(MAG_FREQ_DIST_REF, settings);
+			 Element mfdRef = addElement(DEFAULT_MFDS, settings);
 			 chRef.appendTo(mfdRef, null);
 			 
 			 // source properties

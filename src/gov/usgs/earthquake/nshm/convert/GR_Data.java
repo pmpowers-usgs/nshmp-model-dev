@@ -7,7 +7,7 @@ import static org.opensha.eq.model.SourceAttribute.M_MAX;
 import static org.opensha.eq.model.SourceAttribute.M_MIN;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
-import static org.opensha.eq.model.SourceElement.MAG_FREQ_DIST;
+import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha.mfd.MfdType.GR;
 import static org.opensha.mfd.Mfds.magCount;
 import static org.opensha.util.Parsing.addAttribute;
@@ -145,7 +145,7 @@ public class GR_Data implements MFD_Data {
 	}
 
 	@Override public Element appendTo(Element parent, MFD_Data ref) {
-		Element e = addElement(MAG_FREQ_DIST, parent);
+		Element e = addElement(INCREMENTAL_MFD, parent);
 		addAttributesToElement(e, ref);
 		return e;
 	}
