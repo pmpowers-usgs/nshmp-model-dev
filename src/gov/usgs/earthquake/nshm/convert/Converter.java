@@ -50,21 +50,21 @@ class Converter {
 		//		-- the mb CEUS grids are moved into their own folders with
 		//		   custom mag-converting GMMs
 		
-//		files = MGR_2008.get(WUS, FAULT);
-//		convertFault(files, "2008", log);
-//		files = MGR_2008.get(WUS, GRID);
-//		convertGrid(files, "2008", log);
-//		files = MGR_2008.get(WUS, INTERFACE);
-//		convertInterface(files, "2008", log);
-//		files = MGR_2008.get(WUS, SLAB);
-//		convertGrid(files, "2008", log);
-//
-//		files = MGR_2008.get(CA, FAULT);
-//		convertFault(files, "2008", log);
-//		files = MGR_2008.get(CA, GRID);
-//		convertGrid(files, "2008", log);
-//		files = MGR_2008.get(CA, SLAB);
-//		convertGrid(files, "2008", log);
+		files = MGR_2008.get(WUS, FAULT);
+		convertFault(files, "2008", log);
+		files = MGR_2008.get(WUS, GRID);
+		convertGrid(files, "2008", log);
+		files = MGR_2008.get(WUS, INTERFACE);
+		convertInterface(files, "2008", log);
+		files = MGR_2008.get(WUS, SLAB);
+		convertGrid(files, "2008", log);
+
+		files = MGR_2008.get(CA, FAULT);
+		convertFault(files, "2008", log);
+		files = MGR_2008.get(CA, GRID);
+		convertGrid(files, "2008", log);
+		files = MGR_2008.get(CA, SLAB);
+		convertGrid(files, "2008", log);
 
 		files = MGR_2008.get(CEUS, FAULT);
 		convertFault(files, "2008", log);

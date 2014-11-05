@@ -90,7 +90,7 @@ import com.google.common.math.DoubleMath;
 class NewZealandConverter {
 
 
-	private static final Path FCAST_DIR = Paths.get("forecasts", "nz");
+	private static final Path FCAST_DIR = Paths.get("models", "nz");
 	private static final String GMM_FILE = "gmm.xml";
 	private static final String SOURCES_FILE = "sources.xml";
 
