@@ -493,7 +493,7 @@ public class Utils {
 		double M;
 		for (int i = 0; i < nMag; i++) {
 			M = mMin + i * dMag;
-			moRate += Mfds.grRate(a, b, M) * Magnitudes.magToMoment(M);
+			moRate += Mfds.grRate(a, b, M) * Magnitudes.magToMoment_N_m(M);
 		}
 		return moRate;
 	}

@@ -38,12 +38,12 @@ class ModelReducer {
 		
 		double fSlip = 0.3 / Math.sin(dip * GeoTools.TO_RAD);
 		
-		double Mo = Magnitudes.magToMoment(chM); // ch M moment
+		double Mo = Magnitudes.magToMoment_N_m(chM); // ch M moment
 		double moRate = mu * fSlip * W * L * 1000.0; // 1K scale from mm to m and km to m conversions
 		
 		double chRateCalc = moRate / Mo;
 		System.out.println(chRateCalc);
-		double vRateCalc = chRate * Magnitudes.magToMoment(chM) * Math.sin(dip * GeoTools.TO_RAD) / (mu * W * L) / 1000.0;
+		double vRateCalc = chRate * Magnitudes.magToMoment_N_m(chM) * Math.sin(dip * GeoTools.TO_RAD) / (mu * W * L) / 1000.0;
 		System.out.println(vRateCalc);
 		
 		List<Double> mags = Lists.newArrayList();
@@ -54,7 +54,7 @@ class ModelReducer {
 
 		double toMo = 0.0;
 		for (double mag : mags) {
-			toMo += Magnitudes.magToMoment(mag) * Mfds.grRate(0, b, mag);
+			toMo += Magnitudes.magToMoment_N_m(mag) * Mfds.grRate(0, b, mag);
 		}
 		double grRateCalc = Math.log10(moRate / toMo);
 		System.out.println(grRateCalc);
@@ -63,9 +63,9 @@ class ModelReducer {
 		
 		toMo = 0.0;
 		for (double mag : mags) {
-			toMo += Magnitudes.magToMoment(mag) * Mfds.grRate(grRate, b, mag);
+			toMo += Magnitudes.magToMoment_N_m(mag) * Mfds.grRate(grRate, b, mag);
 		}
-		toMo = toMo / Magnitudes.magToMoment(mMax);
+		toMo = toMo / Magnitudes.magToMoment_N_m(mMax);
 		System.out.println(toMo);
 		
 		System.out.println(slipFromCH(chM, chRate, 50.0, W, L));
@@ -101,7 +101,7 @@ class ModelReducer {
 	static final double ELASTIC_MODULUS = 3e10; //in N-m
 	
 	static double slipFromCH(double M, double rate, double dip, double W, double L) {
-		return rate * Magnitudes.magToMoment(M) * Math.sin(dip * GeoTools.TO_RAD) / (ELASTIC_MODULUS * W * L) / 1000.0;
+		return rate * Magnitudes.magToMoment_N_m(M) * Math.sin(dip * GeoTools.TO_RAD) / (ELASTIC_MODULUS * W * L) / 1000.0;
 	}
 	
 	// this was built using values from the NSHMP config files; vMFD values in XML files
@@ -109,9 +109,9 @@ class ModelReducer {
 	static double slipFromGR(double mMin, double mMax, double dMag, double a, double b, double dip, double W, double L) {
 		double totMo = 0.0;
 		for (double mag = mMin + dMag/2.0; mag <= mMax; mag+=dMag) {
-			totMo += Magnitudes.magToMoment(mag) * Mfds.grRate(a, b, mag);
+			totMo += Magnitudes.magToMoment_N_m(mag) * Mfds.grRate(a, b, mag);
 		}
-		double chRate = totMo / Magnitudes.magToMoment(mMax);
+		double chRate = totMo / Magnitudes.magToMoment_N_m(mMax);
 		return slipFromCH(mMax, chRate, dip, W, L);
 	}
 	
