@@ -6,7 +6,7 @@ import org.w3c.dom.Element;
  * MFD data writing interface.
  * @author Peter Powers
  */
-interface MFD_Data {
+public interface MFD_Data {
 
 	public Element appendTo(Element parent, MFD_Data ref);
 	
