@@ -15,7 +15,7 @@ import java.net.URL;
  */
 class SourceManager_2014 extends SourceManager {
 	
-	private static final String PATH = "/Users/pmpowers/projects/svn/NSHMP14/conf/";
+	private static final String PATH = "/Users/pmpowers/projects/git/nshmp-haz-fortran/conf/";
 	private static SourceManager_2014 mgr;
 	
 	static SourceManager_2014 instance() {

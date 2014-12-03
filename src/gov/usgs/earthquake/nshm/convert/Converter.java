@@ -32,8 +32,12 @@ class Converter {
 	private static final Level LEVEL = Level.INFO;
 		
 	public static void main(String[] args) {
-		convert2008();
-//		convert2014();
+//		convert2008();
+		convert2014();
+		
+//		for (SourceFile sf : MGR_2014.getAll()) {
+//			System.out.println(sf);
+//		}
 	}
 	
 	static void convert2008() {
@@ -76,24 +80,28 @@ class Converter {
 	
 	static void convert2014() {
 		List<SourceFile> files;
-		
-//		files = MGR_2014.get(CEUS, CLUSTER);
-//		convertCluster(files, CEUS, "2014");
-
-		
+		String logID = Converter.class.getName() + "-2014-" + sdf.format(new Date());
+		String logPath = LOG_DIR + logID + ".log";
+		Logger log = Utils.logger(logID, logPath, LEVEL);
 		
 //		files = MGR_2014.get(WUS, FAULT);
-//		convertFault(files, WUS, "2014");
-
-//		files = MGR_2014.get(WUS, CLUSTER);
-//		convertCluster(files, WUS, "2014");
-		
+//		convertFault(files, "2014", log);
 //		files = MGR_2014.get(WUS, INTERFACE);
-//		convertInterface(files, WUS, "2014");
+//		convertInterface(files, "2014", log);
+//		files = MGR_2014.get(WUS, CLUSTER);
+//		convertCluster(files, "2014", log);
+
+		
+//		files = MGR_2014.get(CEUS, FAULT);
+//		convertFault(files, "2014", log);
+//		files = MGR_2014.get(CEUS, CLUSTER);
+//		convertCluster(files, "2014", log);
+
+		
 		
 		// TODO problems here -- need to be broken into different depths by latitude
-//		files = MGR_2014.get(WUS, SLAB);
-//		convertGrid(files, WUS, "2014");
+		files = MGR_2014.get(WUS, SLAB);
+		convertGrid(files, "2014", log);
 	
 		
 	}
