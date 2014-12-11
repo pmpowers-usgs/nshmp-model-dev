@@ -11,13 +11,22 @@ import java.net.URL;
  * weights are hard coded in this class and supplied to each SourceFile
  * generated.
  * 
+ * NOTE: Due to complexities in both the fortran code and newer ground motion
+ * models that further parameterize hanging wall effects, additional focal-mech
+ * dependent input files were required in 2014. These are not required by the
+ * updated NSHM codes and so a git branch was created to consolidate a number of
+ * WUS grid files. Converseley, the 'deep' intraslab sources abuse the standard
+ * depth distribution line in the fortran inputs by including longitudinal
+ * depth-step indicators. These have been broken into independent depth-specific
+ * sources.
+ * 
  * @author Peter Powers
  */
 class SourceManager_2014 extends SourceManager {
-	
+
 	private static final String PATH = "/Users/pmpowers/projects/git/nshmp-haz-fortran/conf/";
 	private static SourceManager_2014 mgr;
-	
+
 	static SourceManager_2014 instance() {
 		if (mgr == null) {
 			mgr = new SourceManager_2014();
@@ -25,14 +34,12 @@ class SourceManager_2014 extends SourceManager {
 		return mgr;
 	}
 
-	@Override
-	String path() {
+	@Override String path() {
 		return PATH;
 	}
-	
-	@Override
-	void init() {
-		
+
+	@Override void init() {
+
 		// @formatter:off
 				
 		// *******  WUS fault  *******
@@ -72,71 +79,119 @@ class SourceManager_2014 extends SourceManager {
 		//		0.54 fixed standardMFD
 		//		0.36 adapt standardMFD
 		//		0.06 fixed truncatedM8
-		//		0.04 adapt truncatedM8		
+		//		0.04 adapt truncatedM8
+		//
+		// ss:n and ss:r is 1/3:2/3 of 0.333:0.667 due to implementation difficulties
+		// wrt hangin wall terms, input files were further decomposed on the basis of
+		// focal mechanism.
+		//
+		// EXTensional WUS is 1/3:2/3 gr:ch; other WUS grids are 50/50 gr:ch
 		
-		// EXT
+		String path = "WUS/gridded/convert/";
+//		// EXT - original files and weights
+//		// 0.54 weight after combining
+//		files.add(create("WUS/gridded/EXTmap_2014_fixSm_n.ch.in",   0.2403));   // 0.445
+//		files.add(create("WUS/gridded/EXTmap_2014_fixSm_n.gr.in",   0.11988));  // 0.222
+//		files.add(create("WUS/gridded/EXTmap_2014_fixSm_ss.ch.in",  0.11988));  // 0.222
+//		files.add(create("WUS/gridded/EXTmap_2014_fixSm_ss.gr.in",  0.05994));  // 0.111
+//		// 0.36 weight after combining
+//		files.add(create("WUS/gridded/EXTmap_2014_adSm_n.ch.in",    0.1602));   // 0.445
+//		files.add(create("WUS/gridded/EXTmap_2014_adSm_n.gr.in",    0.07992));  // 0.222
+//		files.add(create("WUS/gridded/EXTmap_2014_adSm_ss.ch.in",   0.07992));  // 0.222
+//		files.add(create("WUS/gridded/EXTmap_2014_adSm_ss.gr.in",   0.03996));  // 0.111
+//		// 0.06 weight after combining
+//		files.add(create("WUS/gridded/EXTmap_2014_fixSm_n_M8.in",   0.04002));  // 0.667
+//		files.add(create("WUS/gridded/EXTmap_2014_fixSm_ss_M8.in",  0.01998));  // 0.333
+//		// 0.04 weight after combining
+//		files.add(create("WUS/gridded/EXTmap_2014_adSm_n_M8.in",    0.02668));  // 0.667
+//		files.add(create("WUS/gridded/EXTmap_2014_adSm_ss_M8.in",   0.01332));  // 0.333
+
+		// EXT - mech consolidation for conversion - needs 0.333:0.667 strike-slip:normal
+		// see config-restructure git branch
 		// 0.54 weight after combining
-		files.add(create("WUS/gridded/EXTmap_2014_fixSm_n.ch.in",  0.2403));   // 0.445
-		files.add(create("WUS/gridded/EXTmap_2014_fixSm_n.gr.in",  0.11988));  // 0.222
-		files.add(create("WUS/gridded/EXTmap_2014_fixSm_ss.ch.in", 0.11988));  // 0.222
-		files.add(create("WUS/gridded/EXTmap_2014_fixSm_ss.gr.in", 0.05994));  // 0.111
+		files.add(create(path + "EXTmap_2014_fixSm.ch.in",     0.36018));  // 0.667
+		files.add(create(path + "EXTmap_2014_fixSm.gr.in",     0.17982));  // 0.333
 		// 0.36 weight after combining
-		files.add(create("WUS/gridded/EXTmap_2014_adSm_n.ch.in",   0.1602));   // 0.445
-		files.add(create("WUS/gridded/EXTmap_2014_adSm_n.gr.in",   0.07992));  // 0.222
-		files.add(create("WUS/gridded/EXTmap_2014_adSm_ss.ch.in",  0.07992));  // 0.222
-		files.add(create("WUS/gridded/EXTmap_2014_adSm_ss.gr.in",  0.03996));  // 0.111
-		// 0.06 weight after combining
-		files.add(create("WUS/gridded/EXTmap_2014_fixSm_n_M8.in",  0.04002));  // 0.667
-		files.add(create("WUS/gridded/EXTmap_2014_fixSm_ss_M8.in", 0.01998));  // 0.333
-		// 0.04 weight after combining
-		files.add(create("WUS/gridded/EXTmap_2014_adSm_n_M8.in",   0.02668));  // 0.667
-		files.add(create("WUS/gridded/EXTmap_2014_adSm_ss_M8.in",  0.01332));  // 0.333
+		files.add(create(path + "EXTmap_2014_adSm.ch.in",      0.24012));  // 0.667
+		files.add(create(path + "EXTmap_2014_adSm.gr.in",      0.11988));  // 0.333
+		// 0.1 weight after combining
+		files.add(create(path + "EXTmap_2014_fixSm_M8.in",     0.06));
+		files.add(create(path + "EXTmap_2014_adSm_M8.in",      0.04));
+		
+//		// MAP - original files and weights
+//		// 0.27 weight after combining
+//		files.add(create("WUS/gridded/WUSmap_2014_fixSm_r.ch.in",   0.08991));  // 0.333
+//		files.add(create("WUS/gridded/WUSmap_2014_fixSm_r.gr.in",   0.08991));  // 0.333
+//		files.add(create("WUS/gridded/WUSmap_2014_fixSm_ss.ch.in",  0.04509));  // 0.167
+//		files.add(create("WUS/gridded/WUSmap_2014_fixSm_ss.gr.in",  0.04509));  // 0.167
+//		// 0.18 weight after combining
+//		files.add(create("WUS/gridded/WUSmap_2014_adSm_r.ch.in",    0.05994));  // 0.333
+//		files.add(create("WUS/gridded/WUSmap_2014_adSm_r.gr.in",    0.05994));  // 0.333
+//		files.add(create("WUS/gridded/WUSmap_2014_adSm_ss.ch.in",   0.03006));  // 0.167
+//		files.add(create("WUS/gridded/WUSmap_2014_adSm_ss.gr.in",   0.03006));  // 0.167
+//		// 0.03 weight after combining
+//		files.add(create("WUS/gridded/WUSmap_2014_fixSm_r_M8.in",   0.02001));  // 0.667
+//		files.add(create("WUS/gridded/WUSmap_2014_fixSm_ss_M8.in",  0.00999));  // 0.333
+//		// 0.02 weight after combining
+//		files.add(create("WUS/gridded/WUSmap_2014_adSm_r_M8.in",    0.01334));  // 0.667
+//		files.add(create("WUS/gridded/WUSmap_2014_adSm_ss_M8.in",   0.00666));  // 0.333
 
-		// MAP
+		// MAP - mech consolidation for conversion - needs 0.333:0.667 strike-slip:normal
 		// 0.27 weight after combining
-		files.add(create("WUS/gridded/WUSmap_2014_fixSm_r.ch.in",  0.08991));  // 0.333
-		files.add(create("WUS/gridded/WUSmap_2014_fixSm_r.gr.in",  0.08991));  // 0.333
-		files.add(create("WUS/gridded/WUSmap_2014_fixSm_ss.ch.in", 0.04509));  // 0.167
-		files.add(create("WUS/gridded/WUSmap_2014_fixSm_ss.gr.in", 0.04509));  // 0.167
+		files.add(create(path + "WUSmap_2014_fixSm.ch.in",     0.135));    // 0.5
+		files.add(create(path + "WUSmap_2014_fixSm.gr.in",     0.135));    // 0.5
 		// 0.18 weight after combining
-		files.add(create("WUS/gridded/WUSmap_2014_adSm_r.ch.in",   0.05994));  // 0.333
-		files.add(create("WUS/gridded/WUSmap_2014_adSm_r.gr.in",   0.05994));  // 0.333
-		files.add(create("WUS/gridded/WUSmap_2014_adSm_ss.ch.in",  0.03006));  // 0.167
-		files.add(create("WUS/gridded/WUSmap_2014_adSm_ss.gr.in",  0.03006));  // 0.167
-		// 0.03 weight after combining
-		files.add(create("WUS/gridded/WUSmap_2014_fixSm_r_M8.in",  0.02001));  // 0.667
-		files.add(create("WUS/gridded/WUSmap_2014_fixSm_ss_M8.in", 0.00999));  // 0.333
-		// 0.02 weight after combining
-		files.add(create("WUS/gridded/WUSmap_2014_adSm_r_M8.in",   0.01334));  // 0.667
-		files.add(create("WUS/gridded/WUSmap_2014_adSm_ss_M8.in",  0.00666));  // 0.333
-
-		// No Puget
-		// 0.27 weight after combining
-		files.add(create("WUS/gridded/noPuget_2014_fixSm_r.ch.in",  0.08991));  // 0.333
-		files.add(create("WUS/gridded/noPuget_2014_fixSm_r.gr.in",  0.08991));  // 0.333
-		files.add(create("WUS/gridded/noPuget_2014_fixSm_ss.ch.in", 0.04509));  // 0.167
-		files.add(create("WUS/gridded/noPuget_2014_fixSm_ss.gr.in", 0.04509));  // 0.167
-		// 0.18 weight after combining
-		files.add(create("WUS/gridded/noPuget_2014_adSm_r.ch.in",   0.05994));  // 0.333
-		files.add(create("WUS/gridded/noPuget_2014_adSm_r.gr.in",   0.05994));  // 0.333
-		files.add(create("WUS/gridded/noPuget_2014_adSm_ss.ch.in",  0.03006));  // 0.167
-		files.add(create("WUS/gridded/noPuget_2014_adSm_ss.gr.in",  0.03006));  // 0.167
-		// 0.03 weight after combining
-		files.add(create("WUS/gridded/noPuget_2014_fixSm_r_M8.in",  0.02001));  // 0.667
-		files.add(create("WUS/gridded/noPuget_2014_fixSm_ss_M8.in", 0.00999));  // 0.333
-		// 0.02 weight after combining
-		files.add(create("WUS/gridded/noPuget_2014_adSm_r_M8.in",   0.01334));  // 0.667
-		files.add(create("WUS/gridded/noPuget_2014_adSm_ss_M8.in",  0.00666));  // 0.333
-
-		// Puget
-		// 0.45 weight after combining
-		files.add(create("WUS/gridded/puget_2014_r.ch.in",  0.14985));  // 0.333
-		files.add(create("WUS/gridded/puget_2014_r.gr.in",  0.14985));  // 0.333
-		files.add(create("WUS/gridded/puget_2014_ss.ch.in", 0.07515));  // 0.167
-		files.add(create("WUS/gridded/puget_2014_ss.gr.in", 0.07515));  // 0.167
+		files.add(create(path + "WUSmap_2014_adSm.ch.in",      0.09));     // 0.5
+		files.add(create(path + "WUSmap_2014_adSm.gr.in",      0.09));     // 0.5
 		// 0.05 weight after combining
-		files.add(create("WUS/gridded/puget_2014_r_M8.in",  0.03335));  // 0.667
-		files.add(create("WUS/gridded/puget_2014_ss_M8.in", 0.01665));  // 0.333
+		files.add(create(path + "WUSmap_2014_fixSm_M8.in",     0.03));
+		files.add(create(path + "WUSmap_2014_adSm_M8.in",      0.02));
+
+//		// No Puget - original files and weights
+//		// 0.27 weight after combining
+//		files.add(create("WUS/gridded/noPuget_2014_fixSm_r.ch.in",  0.08991));  // 0.333
+//		files.add(create("WUS/gridded/noPuget_2014_fixSm_r.gr.in",  0.08991));  // 0.333
+//		files.add(create("WUS/gridded/noPuget_2014_fixSm_ss.ch.in", 0.04509));  // 0.167
+//		files.add(create("WUS/gridded/noPuget_2014_fixSm_ss.gr.in", 0.04509));  // 0.167
+//		// 0.18 weight after combining
+//		files.add(create("WUS/gridded/noPuget_2014_adSm_r.ch.in",   0.05994));  // 0.333
+//		files.add(create("WUS/gridded/noPuget_2014_adSm_r.gr.in",   0.05994));  // 0.333
+//		files.add(create("WUS/gridded/noPuget_2014_adSm_ss.ch.in",  0.03006));  // 0.167
+//		files.add(create("WUS/gridded/noPuget_2014_adSm_ss.gr.in",  0.03006));  // 0.167
+//		// 0.03 weight after combining
+//		files.add(create("WUS/gridded/noPuget_2014_fixSm_r_M8.in",  0.02001));  // 0.667
+//		files.add(create("WUS/gridded/noPuget_2014_fixSm_ss_M8.in", 0.00999));  // 0.333
+//		// 0.02 weight after combining
+//		files.add(create("WUS/gridded/noPuget_2014_adSm_r_M8.in",   0.01334));  // 0.667
+//		files.add(create("WUS/gridded/noPuget_2014_adSm_ss_M8.in",  0.00666));  // 0.333
+
+		// No Puget - mech consolidation for conversion - needs 0.667:0.333 mechmap
+		// 0.27 weight after combining
+		files.add(create(path + "noPuget_2014_fixSm.ch.in",    0.135));    // 0.5
+		files.add(create(path + "noPuget_2014_fixSm.gr.in",    0.135));    // 0.5
+		// 0.18 weight after combining
+		files.add(create(path + "noPuget_2014_adSm.ch.in",     0.09));     // 0.5
+		files.add(create(path + "noPuget_2014_adSm.gr.in",     0.09));     // 0.5
+		// 0.05 weight after combining
+		files.add(create(path + "noPuget_2014_fixSm_M8.in",    0.03));
+		files.add(create(path + "noPuget_2014_adSm_M8.in",     0.02));
+
+//		// Puget - original files and weights
+//		// 0.45 weight after combining
+//		files.add(create("WUS/gridded/puget_2014_r.ch.in",          0.14985));  // 0.333
+//		files.add(create("WUS/gridded/puget_2014_r.gr.in",          0.14985));  // 0.333
+//		files.add(create("WUS/gridded/puget_2014_ss.ch.in",         0.07515));  // 0.167
+//		files.add(create("WUS/gridded/puget_2014_ss.gr.in",         0.07515));  // 0.167
+//		// 0.05 weight after combining
+//		files.add(create("WUS/gridded/puget_2014_r_M8.in",          0.03335));  // 0.667
+//		files.add(create("WUS/gridded/puget_2014_ss_M8.in",         0.01665));  // 0.333
+
+		// Puget - mech consolidation for conversion - needs 0.333:0.667 strike-slip:normal
+		// 0.45 weight after combining
+		files.add(create(path + "puget_2014.ch.in",            0.225));    // 0.5
+		files.add(create(path + "puget_2014.gr.in",            0.225));    // 0.5
+		// 0.05 weight after combining
+		files.add(create(path + "puget_2014_M8.in",            0.05));
 
 		// WUS fixed strike grid holdovers from 2008 CA model
 		files.add(create("WUS/gridded/shear2_2014.in", 1.0));
@@ -144,7 +199,7 @@ class SourceManager_2014 extends SourceManager {
 		files.add(create("WUS/gridded/shear4_2014.in", 1.0));
 
 		// grid representation of faults that go with Peter Bird's deformation model
-		files.add(create("WUS/gridded/zonesPB.in",     0.1));
+		files.add(create("WUS/gridded/WUS_zones_PB.in",     0.1));
 		
 		
 		// *******  WUS intraslab  *******
@@ -219,10 +274,10 @@ class SourceManager_2014 extends SourceManager {
 		
 		// *******  CEUS grid  ******
 		
-		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_2zone.in", 0.2));
-		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_4zone.in", 0.2));
-		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_2zone.in", 0.3));
-		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_4zone.in", 0.3));
+//		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_2zone.in", 0.2));
+//		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_4zone.in", 0.2));
+//		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_2zone.in", 0.3));
+//		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_4zone.in", 0.3));
 		
 		files.add(create("CEUS/gridded/CEUSchar_2014_l.ssc67.in", 0.05));
 		files.add(create("CEUS/gridded/CEUSchar_2014_l.ssc69.in", 0.125));

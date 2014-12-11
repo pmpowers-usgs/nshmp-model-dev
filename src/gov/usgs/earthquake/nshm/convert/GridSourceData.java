@@ -24,6 +24,7 @@ import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.mfd.MfdType.GR;
+import static org.opensha.mfd.MfdType.GR_TAPER;
 import static org.opensha.mfd.MfdType.INCR;
 import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
@@ -54,6 +55,7 @@ import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.mfd.GutenbergRichterMfd;
 import org.opensha.mfd.IncrementalMfd;
+import org.opensha.mfd.MfdType;
 import org.opensha.mfd.Mfds;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
@@ -244,7 +246,8 @@ class GridSourceData {
 	}
 	
 	private void writeStandardMFDdata(Element nodeElem, int i) {
-		addAttribute(TYPE, GR, nodeElem);
+		MfdType type = grDat.cMag > 6.5 ? GR_TAPER : GR;
+		addAttribute(TYPE, type, nodeElem);
 		addAttribute(A, aDat[i], "%.8g", nodeElem);
 		if (bGrid) {
 			double nodebVal = bDat[i];
@@ -275,7 +278,7 @@ class GridSourceData {
 	 * the parser to change it. Example outputs that can be parsed as
 	 * stringToValueValueWeightMap:
 	 * 		[6.5::[5.0:1.0]; 10.0::[1.0:1.0]]	standard two depth
-	 * 		[10.0::[50.0:1.0]]					standard single dpeth
+	 * 		[10.0::[50.0:1.0]]					standard single depth
 	 */
 	static String magDepthDataToString(double mag, double[] depths) {
 		StringBuffer sb = new StringBuffer("[");

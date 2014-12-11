@@ -16,10 +16,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,29 +32,34 @@ import org.opensha.geo.LocationList;
 import org.opensha.geo.Region;
 import org.opensha.geo.Regions;
 import org.opensha.util.Parsing;
+import org.opensha.util.Parsing.Delimiter;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.TreeMultiset;
 import com.google.common.io.Files;
 import com.google.common.math.DoubleMath;
+import com.google.common.primitives.Doubles;
 
 /*
- * Convert NSHMP grid input files to XML.
+ * Convert 2014 NSHMP grid input files to XML.
+ * 
+ * This class was required because 2014 CEUS-wide grid sources have novel
+ * Mmax zonations that do not parse. The associated mMax file gives a zone
+ * id that is then used to pick an mMax distribution listed in the input file.
+ * This parser separates out each source by zone and sets up grid files
+ * that define multiple default GR Mfds.
+ * 
  * @author Peter Powers
  */
-class GridConverter {
+class GridConverter2014 {
 
-	// TODO clean up after dealing with CEUS
-	// there are craton notes and things like 'ceusScaleRates' that need
-	// consideration
-
-	// TODO kill FaultCode
-	
 	private Logger log;
-	private GridConverter() {}
+	private GridConverter2014() {}
 	
-	static GridConverter create(Logger log) {
-		GridConverter gc = new GridConverter();
+	static GridConverter2014 create(Logger log) {
+		GridConverter2014 gc = new GridConverter2014();
 		gc.log = checkNotNull(log);
 		return gc;
 	}
@@ -81,7 +88,7 @@ class GridConverter {
 //	private double strike = Double.NaN;
 
 	// generated
-	private double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
+//	private double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
 
 	// build grids using broad region but reduce to src location and mfd lists
 	// and a border (Region) used by custom calculator to skip grid entirely
@@ -97,7 +104,7 @@ class GridConverter {
 		
 		try {
 			log.info("Starting source: " + sf.name);
-			GridSourceData srcDat = new GridSourceData();
+			GridSourceData2014 srcDat = new GridSourceData2014();
 			srcDat.name = sf.name;
 			srcDat.weight = sf.weight;
 					
@@ -145,13 +152,19 @@ class GridConverter {
 			String grdDat = lines.next();
 			srcDat.fltCode = FaultCode.typeForID(Parsing.readInt(grdDat, 0));
 			srcDat.bGrid = Parsing.readInt(grdDat, 1) > 0 ? true : false;
-			srcDat.mMaxGrid = Parsing.readInt(grdDat, 2) > 0 ? true : false;
+			int mMaxFlag = Parsing.readInt(grdDat, 2);
+			srcDat.mMaxGrid = mMaxFlag > 0 ? true : false;
 			srcDat.mTaper = Parsing.readDouble(grdDat, 3); // magnitude at which wtGrid is applied
 			srcDat.weightGrid = srcDat.mTaper > 0 ? true : false;
+			
+			if (!srcDat.mMaxGrid) throw new IllegalStateException("must have mMax flag data");			
 	
 			if (srcDat.bGrid) srcDat.bGridURL = readSourceURL(lines.next(), sf);
 			if (srcDat.mMaxGrid) srcDat.mMaxGridURL = readSourceURL(lines.next(), sf);
 			if (srcDat.weightGrid) srcDat.weightGridURL = readSourceURL(lines.next(), sf);
+
+			readMaxDistros(lines, mMaxFlag, srcDat);
+
 			srcDat.aGridURL = readSourceURL(lines.next(), sf);
 	
 			// read rate information if rateType is CUMULATIVE
@@ -174,19 +187,31 @@ class GridConverter {
 				srcDat.dLat, srcDat.dLon,
 				GriddedRegion.ANCHOR_0_0);
 			
-			log.info(srcDat.toString());
-
 			initDataGrids(srcDat);
 			
+			// now that grids are populated; consolidate zoe counts in a bag
+			List<Double> mMaxValues = Doubles.asList(srcDat.mMaxDat);
+			srcDat.mMaxZoneBag = TreeMultiset.create(mMaxValues);
+
+			log.info(srcDat.toString());
+
 			String S = File.separator;
 			String outPath = dir + S + sf.region + S + sf.type + S;
-			if (sf.name.contains("2007all8")) {
-				outPath += "mb-" + (sf.name.contains(".AB.") ? "AtkinBoore" : "Johnson") + S;
+			String srcName = sf.name.substring(0, sf.name.lastIndexOf('.'));
+			String outNameBase = "ceus_" + (srcName.contains("2zone") ? "usgs_" : "sscn_") +
+					(srcName.contains("adapt") ? "adapt_" : "fixed_");
+			
+			for (int i=0; i<srcDat.mMaxWtMaps.size(); i++) {
+				// skip empty zones
+				double mMaxZoneValue = new Integer(i + 1).doubleValue();
+				if (srcDat.mMaxZoneBag.count(mMaxZoneValue) == 0) continue;
+
+				String outName = outNameBase + "z" + (i + 1) + ".xml";
+				srcDat.fName = outName;
+				File outFile = new File(outPath, outName);
+				Files.createParentDirs(outFile);
+				srcDat.writeXML(outFile, i);
 			}
-			String outName = sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
-			File outFile = new File(outPath, outName);
-			Files.createParentDirs(outFile);
-			srcDat.writeXML(outFile);
 			
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Grid parse error: exiting", e);
@@ -201,7 +226,7 @@ class GridConverter {
 	 * dependent rupture top depths. These are actually not used in favor of
 	 * fixed values for M<6.5 and M>=6.5
 	 */
-	private static void readRuptureTop(String line, GridSourceData gsd) {
+	private static void readRuptureTop(String line, GridSourceData2014 gsd) {
 		List<Double> depthDat = splitToDoubleList(line, SPACE);
 		int numDepths = depthDat.get(0).intValue();
 		double loMagDepth, hiMagDepth;
@@ -215,7 +240,7 @@ class GridConverter {
 		gsd.depths = new double[] { loMagDepth, hiMagDepth };
 	}
 
-	private static void readMechWeights(String line, GridSourceData gsd) {
+	private static void readMechWeights(String line, GridSourceData2014 gsd) {
 		List<Double> weights = splitToDoubleList(line, SPACE);
 		Map<FocalMech, Double> map = Maps.newEnumMap(FocalMech.class);
 		map.put(STRIKE_SLIP, weights.get(0));
@@ -224,20 +249,20 @@ class GridConverter {
 		gsd.mechWtMap = map;
 	}
 
-	private static void readLookupArrayDat(String line, GridSourceData gsd) {
+	private static void readLookupArrayDat(String line, GridSourceData2014 gsd) {
 		List<Double> rDat = splitToDoubleList(line, SPACE);
 		gsd.dR = rDat.get(0).intValue();
 		gsd.rMax = rDat.get(1).intValue();
 	}
 
-	private static void readSourceLatRange(String line, GridSourceData gsd) {
+	private static void readSourceLatRange(String line, GridSourceData2014 gsd) {
 		List<Double> latDat = splitToDoubleList(line, SPACE);
 		gsd.minLat = latDat.get(0);
 		gsd.maxLat = latDat.get(1);
 		gsd.dLat = latDat.get(2);
 	}
 
-	private static void readSourceLonRange(String line, GridSourceData gsd) {
+	private static void readSourceLonRange(String line, GridSourceData2014 gsd) {
 		List<Double> lonDat = splitToDoubleList(line, SPACE);
 		gsd.minLon = lonDat.get(0);
 		gsd.maxLon = lonDat.get(1);
@@ -251,8 +276,22 @@ class GridConverter {
 				path.substring(3);
 		return new URL(grdURL);
 	}
+	
+	private static void readMaxDistros(Iterator<String> lines, int size, GridSourceData2014 gsd) {
+		List<Map<Double, Double>> mMaxWtMaps = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			Map<Double, Double> mMaxWtMap = new TreeMap<>();
+			String line = lines.next();
+			List<Double> values = Parsing.splitToDoubleList(line, Delimiter.SPACE);
+			for (int j = 2; j < values.size(); j += 2) {
+				mMaxWtMap.put(values.get(j), values.get(j + 1));
+			}
+			mMaxWtMaps.add(mMaxWtMap);
+		}
+		gsd.mMaxWtMaps = mMaxWtMaps;
+	}
 
-	private static void readRateInfo(String line, GridSourceData gsd) {
+	private static void readRateInfo(String line, GridSourceData2014 gsd) {
 		List<Double> rateDat = splitToDoubleList(line, SPACE);
 		gsd.timeSpan =  rateDat.get(0);
 		gsd.rateType = (rateDat.get(1).intValue() == 0) ? 
@@ -260,7 +299,7 @@ class GridConverter {
 	}
 
 
-	private static void createGridSource(GridSourceData gsd) throws IOException {
+	private static void createGridSource(GridSourceData2014 gsd) throws IOException {
 		
 		initDataGrids(gsd);
 
@@ -286,85 +325,8 @@ class GridConverter {
 //		return gs;
 	}
 
-//	private void initSrcRegion(GriddedRegion region) {
-//		LocationList srcLocs = new LocationList();
-//		int currIdx = srcIndices[0];
-//		srcLocs.add(region.locationForIndex(currIdx));
-//		Direction startDir = Direction.WEST;
-//		Direction sweepDir = startDir.next();
-//		while (sweepDir != startDir) {
-//			int sweepIdx = region.move(currIdx, sweepDir);
-//			int nextIdx = Arrays.binarySearch(srcIndices, sweepIdx);
-//			if (nextIdx >= 0) {
-//				Location nextLoc = region.locationForIndex(srcIndices[nextIdx]);
-//				//System.out.println(aDat[srcIndices[nextIdx]] + " " + nextLoc);
-//				if (nextLoc.equals(srcLocs.get(0))) break;
-//				srcLocs.add(nextLoc);
-//				currIdx = srcIndices[nextIdx];
-//				startDir = sweepDir.opposite().next();
-//				sweepDir = startDir.next();
-//				continue;
-//			}
-//			sweepDir = sweepDir.next();
-//		}
-//		// KLUDGY san gorgonio hack; only 11 grid points whose outline (16 pts)
-	// TODO want ot create outline that steps out half a cell from each valid node
-//		// does not play nice with Region
-//		if (srcLocs.size() == 16) {
-//			for (int i=0; i < srcLocs.size(); i++) {
-//				if (i==0 || i==8) continue;
-//				double offset = (i > 8) ? 0.01 : -0.01;
-//				Location ol = srcLocs.get(i);
-//				Location nl = new Location(ol.getLatitude() + offset, ol.getLongitude());
-//				
-//				srcLocs.set(i, nl);
-//			}
-//		}
-//		border = new Region(srcLocs, null);
-//	}
 
-	
-//	private void generateMFDs(GridSourceData gsd, GriddedRegion region) {
-////		mfdList = Lists.newArrayList();
-////		srcLocs = new LocationList();
-////		List<Integer> srcIndexList = Lists.newArrayList();
-//
-//		for (int i = 0; i < aDat.length; i++) {
-//			if (aDat[i] == 0) {
-//				continue;
-//			}
-//			// use fixed value if mMax matrix value was 0
-//			double maxM = mMaxDat[i] <= 0 ? grSrc.mMax : mMaxDat[i];
-//			// a-value is stored as log10(a)
-//			GR_Data gr = new GR_Data(aDat[i], bDat[i], mMinDat[i], maxM,
-//				grSrc.dMag);
-//			GutenbergRichterMFD mfd = new GutenbergRichterMFD(
-//				gr.mMin, gr.nMag, gr.dMag, 1.0, gr.bVal);
-//			mfd.scaleToIncrRate(gr.mMin, incrRate(gr.aVal, gr.bVal, gr.mMin));
-//			// apply weight
-//			if (weightGrid && mfd.getMaxX() >= mTaper) {
-//				int j = mfd.getXIndex(mTaper + grSrc.dMag / 2);
-//				for (; j < mfd.getNum(); j++)
-//					mfd.set(j, mfd.getY(j) * wgtDat[i]);
-//			}
-//			mfdList.add(mfd);
-//			srcLocs.add(region.locationForIndex(i));
-////			if (Locations.areSimilar(region.locationForIndex(i), 
-////				NEHRP_TestCity.SEATTLE.location())) {
-////				System.out.println("aVal: " + aDat[i]);
-////			}
-////			if (i==61222) {
-////				System.out.println("aValMax: " + aDat[i]);
-////				System.out.println(mfd);
-////			}
-//			srcIndexList.add(i);
-//		}
-//		srcIndices = Ints.toArray(srcIndexList);
-////		System.out.println("max aVal: " + Doubles.max(aDat));
-////		System.out.println("max aVal: " + Math.pow(10, Doubles.max(aDat)));
-//	}
-
-	private static void initDataGrids(GridSourceData gsd) throws IOException {
+	private static void initDataGrids(GridSourceData2014 gsd) throws IOException {
 		int nRows = (int) Math.rint((gsd.maxLat - gsd.minLat) / gsd.dLat) + 1;
 		int nCols = (int) Math.rint((gsd.maxLon - gsd.minLon) / gsd.dLon) + 1;
 		
@@ -391,12 +353,6 @@ class GridConverter {
 		if (gsd.weightGrid) {
 			gsd.wgtDat = readGrid(gsd.weightGridURL, nRows, nCols);
 		}
-	}
-
-	private static double[] makeGrid(int size, double value) {
-		double[] dat = new double[size];
-		Arrays.fill(dat, value);
-		return dat;
 	}
 
 }

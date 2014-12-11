@@ -2,6 +2,7 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.B;
+import static org.opensha.eq.model.SourceAttribute.C_MAG;
 import static org.opensha.eq.model.SourceAttribute.D_MAG;
 import static org.opensha.eq.model.SourceAttribute.M_MAX;
 import static org.opensha.eq.model.SourceAttribute.M_MIN;
@@ -9,6 +10,7 @@ import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha.mfd.MfdType.GR;
+import static org.opensha.mfd.MfdType.GR_TAPER;
 import static org.opensha.mfd.Mfds.magCount;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.opensha.mfd.MfdType;
 import org.opensha.util.Parsing;
 import org.opensha.util.Parsing.Delimiter;
 import org.w3c.dom.Element;
@@ -36,6 +39,7 @@ public class GR_Data implements MFD_Data {
 	double mMin;
 	double mMax;
 	double dMag;
+	double cMag; // optional tapered gr corner mag
 	double weight;
 	int nMag;
 
@@ -71,6 +75,7 @@ public class GR_Data implements MFD_Data {
 		gr.mMin = grDat.get(1);
 		gr.mMax = grDat.get(2);
 		gr.dMag = grDat.get(3);
+		gr.cMag = grDat.get(4);
 		gr.recenterMagBins();
 		gr.weight = 1.0;
 		gr.nMag = magCount(gr.mMin, gr.mMax, gr.dMag);
@@ -153,7 +158,8 @@ public class GR_Data implements MFD_Data {
 	/* for use with some gird source parsers/converters */
 	public void addAttributesToElement(Element e, MFD_Data ref) {
 		// always include type
-		addAttribute(TYPE, GR, e);
+		MfdType type = cMag > 6.5 ? GR_TAPER : GR;
+		addAttribute(TYPE, type, e);
 		// always include rate
 		addAttribute(A, aVal, "%.8g", e);
 		if (ref != null) {
@@ -169,6 +175,7 @@ public class GR_Data implements MFD_Data {
 			addAttribute(M_MAX, Double.toString(mMax), e);
 			addAttribute(D_MAG, Double.toString(dMag), e);
 			addAttribute(WEIGHT, Double.toString(weight), e);
+			if (type == GR_TAPER) addAttribute(C_MAG, Double.toString(cMag), e);
 		}
 	}
 

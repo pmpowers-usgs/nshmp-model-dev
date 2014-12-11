@@ -15,8 +15,9 @@ import java.util.logging.Logger;
 import com.google.common.base.StandardSystemProperty;
 
 /*
- * Starting point for conversions from NHSMP *.in files to XML. To keep some order and preserve logs
- * by file type and region, the methods in this class process files in groups by type and region.
+ * Starting point for conversions from NHSMP *.in files to XML. To keep some
+ * order and preserve logs by file type and region, the methods in this class
+ * process files in groups by type and region.
  * 
  * @author Peter Powers
  */
@@ -86,33 +87,46 @@ class Converter {
 		
 //		files = MGR_2014.get(WUS, FAULT);
 //		convertFault(files, "2014", log);
+//		files = MGR_2014.get(WUS, GRID);
+//		convertGrid(files, "2014", log);
 //		files = MGR_2014.get(WUS, INTERFACE);
 //		convertInterface(files, "2014", log);
+//		files = MGR_2014.get(WUS, SLAB);
+//		convertSlab2014(files, "2014", log);
 //		files = MGR_2014.get(WUS, CLUSTER);
 //		convertCluster(files, "2014", log);
 
 		
 //		files = MGR_2014.get(CEUS, FAULT);
 //		convertFault(files, "2014", log);
+		files = MGR_2014.get(CEUS, GRID);
+		convertGrid(files, "2014", log);
 //		files = MGR_2014.get(CEUS, CLUSTER);
 //		convertCluster(files, "2014", log);
+		
+	}
 
-		
-		
-		// TODO problems here -- need to be broken into different depths by latitude
-		files = MGR_2014.get(WUS, SLAB);
-		convertGrid(files, "2014", log);
-	
-		
+	static void convertSlab2014(List<SourceFile> files, String yr, Logger log) {
+		String out = FCAST_DIR + yr + S;
+		SlabConverter2014 converter = SlabConverter2014.create(log);
+		for (SourceFile file : files) {
+			checkArgument(file.type == SLAB, "Wrong file type: %s", file.type.name());
+			converter.convert(file, out);
+		}
 	}
 
 	static void convertGrid(List<SourceFile> files, String yr, Logger log) {
 		String out = FCAST_DIR + yr + S;
 		GridConverter converter = GridConverter.create(log);
+		GridConverter2014 convert2014 = GridConverter2014.create(log);
 		for (SourceFile file : files) {
 			checkArgument(file.type == GRID || file.type == SLAB, "Wrong file type: %s",
 				file.type.name());
-			converter.convert(file, out);
+			if (file.name.contains("zone")) {
+				convert2014.convert(file, out);
+			} else {
+				converter.convert(file, out);
+			}
 		}
 	}
 
@@ -142,8 +156,6 @@ class Converter {
 			converter.convert(file, out, yr.equals("2014") ? MGR_2014 : MGR_2008);
 		}
 	}
-	
-
 	
 	static Logger createLogger(Class<?> clazz, String name, SourceRegion region, String yr) {
 		String time = sdf.format(new Date());
