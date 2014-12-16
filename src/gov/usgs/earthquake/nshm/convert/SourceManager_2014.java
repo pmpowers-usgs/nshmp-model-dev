@@ -274,10 +274,10 @@ class SourceManager_2014 extends SourceManager {
 		
 		// *******  CEUS grid  ******
 		
-//		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_2zone.in", 0.2));
-//		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_4zone.in", 0.2));
-//		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_2zone.in", 0.3));
-//		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_4zone.in", 0.3));
+		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_2zone.in", 0.2));
+		files.add(create("CEUS/gridded/CEUS_adaptGridded_2014_4zone.in", 0.2));
+		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_2zone.in", 0.3));
+		files.add(create("CEUS/gridded/CEUS_fixRGridded_2014_4zone.in", 0.3));
 		
 		files.add(create("CEUS/gridded/CEUSchar_2014_l.ssc67.in", 0.05));
 		files.add(create("CEUS/gridded/CEUSchar_2014_l.ssc69.in", 0.125));
@@ -306,6 +306,7 @@ class SourceManager_2014 extends SourceManager {
 		files.add(create("CEUS/gridded/ERM-S1_RLME_2014.730.in", 0.12));
 		files.add(create("CEUS/gridded/ERM-S1_RLME_2014.750.in", 0.12));
 		files.add(create("CEUS/gridded/ERM-S1_RLME_2014.770.in", 0.03));
+		
 		files.add(create("CEUS/gridded/ERM-S2_RLME_2014.670.in", 0.06));
 		files.add(create("CEUS/gridded/ERM-S2_RLME_2014.690.in", 0.08));
 		files.add(create("CEUS/gridded/ERM-S2_RLME_2014.710.in", 0.08));

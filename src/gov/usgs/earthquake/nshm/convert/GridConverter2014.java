@@ -2,6 +2,7 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
+import static gov.usgs.earthquake.nshm.util.FaultCode.LONG_HEADER;
 import static gov.usgs.earthquake.nshm.util.RateType.CUMULATIVE;
 import static gov.usgs.earthquake.nshm.util.RateType.INCREMENTAL;
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
@@ -18,6 +19,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.geo.Location;
@@ -34,22 +38,34 @@ import org.opensha.geo.Regions;
 import org.opensha.util.Parsing;
 import org.opensha.util.Parsing.Delimiter;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multiset;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.common.collect.TreeMultiset;
 import com.google.common.io.Files;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
 
 /*
- * Convert 2014 NSHMP grid input files to XML.
+ * Convert 2014 CEUS NSHMP grid input files to XML.
+ * 
+ * NOTE: Western US grid files should route through regular converter.
  * 
  * This class was required because 2014 CEUS-wide grid sources have novel
  * Mmax zonations that do not parse. The associated mMax file gives a zone
  * id that is then used to pick an mMax distribution listed in the input file.
  * This parser separates out each source by zone and sets up grid files
  * that define multiple default GR Mfds.
+ * 
+ * Converseley, all the RLMEs are defined with individual mag files that can
+ * be consolidated into single files with multiple SINGLE MFDs becuase the
+ * a-values are the same for all magnitudes.
  * 
  * @author Peter Powers
  */
@@ -66,47 +82,123 @@ class GridConverter2014 {
 
 	// path to binary grid files in grid source input files
 	private static final String SRC_DIR= "conf";
-//	private static final String GRD_DIR = "GR_DOS/";
 	
-	// parsed
-//	private String srcName;
-//	private SourceRegion srcRegion;
-//	private SourceIMR srcIMR;
-//	private double srcWt;
-//	private double minLat, maxLat, dLat;
-//	private double minLon, maxLon, dLon;
-//	private double[] depths;
-//	private Map<FocalMech, Double> mechWtMap;
-//	private double dR, rMax;
-//	private GR_Data grSrc;
-//	private FaultCode fltCode;
-//	private boolean bGrid, mMaxGrid, weightGrid;
-//	private double mTaper;
-//	private URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
-//	private double timeSpan;
-//	private RateType rateType;
-//	private double strike = Double.NaN;
-
-	// generated
-//	private double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
-
-	// build grids using broad region but reduce to src location and mfd lists
-	// and a border (Region) used by custom calculator to skip grid entirely
-	private LocationList srcLocs;
-//	private List<IncrementalMFD> mfdList;
-	private Region border;
-	
-	// temp list of srcIndices used to create bounding region; list is also
-	// referenced when applying craton/margin weighs to mfds
-	private int[] srcIndices; // already sorted when built
-	
-	void convert(SourceFile sf, String dir) {
+	void convert(List<SourceFile> files, String dir) {
 		
+		Multimap<String, GridSourceData2014> srcDatMap = ArrayListMultimap.create();
+
+		// because we're trying to consolidate RLME mMax branches we agreggate
+		// parsed file data so we can extract SINGLE mag and weight data
+		for (SourceFile file : files) {
+			String id = Iterables.get(Parsing.split(file.name, Delimiter.PERIOD), 0);
+			if (id.startsWith("CEUSchar") || id.contains("RLME")) {
+				GridSourceData2014 srcDat = convert(file);
+				srcDatMap.put(id, srcDat);
+			} else {
+				GridSourceData2014 srcDat = convert(file);
+				exportZoned(srcDat, dir);
+			}
+		}
+		
+		// create map of reference source data that will contain multiple ch mfds
+		Map<String, GridSourceData2014> rlmeRefSrcDat = new HashMap<>();
+		for (String id : srcDatMap.keySet()) {
+			Collection<GridSourceData2014> srcDatList = srcDatMap.get(id);
+			for (GridSourceData2014 srcDat : srcDatList) {
+				if (rlmeRefSrcDat.containsKey(id)) {
+					rlmeRefSrcDat.get(id).chDats.add(srcDat.chDat);
+				} else {
+					srcDat.chDats = Sets.newTreeSet(Ordering.natural().onResultOf(
+						new Function<CH_Data, Double>() {
+							@Override public Double apply(CH_Data input) {
+								return input.mag;
+							}
+						}));
+					srcDat.chDats.add(srcDat.chDat);
+					rlmeRefSrcDat.put(id, srcDat);
+				}
+			}
+		}
+		
+		// now export consolidated data
+		for (GridSourceData2014 srcDat : rlmeRefSrcDat.values()) {
+			exportRlme(srcDat, dir);
+		}
+		
+	}
+	
+	void exportRlme(GridSourceData2014 srcDat, String dir) {
+		
+		// correct SINGLE mag weights in RLMEs; want to have mMax distribution
+		// weights sum to 1.0, matched to correct file weight (sum of original
+		// individual fortran input file weights)
+
+		double fileWeight = DataUtils.sum(FluentIterable.from(srcDat.chDats).transform(
+			new Function<CH_Data, Double>() {
+				@Override public Double apply(CH_Data chData) {
+					return chData.weight;
+				}
+			}).toList());
+		srcDat.weight = fileWeight;
+		for (CH_Data chDat : srcDat.chDats) {
+			chDat.weight /= fileWeight;
+		}
+		
+		try {
+			String S = File.separator;
+			String outPath = dir + S + srcDat.srcRegion + S + srcDat.srcType + S + "rlme" + S;
+			String cleanedName = cleanRlmeName(srcDat.name);
+			srcDat.fileName = cleanedName + ".xml";
+			srcDat.displayName = cleanedName;
+			File outFile = new File(outPath, srcDat.fileName);
+			Files.createParentDirs(outFile);
+			srcDat.writeXML(outFile, -1);
+
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Grid export error: exiting", e);
+			System.exit(1);
+		}
+
+	}
+
+	void exportZoned(GridSourceData2014 srcDat, String dir) {
+		try {
+			String S = File.separator;
+			String srcName = srcDat.name.substring(0, srcDat.name.lastIndexOf('.'));
+			String outPath = dir + S + srcDat.srcRegion + S + srcDat.srcType + S + 
+					(srcName.contains("2zone") ? "usgs" : "sscn") + 
+					(srcName.contains("adapt") ? "-adapt" : "-fixed") + S;
+			String displayNameBase = (srcName.contains("2zone") ? "USGS " : "SSCn ") + 
+					(srcName.contains("adapt") ? "Adaptive Smoothing " : "Fixed Smoothing ");
+			
+			for (int i = 0; i < srcDat.mMaxWtMaps.size(); i++) {
+				// skip empty zones
+				double mMaxZoneValue = new Integer(i + 1).doubleValue();
+				if (srcDat.mMaxZoneBag.count(mMaxZoneValue) == 0) continue;
+
+				srcDat.fileName = "Zone " + (i + 1) + ".xml";
+				srcDat.displayName = displayNameBase + "Zone " + (i + 1);
+				File outFile = new File(outPath, srcDat.fileName);
+				Files.createParentDirs(outFile);
+				srcDat.writeXML(outFile, i);
+			}
+
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Grid export error: exiting", e);
+			System.exit(1);
+		}
+
+	}
+	
+	GridSourceData2014 convert(SourceFile sf) {
+
 		try {
 			log.info("Starting source: " + sf.name);
 			GridSourceData2014 srcDat = new GridSourceData2014();
 			srcDat.name = sf.name;
 			srcDat.weight = sf.weight;
+			srcDat.srcRegion = sf.region;
+			srcDat.srcType = sf.type;
 					
 			Iterator<String> lines = sf.lineIterator();
 	
@@ -134,6 +226,12 @@ class GridConverter2014 {
 			if (DoubleMath.fuzzyEquals(srcDat.grDat.mMin, srcDat.grDat.mMax, 0.000001)) {
 				// if mMin == mMax, populate CH_Data field
 				srcDat.chDat = CH_Data.create(srcDat.grDat.mMin, 0.0, 1.0, false);
+				
+				// KLUDGY ultimately for the RLMEs we'll just be consolidating
+				// chData fields so we need to move the file weight to chDat
+				if (!sf.name.contains("zone")) {
+					srcDat.chDat.weight = srcDat.weight;
+				}
 			}
 			
 			// iflt, ibmat, maxMat, Mtaper
@@ -157,7 +255,7 @@ class GridConverter2014 {
 			srcDat.mTaper = Parsing.readDouble(grdDat, 3); // magnitude at which wtGrid is applied
 			srcDat.weightGrid = srcDat.mTaper > 0 ? true : false;
 			
-			if (!srcDat.mMaxGrid) throw new IllegalStateException("must have mMax flag data");			
+//			if (!srcDat.mMaxGrid) throw new IllegalStateException("must have mMax flag data");
 	
 			if (srcDat.bGrid) srcDat.bGridURL = readSourceURL(lines.next(), sf);
 			if (srcDat.mMaxGrid) srcDat.mMaxGridURL = readSourceURL(lines.next(), sf);
@@ -189,35 +287,22 @@ class GridConverter2014 {
 			
 			initDataGrids(srcDat);
 			
-			// now that grids are populated; consolidate zoe counts in a bag
-			List<Double> mMaxValues = Doubles.asList(srcDat.mMaxDat);
-			srcDat.mMaxZoneBag = TreeMultiset.create(mMaxValues);
-
+			// now that grids are populated; consolidate zone counts in a bag
+			if (srcDat.mMaxGrid) {
+				List<Double> mMaxValues = Doubles.asList(srcDat.mMaxDat);
+				srcDat.mMaxZoneBag = TreeMultiset.create(mMaxValues);
+			}
+			
 			log.info(srcDat.toString());
 
-			String S = File.separator;
-			String outPath = dir + S + sf.region + S + sf.type + S;
-			String srcName = sf.name.substring(0, sf.name.lastIndexOf('.'));
-			String outNameBase = "ceus_" + (srcName.contains("2zone") ? "usgs_" : "sscn_") +
-					(srcName.contains("adapt") ? "adapt_" : "fixed_");
-			
-			for (int i=0; i<srcDat.mMaxWtMaps.size(); i++) {
-				// skip empty zones
-				double mMaxZoneValue = new Integer(i + 1).doubleValue();
-				if (srcDat.mMaxZoneBag.count(mMaxZoneValue) == 0) continue;
-
-				String outName = outNameBase + "z" + (i + 1) + ".xml";
-				srcDat.fName = outName;
-				File outFile = new File(outPath, outName);
-				Files.createParentDirs(outFile);
-				srcDat.writeXML(outFile, i);
-			}
+			return srcDat;
 			
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Grid parse error: exiting", e);
 			System.exit(1);
 		}
 
+		return null;
 	}
 	
 	
@@ -326,16 +411,25 @@ class GridConverter2014 {
 	}
 
 
+	// long headers were added to Charleston aGrids in 2014
+	private static final int LONG_HEAD_SIZE = 896; // in bytes
+	
 	private static void initDataGrids(GridSourceData2014 gsd) throws IOException {
 		int nRows = (int) Math.rint((gsd.maxLat - gsd.minLat) / gsd.dLat) + 1;
 		int nCols = (int) Math.rint((gsd.maxLon - gsd.minLon) / gsd.dLon) + 1;
 		
 		// always have an a-grid file
-		gsd.aDat = readGrid(gsd.aGridURL, nRows, nCols);
+		gsd.aDat =( gsd.fltCode == LONG_HEADER) ?
+			readGrid(gsd.aGridURL, nRows, nCols, LONG_HEAD_SIZE) :
+			readGrid(gsd.aGridURL, nRows, nCols, 0);
+		
+//		System.out.println(gsd.aGridURL);
+//		double[] raw = readGrid(gsd.aGridURL);
+//		System.out.println(Arrays.toString(raw));
 		
 		// might have a b-grid file, but not likely
 		if (gsd.bGrid) {
-			gsd.bDat = readGrid(gsd.bGridURL, nRows, nCols);
+			gsd.bDat = readGrid(gsd.bGridURL, nRows, nCols, 0);
 			// KLUDGY numerous b-values are 0 but there is a hook in
 			// hazgridXnga5 (line 931) to override a grid based b=0 to the
 			// b-value set in the config for a grid source.
@@ -346,13 +440,28 @@ class GridConverter2014 {
 
 		// variable mMax is common
 		if (gsd.mMaxGrid) {
-			gsd.mMaxDat = readGrid(gsd.mMaxGridURL, nRows, nCols);
+			gsd.mMaxDat = readGrid(gsd.mMaxGridURL, nRows, nCols, 0);
 		}
 
 		// weights; mostly for CA
 		if (gsd.weightGrid) {
-			gsd.wgtDat = readGrid(gsd.weightGridURL, nRows, nCols);
+			gsd.wgtDat = readGrid(gsd.weightGridURL, nRows, nCols, 0);
 		}
+	}
+	
+	
+	private static String cleanRlmeName(String name) {
+		if (name.contains("char_2014_l")) return "Charleston Local Zone";
+		if (name.contains("char_2014_n")) return "Charleston Narrow Zone";
+		if (name.contains("char_2014_r")) return "Charleston Regional Zone";
+		if (name.contains("Chlvx")) return "Charlevoix Seismic Zone";
+		if (name.contains("Commerce")) return "Commerce Lineament";
+		if (name.contains("ERM-S1")) return "Eastern Rift Margin S1";
+		if (name.contains("ERM-S2")) return "Eastern Rift Margin S2";
+		if (name.contains("ERM-N")) return "Eastern Rift Margin N";
+		if (name.contains("Wabash")) return "Wabash Valley";
+		if (name.contains("Marianna")) return "Marianna Source Zone";
+		throw new IllegalStateException("Unrecognized name:" + name);
 	}
 
 }

@@ -33,6 +33,7 @@ import static org.opensha.util.Parsing.addComment;
 import static org.opensha.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.FaultCode;
 import gov.usgs.earthquake.nshm.util.RateType;
+import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.File;
@@ -40,6 +41,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,6 +56,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
+import org.opensha.eq.model.SourceType;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.mfd.GutenbergRichterMfd;
 import org.opensha.mfd.IncrementalMfd;
@@ -63,6 +66,8 @@ import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import com.google.common.math.DoubleMath;
@@ -74,9 +79,13 @@ import com.google.common.primitives.Doubles;
  */
 class GridSourceData2014 {
 
-	String name;
-	String fName;
+	String name; // original name
+	String displayName;
+	String fileName;
 	double weight;
+	
+	SourceRegion srcRegion;
+	SourceType srcType;
 
 	double[] depths;
 	double depthMag;
@@ -84,6 +93,7 @@ class GridSourceData2014 {
 
 	GR_Data grDat;
 	CH_Data chDat;
+	Set<CH_Data> chDats;
 
 	double dR, rMax;
 
@@ -131,12 +141,18 @@ class GridSourceData2014 {
 		Document doc = docBuilder.newDocument();
 		doc.setXmlStandalone(true);
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
-		addAttribute(NAME, fName, root);
-		addAttribute(WEIGHT, weight, root);
+		addAttribute(NAME, displayName, root);
+		addAttribute(WEIGHT,  DataUtils.clean(8, weight)[0], root);
 		addComment(" Original source file: " + name + " ", root);
 		doc.appendChild(root);
 		
-		writeStandardGrid(root, mMaxIndex);
+		if (mMaxIndex >= 0) {
+			// non-negative index indicates an mMax zone
+			writeZoneGrid(root, mMaxIndex);
+		} else {
+			// ignore index and write file with multiple SINGLE mfds
+			writeRlmeGrid(root);
+		}
 		
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -152,7 +168,25 @@ class GridSourceData2014 {
 	}
 	
 	// standard grid without customizations requiring incremental MFDs
-	private void writeStandardGrid(Element root, int index) {
+	private void writeRlmeGrid(Element root) {
+		Element settings = addElement(SETTINGS, root);
+		Element mfdRef = addElement(DEFAULT_MFDS, settings);
+		for (CH_Data chDat : chDats) {
+			chDat.appendTo(mfdRef, null);
+		}
+		addSourceProperties(settings);
+		Element nodesElem = addElement(NODES, root);
+		for (int i=0; i<aDat.length; i++) {
+			double aVal = aDat[i];
+			if (aVal <= 0.0) continue;
+			Element nodeElem = addElement(NODE, nodesElem);
+			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
+			writeStandardMFDdata(nodeElem, i);
+		}
+	}
+
+	// standard grid without customizations requiring incremental MFDs
+	private void writeZoneGrid(Element root, int index) {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		for (Entry<Double, Double> entry : mMaxWtMaps.get(index).entrySet()) {

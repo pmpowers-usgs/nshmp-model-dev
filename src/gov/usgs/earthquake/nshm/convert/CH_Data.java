@@ -11,6 +11,7 @@ import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 
+import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.eq.model.SourceElement;
 import org.w3c.dom.Element;
@@ -53,6 +54,7 @@ public class CH_Data implements MFD_Data {
 			addAttribute(M, mag, "%.3f", e);
 			addAttribute(FLOATS, floats, e);
 			addAttribute(WEIGHT, weight, e);
+			addAttribute(WEIGHT, DataUtils.clean(8, weight)[0], e);
 		}
 		return e;
 	}

@@ -27,7 +27,9 @@ public enum FaultCode {
 	 * Use finite sources for M&ge;6 with Atkinson and Booore mblg to Mw
 	 * converter.
 	 */
-	M_CONV_AB(4);
+	M_CONV_AB(4),
+	
+	LONG_HEADER(20);
 	
 	private int id;
 	private FaultCode(int id) {

@@ -21,6 +21,7 @@ import static org.opensha.eq.model.SourceElement.SOURCE;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.model.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addAttribute;
+import static org.opensha.util.Parsing.addComment;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.splitToDoubleList;
 import static org.opensha.util.Parsing.splitToList;
@@ -54,6 +55,7 @@ import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.mfd.Mfds;
 import org.opensha.util.Parsing;
+import org.opensha.util.Parsing.Delimiter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -89,7 +91,8 @@ class FaultConverter {
 			log.info("");
 			log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
 			Exporter export = new Exporter();
-			export.name = sf.name;	
+			export.name = sf.name;
+			export.displayName = cleanFileName(export.name);
 			export.weight = sf.weight;
 			export.region = sf.region; // mag scaling relationships are region dependent
 	
@@ -172,8 +175,7 @@ class FaultConverter {
 			// if (fName.contains("3dip")) cleanStrikeSlip(srcList);
 			
 			String S = File.separator;
-			String outPath = outDir + sf.region + S + sf.type + S + 
-					sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
+			String outPath = outDir + sf.region + S + sf.type + S + export.displayName + ".xml";
 			File outFile = new File(outPath);
 			Files.createParentDirs(outFile);
 			export.writeXML(new File(outPath));
@@ -398,6 +400,33 @@ class FaultConverter {
 				 ' ').trim();
 	}
 	
+	private static String cleanFileName(String name) {
+		
+		// CEUS conversions
+		if (name.startsWith("CEUScm")) {
+			if (name.contains("meers")) return "SSCn Meers Full Rupture";
+			if (name.contains("recur")) return "SSCn Cheraw Recurrence Model";
+			if (name.contains("srchar")) return "SSCn Cheraw Full Rupture";
+			if (name.contains("srgr")) return "SSCn Cheraw Partial Rupture";
+			return "USGS Cheraw Meers";
+		}
+		if (name.startsWith("NMFS_RFT.RLME")) return "SSCn Reelfoot";
+		if (name.startsWith("NMSZnocl")) return "USGS New Madrid";
+		
+		// WUS conversions
+		if (name.startsWith("wasatch")) return "Wasatch";
+		if (name.startsWith("2014WUS")) {
+			String rupType = (name.contains(".char.")) ? "Full Rupture" : (name.contains(".gr.")) ?
+				"Partial Rupture" : "Small Mag";
+			String cleanedName = (name.contains("zeng")) ? "Zeng Model " + rupType : 
+				(name.contains("bird")) ? "Bird Model " + rupType :
+					"Geologic Model " + rupType;
+			return cleanedName;
+		}
+		
+		return name;
+	}
+	
 	/* Wrapper class for individual sources */
 	static class SourceData {
 		SourceFile file;
@@ -434,7 +463,8 @@ class FaultConverter {
 	
 	static class Exporter {
 		
-		String name = "Unnamed Fault Source Set";
+		String name;
+		String displayName;
 		double weight = 1.0;
 		SourceRegion region = null;
 		ListMultimap<String, FaultConverter.SourceData> map = LinkedListMultimap.create();
@@ -455,8 +485,9 @@ class FaultConverter {
 			doc.setXmlStandalone(true);
 			Element root = doc.createElement(FAULT_SOURCE_SET.toString());
 			doc.appendChild(root);
-			addAttribute(NAME, name, root);
+			addAttribute(NAME, displayName, root);
 			addAttribute(WEIGHT, weight, root);
+			addComment(" Original source file: " + name + " ", root);
 
 			// reference MFDs and uncertainty
 			Element settings = addElement(SETTINGS, root);

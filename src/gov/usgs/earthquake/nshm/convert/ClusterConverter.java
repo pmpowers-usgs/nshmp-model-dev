@@ -19,6 +19,7 @@ import static org.opensha.eq.model.SourceElement.SOURCE;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.model.SourceElement.TRACE;
 import static org.opensha.util.Parsing.addAttribute;
+import static org.opensha.util.Parsing.addComment;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.splitToDoubleList;
 import static org.opensha.util.Parsing.stripComment;
@@ -86,6 +87,7 @@ class ClusterConverter {
 			log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
 			Exporter export = new Exporter();
 			export.name = sf.name;
+			export.displayName = cleanName(export.name);
 			export.weight = sf.weight; // TODO need to get weight from lookup
 										// arrays in SrcMgr
 			export.region = sf.region; // mag scaling relationships are region
@@ -169,8 +171,7 @@ class ClusterConverter {
 			// if (fName.contains("3dip")) cleanStrikeSlip(srcList);
 
 			String S = File.separator;
-			String outPath = outDir + sf.region + S + sf.type + S +
-				sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
+			String outPath = outDir + sf.region + S + sf.type + S + export.displayName + ".xml";
 			File outFile = new File(outPath);
 			Files.createParentDirs(outFile);
 			export.writeXML(new File(outPath));
@@ -316,6 +317,16 @@ class ClusterConverter {
 			throw new UnsupportedOperationException("Name not recognized: " + filename);
 		}
 	}
+	
+	private static String cleanName(String name) {
+		if (name.startsWith("wasatch")) return "Wasatch";
+		if (name.startsWith("newmad2014")) {
+			String retPer = Parsing.splitToList(name, Delimiter.PERIOD).get(1);
+			return "USGS New Madrid " + retPer + "-year";
+		}
+		if (name.startsWith("NMFS_RLME")) return "SSCn New Madrid";
+		return name;
+	}
 
 	static class ClusterData {
 		String name;
@@ -353,7 +364,8 @@ class ClusterConverter {
 
 	static class Exporter {
 
-		String name = "Unnamed Cluster Source Set";
+		String name; // original name
+		String displayName;
 		double weight = 1.0;
 		SourceRegion region = null;
 		Map<String, ClusterData> map = Maps.newLinkedHashMap();
@@ -371,8 +383,9 @@ class ClusterConverter {
 			doc.setXmlStandalone(true);
 			Element root = doc.createElement(CLUSTER_SOURCE_SET.toString());
 			doc.appendChild(root);
-			addAttribute(NAME, name, root);
+			addAttribute(NAME, displayName, root);
 			addAttribute(WEIGHT, weight, root);
+			addComment(" Original source file: " + name + " ", root);
 
 			// reference MFDs and uncertainty
 			Element settings = addElement(SETTINGS, root);

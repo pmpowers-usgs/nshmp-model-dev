@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.opensha.mfd.Mfds;
 //import org.opensha.commons.param.Parameter;
 //import org.opensha.sha.imr.AttenRelRef;
 //import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
+
 
 
 import com.google.common.base.StandardSystemProperty;
@@ -619,15 +621,15 @@ public class Utils {
 	 * @param url to read
 	 * @param nRows
 	 * @param nCols
+	 * @param hSize header size in bytes
 	 * @return a 1D array of appropriately ordered values
 	 * @throws IOException 
 	 */
-	public static double[] readGrid(URL url, int nRows, int nCols)
-			throws IOException {
+	public static double[] readGrid(URL url, int nRows, int nCols, int hSize) throws IOException {
 		int count = nRows * nCols;
 		double[] data = new double[count];
-		LittleEndianDataInputStream in = new LittleEndianDataInputStream(
-			url.openStream());
+		LittleEndianDataInputStream in = new LittleEndianDataInputStream(url.openStream());
+		in.skipBytes(hSize);
 		for (int i = 0; i < count; i++) {
 			double value = new Float(in.readFloat()).doubleValue();
 			data[calcIndex(i, nRows, nCols)] = value;
@@ -635,6 +637,18 @@ public class Utils {
 		in.close();
 		return data;
 	}
+	
+	public static double[] readGrid(URL url) throws IOException {
+		LittleEndianDataInputStream in = new LittleEndianDataInputStream(url.openStream());
+		List<Double> values = new ArrayList<>();
+		int size = in.available() / 4;
+		for (int i=0; i<size; i++) {
+			double value = new Float(in.readFloat()).doubleValue();
+			values.add(value);
+		}
+		return Doubles.toArray(values);
+	}
+
 
 	/**
 	 * Custom method to read NSHMP CEUS craton and margin files. These are

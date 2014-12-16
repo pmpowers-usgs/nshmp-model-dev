@@ -85,24 +85,24 @@ class Converter {
 		String logPath = LOG_DIR + logID + ".log";
 		Logger log = Utils.logger(logID, logPath, LEVEL);
 		
-//		files = MGR_2014.get(WUS, FAULT);
-//		convertFault(files, "2014", log);
+		files = MGR_2014.get(WUS, FAULT);
+		convertFault(files, "2014", log);
 //		files = MGR_2014.get(WUS, GRID);
 //		convertGrid(files, "2014", log);
 //		files = MGR_2014.get(WUS, INTERFACE);
 //		convertInterface(files, "2014", log);
 //		files = MGR_2014.get(WUS, SLAB);
 //		convertSlab2014(files, "2014", log);
-//		files = MGR_2014.get(WUS, CLUSTER);
-//		convertCluster(files, "2014", log);
+		files = MGR_2014.get(WUS, CLUSTER);
+		convertCluster(files, "2014", log);
 
 		
-//		files = MGR_2014.get(CEUS, FAULT);
-//		convertFault(files, "2014", log);
-		files = MGR_2014.get(CEUS, GRID);
-		convertGrid(files, "2014", log);
-//		files = MGR_2014.get(CEUS, CLUSTER);
-//		convertCluster(files, "2014", log);
+		files = MGR_2014.get(CEUS, FAULT);
+		convertFault(files, "2014", log);
+//		files = MGR_2014.get(CEUS, GRID);
+//		convertGrid(files, "2014", log);
+		files = MGR_2014.get(CEUS, CLUSTER);
+		convertCluster(files, "2014", log);
 		
 	}
 
@@ -117,16 +117,17 @@ class Converter {
 
 	static void convertGrid(List<SourceFile> files, String yr, Logger log) {
 		String out = FCAST_DIR + yr + S;
+		if (yr.equals("2014") && files.get(0).region == CEUS) {
+			GridConverter2014 convert2014 = GridConverter2014.create(log);
+			convert2014.convert(files, out);
+			return;
+		}
+		// else 2008 or WUS
 		GridConverter converter = GridConverter.create(log);
-		GridConverter2014 convert2014 = GridConverter2014.create(log);
 		for (SourceFile file : files) {
 			checkArgument(file.type == GRID || file.type == SLAB, "Wrong file type: %s",
 				file.type.name());
-			if (file.name.contains("zone")) {
-				convert2014.convert(file, out);
-			} else {
-				converter.convert(file, out);
-			}
+			converter.convert(file, out);
 		}
 	}
 

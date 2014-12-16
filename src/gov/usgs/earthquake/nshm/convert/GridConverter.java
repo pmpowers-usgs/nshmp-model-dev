@@ -369,11 +369,11 @@ class GridConverter {
 		int nCols = (int) Math.rint((gsd.maxLon - gsd.minLon) / gsd.dLon) + 1;
 		
 		// always have an a-grid file
-		gsd.aDat = readGrid(gsd.aGridURL, nRows, nCols);
+		gsd.aDat = readGrid(gsd.aGridURL, nRows, nCols, 0);
 		
 		// might have a b-grid file, but not likely
 		if (gsd.bGrid) {
-			gsd.bDat = readGrid(gsd.bGridURL, nRows, nCols);
+			gsd.bDat = readGrid(gsd.bGridURL, nRows, nCols, 0);
 			// KLUDGY numerous b-values are 0 but there is a hook in
 			// hazgridXnga5 (line 931) to override a grid based b=0 to the
 			// b-value set in the config for a grid source.
@@ -384,12 +384,12 @@ class GridConverter {
 
 		// variable mMax is common
 		if (gsd.mMaxGrid) {
-			gsd.mMaxDat = readGrid(gsd.mMaxGridURL, nRows, nCols);
+			gsd.mMaxDat = readGrid(gsd.mMaxGridURL, nRows, nCols, 0);
 		}
 
 		// weights; mostly for CA
 		if (gsd.weightGrid) {
-			gsd.wgtDat = readGrid(gsd.weightGridURL, nRows, nCols);
+			gsd.wgtDat = readGrid(gsd.weightGridURL, nRows, nCols, 0);
 		}
 	}
 
