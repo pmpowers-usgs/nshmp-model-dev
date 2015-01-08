@@ -1,19 +1,18 @@
 package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceAttribute.WIDTH;
 import static org.opensha.eq.model.SourceElement.CLUSTER;
 import static org.opensha.eq.model.SourceElement.CLUSTER_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.GEOMETRY;
 import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
+import static org.opensha.eq.model.SourceElement.GEOMETRY;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
@@ -47,7 +46,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.eq.fault.FocalMech;
-import org.opensha.eq.fault.scaling.MagScalingType;
 import org.opensha.eq.model.MagUncertainty;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
@@ -209,10 +207,6 @@ class ClusterConverter {
 			// coming from a GR conversion in a ch file; charactersitic
 			// magnitude is smaller than mag scaling would predict
 		}
-	}
-
-	private static MagScalingType getScalingRel(SourceRegion region) {
-		return region == SourceRegion.CA ? NSHMP_CA : WC_94_LENGTH;
 	}
 
 	private void read_MFDs(SourceData sd, List<String> lines, Exporter export) {
@@ -398,7 +392,7 @@ class ClusterConverter {
 
 			// source properties
 			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-			addAttribute(MAG_SCALING, getScalingRel(region), propsElem);
+			addAttribute(RUPTURE_SCALING, NSHM_FAULT_WC94_LENGTH, propsElem);
 
 			for (Entry<String, ClusterData> entry : map.entrySet()) {
 				ClusterData cd = entry.getValue();

@@ -1,5 +1,8 @@
 package gov.usgs.earthquake.nshm.convert;
 
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_SOMERVILLE;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
 import static gov.usgs.earthquake.nshm.util.FaultCode.LONG_HEADER;
@@ -64,7 +67,7 @@ import com.google.common.primitives.Doubles;
  * that define multiple default GR Mfds.
  * 
  * Converseley, all the RLMEs are defined with individual mag files that can
- * be consolidated into single files with multiple SINGLE MFDs becuase the
+ * be consolidated into single files with multiple SINGLE MFDs because the
  * a-values are the same for all magnitudes.
  * 
  * @author Peter Powers
@@ -275,6 +278,9 @@ class GridConverter2014 {
 				if (strike < 0.0) strike += 360.0;
 				srcDat.strike = strike;
 			}
+			
+			srcDat.rupScaling = srcDat.name.contains("zone") ? NSHM_SOMERVILLE
+				: NSHM_POINT_WC94_LENGTH;			
 			
 			// done reading; skip atten rel configs
 	

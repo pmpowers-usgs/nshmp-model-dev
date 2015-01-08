@@ -1,9 +1,9 @@
 package gov.usgs.earthquake.nshm.convert;
 
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.MFD_Type.GR;
-import static org.opensha.eq.fault.scaling.MagScalingType.GEOMAT;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
@@ -243,7 +243,7 @@ class SubductionConverter {
 			// source properties
 			Element settings = addElement(SETTINGS, root);
 			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-			addAttribute(MAG_SCALING, GEOMAT, propsElem);
+			addAttribute(RUPTURE_SCALING, NSHM_SUB_GEOMAT_LENGTH, propsElem);
 			
 			for (Entry<String , SourceData> entry : srcMap.entrySet()) {
 				Element src = addElement(SOURCE, root);

@@ -1,11 +1,11 @@
 package gov.usgs.earthquake.model;
 
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.STRIKE;
@@ -39,7 +39,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha.eq.fault.scaling.MagScalingType;
+import org.opensha.eq.fault.surface.RuptureScaling;
 import org.opensha.eq.model.AreaSource.GridScaling;
 import org.opensha.geo.LocationList;
 import org.opensha.mfd.IncrementalMfd;
@@ -66,8 +66,8 @@ public class AreaCreator {
 	}
 
 	public static SourceData createSource(String name, LocationList border, MFD_Data mfdData,
-			String mechStr, MagScalingType mst, GridScaling gridScaling, double strike) {
-		return new SourceData(name, border, mfdData, mechStr, mst, gridScaling, strike);
+			String mechStr, RuptureScaling rupScaling, GridScaling gridScaling, double strike) {
+		return new SourceData(name, border, mfdData, mechStr, rupScaling, gridScaling, strike);
 	}
 
 	public static class SourceData {
@@ -76,16 +76,16 @@ public class AreaCreator {
 		private MFD_Data mfdData;
 		private Double strike;
 		private String mechStr;
-		private MagScalingType mst;
+		private RuptureScaling rupScaling;
 		private GridScaling gridScaling;
 
 		SourceData(String name, LocationList border, MFD_Data mfdData, String mechStr,
-			MagScalingType mst, GridScaling gridScaling, Double strike) {
+			RuptureScaling rupScaling, GridScaling gridScaling, Double strike) {
 			this.name = name;
 			this.border = border;
 			this.mfdData = mfdData;
 			this.mechStr = mechStr;
-			this.mst = mst;
+			this.rupScaling = rupScaling;
 			this.gridScaling = gridScaling;
 			this.strike = strike;
 		}
@@ -148,7 +148,7 @@ public class AreaCreator {
 	private void addSourceProperties(Element settings) {
 		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
 		addAttribute(MAG_DEPTH_MAP, depthStr, propsElem);
-		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
+		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
 	}
 
 }

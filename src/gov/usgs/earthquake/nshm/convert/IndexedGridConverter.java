@@ -6,19 +6,19 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAGS;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RATES;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.STRIKE;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
-import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
@@ -210,7 +210,7 @@ public class IndexedGridConverter {
 		addAttribute(MAG_DEPTH_MAP, magDepthData, propsElem);
 		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(defaultMechMap), propsElem);
 		addAttribute(STRIKE, Double.NaN, propsElem);
-		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
+		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
 		
         Element nodesOut = addElement(NODES, rootOut);
         

@@ -3,12 +3,11 @@ package gov.usgs.earthquake.nshm.convert;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.B;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAGS;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.M_MAX;
 import static org.opensha.eq.model.SourceAttribute.NAME;
@@ -52,6 +51,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
+import org.opensha.eq.fault.surface.RuptureScaling;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.geo.Location;
 import org.opensha.mfd.GutenbergRichterMfd;
@@ -106,6 +106,7 @@ class SlabSourceData2014 {
 	RateType rateType;
 
 	double strike = Double.NaN;
+	RuptureScaling rupScaling;
 
 	GriddedRegion region;
 	double[] aDat, bDat, mMaxDat, wgtDat;
@@ -194,7 +195,7 @@ class SlabSourceData2014 {
 		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
 		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
 		addAttribute(STRIKE, strike, propsElem);
-		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
+		addAttribute(RUPTURE_SCALING, rupScaling, propsElem);
 	}
 			
 	/*

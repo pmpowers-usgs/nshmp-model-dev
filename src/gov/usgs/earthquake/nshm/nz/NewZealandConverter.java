@@ -1,31 +1,30 @@
 package gov.usgs.earthquake.nshm.nz;
 
-import static org.opensha.gmm.Gmm.*;
 import static com.google.common.base.Preconditions.checkState;
 import static gov.usgs.earthquake.nshm.nz.NZ_SourceID.NN;
 import static gov.usgs.earthquake.nshm.nz.NZ_SourceID.NV;
 import static gov.usgs.earthquake.nshm.nz.NZ_SourceID.RV;
-import static gov.usgs.earthquake.nshm.nz.NZ_SourceID.RO;
 import static gov.usgs.earthquake.nshm.nz.NZ_SourceID.SR;
 import static gov.usgs.earthquake.nshm.nz.NZ_SourceID.SS;
 import static org.opensha.eq.TectonicSetting.ACTIVE_SHALLOW_CRUST;
 import static org.opensha.eq.TectonicSetting.SUBDUCTION_INTERFACE;
 import static org.opensha.eq.TectonicSetting.VOLCANIC;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.STRIKE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceAttribute.WIDTH;
+import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.FAULT_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.GEOMETRY;
 import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
@@ -37,6 +36,10 @@ import static org.opensha.eq.model.SourceType.FAULT;
 import static org.opensha.eq.model.SourceType.GRID;
 import static org.opensha.eq.model.SourceType.INTERFACE;
 import static org.opensha.eq.model.SourceType.SLAB;
+import static org.opensha.gmm.Gmm.MCVERRY_00_CRUSTAL;
+import static org.opensha.gmm.Gmm.MCVERRY_00_INTERFACE;
+import static org.opensha.gmm.Gmm.MCVERRY_00_SLAB;
+import static org.opensha.gmm.Gmm.MCVERRY_00_VOLCANIC;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
@@ -52,7 +55,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -364,7 +366,7 @@ class NewZealandConverter {
 		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(10.0, new double[] {depth, depth}), propsElem);
 		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(id.mechWtMap()), propsElem);
 		addAttribute(STRIKE, Double.NaN, propsElem);
-		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
+		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
 	}
 	
 	private static String magDepthDataToString(double mag, double[] depths) {
@@ -421,7 +423,7 @@ class NewZealandConverter {
 			 
 			 // source properties
 			 Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-			 addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
+			 addAttribute(RUPTURE_SCALING, NSHM_FAULT_WC94_LENGTH, propsElem);
 
 			for (FaultData fault : faultDataList) {
 

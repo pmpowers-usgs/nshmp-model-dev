@@ -8,6 +8,7 @@ import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
 import static org.opensha.util.Parsing.splitToDoubleList;
 import static org.opensha.util.Parsing.Delimiter.SPACE;
 import gov.usgs.earthquake.nshm.util.FaultCode;
@@ -67,39 +68,6 @@ class SlabConverter2014 {
 
 	// path to binary grid files in grid source input files
 	private static final String SRC_DIR= "conf";
-//	private static final String GRD_DIR = "GR_DOS/";
-	
-	// parsed
-//	private String srcName;
-//	private SourceRegion srcRegion;
-//	private SourceIMR srcIMR;
-//	private double srcWt;
-//	private double minLat, maxLat, dLat;
-//	private double minLon, maxLon, dLon;
-//	private double[] depths;
-//	private Map<FocalMech, Double> mechWtMap;
-//	private double dR, rMax;
-//	private GR_Data grSrc;
-//	private FaultCode fltCode;
-//	private boolean bGrid, mMaxGrid, weightGrid;
-//	private double mTaper;
-//	private URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
-//	private double timeSpan;
-//	private RateType rateType;
-//	private double strike = Double.NaN;
-
-	// generated
-	private double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
-
-	// build grids using broad region but reduce to src location and mfd lists
-	// and a border (Region) used by custom calculator to skip grid entirely
-	private LocationList srcLocs;
-//	private List<IncrementalMFD> mfdList;
-	private Region border;
-	
-	// temp list of srcIndices used to create bounding region; list is also
-	// referenced when applying craton/margin weighs to mfds
-	private int[] srcIndices; // already sorted when built
 	
 	void convert(SourceFile sf, String dir) {
 		
@@ -173,6 +141,8 @@ class SlabConverter2014 {
 				srcDat.strike = strike;
 			}
 			
+			srcDat.rupScaling = NSHM_SUB_GEOMAT_LENGTH;
+
 			// done reading; skip atten rel configs
 	
 			srcDat.region = Regions.createRectangularGridded(

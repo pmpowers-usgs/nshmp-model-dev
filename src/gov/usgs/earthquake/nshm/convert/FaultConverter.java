@@ -1,14 +1,14 @@
 package gov.usgs.earthquake.nshm.convert;
 
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_CA_ELLB_WC94_AREA;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.StandardSystemProperty.LINE_SEPARATOR;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
-import static org.opensha.eq.fault.scaling.MagScalingType.NSHMP_CA;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
@@ -49,7 +49,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.eq.fault.FocalMech;
-import org.opensha.eq.fault.scaling.MagScalingType;
+import org.opensha.eq.fault.surface.RuptureScaling;
 import org.opensha.eq.model.MagUncertainty;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
@@ -263,8 +263,8 @@ class FaultConverter {
 		return name.startsWith("aFault") || name.startsWith("bFault");
 	}
 	
-	private static MagScalingType getScalingRel(String name) {
-		return isCA(name) ? NSHMP_CA : WC_94_LENGTH;
+	private static RuptureScaling getScalingModel(String name) {
+		return isCA(name) ? NSHM_FAULT_CA_ELLB_WC94_AREA : NSHM_FAULT_WC94_LENGTH;
 	}
 	
 	private void initRefGR(Exporter export) {
@@ -501,7 +501,7 @@ class FaultConverter {
 
 			// source properties
 			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-			addAttribute(MAG_SCALING, getScalingRel(name), propsElem);
+			addAttribute(RUPTURE_SCALING, getScalingModel(name), propsElem);
 			
 			for (String name : map.keySet()) {
 				

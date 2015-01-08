@@ -1,18 +1,29 @@
 package gov.usgs.earthquake.peer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import gov.usgs.earthquake.nshm.convert.CH_Data;
 import gov.usgs.earthquake.nshm.convert.GR_Data;
 
+import org.opensha.data.XY_Sequence;
 import org.opensha.eq.Magnitudes;
 
 import static org.opensha.geo.GeoTools.TO_RAD;
 
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
+import org.opensha.gmm.Gmm;
 import org.opensha.mfd.GaussianMfd;
+import org.opensha.mfd.GutenbergRichterMfd;
 import org.opensha.mfd.IncrementalMfd;
 import org.opensha.mfd.Mfds;
 import org.opensha.mfd.YC_1985_CharMfd;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 /**
  * Add comments here
@@ -25,15 +36,19 @@ public class PeerTests {
 	
 	static final LocationList FAULT_SITES;
 	static final LocationList FAULT_SOURCE_TRACE;
-	static final double FAULT_LENGTH = 25.0; // km
 	static final double FAULT1_ZTOP = 0.0; // km
 	static final double FAULT1_ZBOT = 12.0; // km
+	static final double FAULT1_WIDTH = FAULT1_ZBOT - FAULT1_ZTOP; // km
+	static final double FAULT1_LENGTH = 25.0; // km
 	static final double FAULT1_DIP = 90.0;
+	static final double FAULT1_RAKE = 0.0;
 	
 	static final double FAULT2_ZTOP = 1.0; // km
 	static final double FAULT2_ZBOT = 12.0; // km
 	static final double FAULT2_DIP = 60.0; // degrees
-	
+	static final double FAULT2_WIDTH = (FAULT2_ZBOT - FAULT2_ZTOP) / Math.sin(FAULT2_DIP * TO_RAD);
+	static final double FAULT2_LENGTH = FAULT1_LENGTH;
+	static final double FAULT2_RAKE = 90.0;
 
 	static final String AREA_DEPTH_STR;
 	static final String AREA_DEPTH_VAR_STR;
@@ -45,6 +60,8 @@ public class PeerTests {
 	static final double SINGLE_M2 = 6.0;
 	static final double GR_MIN = 5.0;
 	static final double GR_MAX = 6.5;
+	static final double YC_MAX = 6.45;
+	static final double YC_MAX_BIN = 6.445;
 	static final double GAUSS_MEAN = 6.2;
 	static final double GAUSS_SIGMA = 0.25;
 	static final double SLIP_RATE = 2.0; // mm/yr
@@ -63,23 +80,26 @@ public class PeerTests {
 	static final IncrementalMfd F1_YC_CHAR_FLOAT_MFD;		// case 7
 	static final IncrementalMfd A1_GR_MFD;					// case 10,11
 	
+	static final List<Double> GMM_CUTOFFS = Lists.newArrayList(200.0);
+	static final Map<Gmm, Double> GMM_WT_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
+	static final List<Map<Gmm, Double>> GMM_MAP_LIST = Lists.newArrayList(GMM_WT_MAP);
+	
 	public static void main(String[] args) {
-		System.out.println(F1_SINGLE_6P5_MFD);
-		System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
-		System.out.println(F2_SINGLE_6P0_FLOAT_MFD);
-		System.out.println(F1_GR_FLOAT_MFD);
+//		System.out.println(F1_SINGLE_6P5_MFD);
+//		System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
+//		System.out.println(F2_SINGLE_6P0_FLOAT_MFD);
+//		System.out.println(F1_GR_FLOAT_MFD);
 		System.out.println(F1_GAUSS_FLOAT_MFD);
-		System.out.println(F1_YC_CHAR_FLOAT_MFD);
-		System.out.println(A1_GR_MFD);
+//		System.out.println(F1_YC_CHAR_FLOAT_MFD);
+//		System.out.println(A1_GR_MFD);
 		
 //		System.out.println(F1_TMR);
 //		System.out.println(F2_TMR);
 	}
 
 	static {
-		double f1area = FAULT_LENGTH * 1000.0 * FAULT1_ZBOT * 1000.0;
-		double f2width = (FAULT2_ZBOT - FAULT2_ZTOP) / Math.sin(FAULT2_DIP * TO_RAD);
-		double f2area = FAULT_LENGTH * 1000.0 * f2width * 1000.0;
+		double f1area = FAULT1_LENGTH * 1000.0 * FAULT1_WIDTH * 1000.0;
+		double f2area = FAULT2_LENGTH * 1000.0 * FAULT2_WIDTH * 1000.0;
 		
 		double f1tmr = Magnitudes.moment(f1area, SLIP_RATE / 1000.0);
 		double f2tmr = Magnitudes.moment(f2area, SLIP_RATE / 1000.0);
@@ -87,18 +107,33 @@ public class PeerTests {
 		F1_SINGLE_6P5_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_M1, f1tmr, false);
 		F1_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_M2, f1tmr, true);
 		F2_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_M2, f2tmr, true);
-		F1_GR_FLOAT_MFD = Mfds.newGutenbergRichterMoBalancedMFD(5.05, 0.1, 16, B_VAL, f1tmr);
+
+		IncrementalMfd gmMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, f1tmr);
+		F1_GR_FLOAT_MFD = trimToRange(gmMfd, GR_MIN, GR_MAX);
 		
-		GaussianMfd gaussMfd = new GaussianMfd(GR_MIN, GR_MAX, 100);
+		GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000);
 		gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, f1tmr, 1.19, 1);
-		F1_GAUSS_FLOAT_MFD = gaussMfd;
+		F1_GAUSS_FLOAT_MFD = trimToRange(gaussMfd, GR_MIN, GR_MAX);
 		
-//		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, 6.445, 0.49, 5.945, 1.0, B_VAL, f1tmr);
-		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.05, 101, 0.1, 0.05, 6.45, 0.5, 5.85, 1.0, B_VAL, f1tmr);
-		F1_YC_CHAR_FLOAT_MFD = ycMfd;
+		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX_BIN, 0.49, 5.945, 1.0, B_VAL, f1tmr);
+		F1_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX);
 		
-		A1_GR_MFD = Mfds.newGutenbergRichterMFD(5.05, 0.1, 16, B_VAL, AREA_EVENT_RATE);
+		A1_GR_MFD = Mfds.newGutenbergRichterMFD(5.05, 0.1, 15, B_VAL, AREA_EVENT_RATE);
 		
+	}
+	
+	private static IncrementalMfd trimToRange(IncrementalMfd mfd, double mMin, double mMax) {
+		List<Double> mags = new ArrayList<>();
+		List<Double> rates = new ArrayList<>();
+		for (int i=0; i<mfd.getNum(); i++) {
+			double mag = mfd.getX(i);
+			double rate = mfd.getY(i);
+			if (mag > mMin && mag < mMax && rate > 0.0) {
+				mags.add(mag);
+				rates.add(rate);
+			}
+		}
+		return Mfds.newIncrementalMFD(Doubles.toArray(mags), Doubles.toArray(rates));
 	}
 	
 	static {

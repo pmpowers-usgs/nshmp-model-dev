@@ -3,33 +3,27 @@ package gov.usgs.earthquake.nshm.convert;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.fault.scaling.MagScalingType.WC_94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.B;
-import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha.eq.model.SourceAttribute.MAGS;
-import static org.opensha.eq.model.SourceAttribute.MAG_SCALING;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
-import static org.opensha.eq.model.SourceAttribute.M_MAX;
+import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha.eq.model.SourceAttribute.NAME;
-import static org.opensha.eq.model.SourceAttribute.RATES;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.STRIKE;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
-import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
+import static org.opensha.eq.model.SourceElement.GRID_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.mfd.MfdType.GR;
 import static org.opensha.mfd.MfdType.GR_TAPER;
-import static org.opensha.mfd.MfdType.INCR;
 import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
-import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.addComment;
+import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.FaultCode;
 import gov.usgs.earthquake.nshm.util.RateType;
@@ -56,22 +50,15 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
+import org.opensha.eq.fault.surface.RuptureScaling;
 import org.opensha.eq.model.SourceType;
 import org.opensha.geo.GriddedRegion;
-import org.opensha.mfd.GutenbergRichterMfd;
-import org.opensha.mfd.IncrementalMfd;
 import org.opensha.mfd.MfdType;
-import org.opensha.mfd.Mfds;
-import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.TreeMultiset;
 import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Doubles;
 
 /*
  * Grid source data container.
@@ -115,6 +102,8 @@ class GridSourceData2014 {
 	RateType rateType;
 
 	double strike = Double.NaN;
+	
+	RuptureScaling rupScaling;
 
 	GriddedRegion region;
 	double[] aDat, bDat, mMaxDat, wgtDat;
@@ -181,8 +170,21 @@ class GridSourceData2014 {
 			if (aVal <= 0.0) continue;
 			Element nodeElem = addElement(NODE, nodesElem);
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
-			writeStandardMFDdata(nodeElem, i);
+			writeRlmeMFDdata(nodeElem, i);
 		}
+	}
+
+	private void writeRlmeMFDdata(Element nodeElem, int i) {
+		MfdType type = SINGLE;
+		addAttribute(TYPE, type, nodeElem);
+		addAttribute(A, aDat[i], "%.8g", nodeElem);
+		if (bGrid) {
+			double nodebVal = bDat[i];
+			if (!DoubleMath.fuzzyEquals(nodebVal, grDat.bVal, 0.000001)) {
+				addAttribute(B, nodebVal, "%.6f", nodeElem);
+			}
+		}
+		// never any mMax grid
 	}
 
 	// standard grid without customizations requiring incremental MFDs
@@ -204,11 +206,11 @@ class GridSourceData2014 {
 			if (mMaxFlagIndex != index) continue; 
 			Element nodeElem = addElement(NODE, nodesElem);
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
-			writeStandardMFDdata(nodeElem, i);
+			writeZoneMFDdata(nodeElem, i);
 		}
 	}
 	
-	private void writeStandardMFDdata(Element nodeElem, int i) {
+	private void writeZoneMFDdata(Element nodeElem, int i) {
 		MfdType type = grDat.cMag > 6.5 ? GR_TAPER : GR;
 		addAttribute(TYPE, type, nodeElem);
 		addAttribute(A, aDat[i], "%.8g", nodeElem);
@@ -227,7 +229,7 @@ class GridSourceData2014 {
 		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
 		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
 		addAttribute(STRIKE, strike, propsElem);
-		addAttribute(MAG_SCALING, WC_94_LENGTH, propsElem);
+		addAttribute(RUPTURE_SCALING, rupScaling, propsElem);
 	}
 			
 	/*
