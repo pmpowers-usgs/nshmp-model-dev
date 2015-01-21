@@ -2,7 +2,7 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.MFD_Type.GR;
-import static org.opensha.eq.model.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;

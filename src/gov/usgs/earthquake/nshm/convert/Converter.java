@@ -33,8 +33,8 @@ class Converter {
 	private static final Level LEVEL = Level.INFO;
 		
 	public static void main(String[] args) {
-//		convert2008();
-		convert2014();
+		convert2008();
+//		convert2014();
 		
 //		for (SourceFile sf : MGR_2014.getAll()) {
 //			System.out.println(sf);

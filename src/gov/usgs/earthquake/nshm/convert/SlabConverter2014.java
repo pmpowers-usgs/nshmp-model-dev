@@ -8,7 +8,7 @@ import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.model.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
 import static org.opensha.util.Parsing.splitToDoubleList;
 import static org.opensha.util.Parsing.Delimiter.SPACE;
 import gov.usgs.earthquake.nshm.util.FaultCode;

@@ -1,7 +1,7 @@
 package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.opensha.eq.model.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
 import static org.opensha.eq.model.SourceAttribute.NAME;

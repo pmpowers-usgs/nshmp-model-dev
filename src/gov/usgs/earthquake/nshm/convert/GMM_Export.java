@@ -123,7 +123,7 @@ public class GMM_Export {
 	private static final double[] WUS_UNC_14 = { 0.370, 0.250, 0.400, 0.220, 0.230, 0.360, 0.220, 0.230, 0.330 };
 
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
-	private static final String FORECAST_DIR = "forecasts";
+	private static final String MODEL_DIR = "models";
 	private static final String GMM_FILE = "gmm.xml";
 	private static final String CEUS_DIR = SourceRegion.CEUS.toString();
 	private static final String WUS_DIR = SourceRegion.WUS.toString();
@@ -132,6 +132,8 @@ public class GMM_Export {
 		GMM_Export exporter = new GMM_Export();
 		exporter.createCEUS_2008();
 		exporter.createWUS_2008();
+		exporter.createCEUS_2014();
+		exporter.createWUS_2014();
 	}
 	
 	GMM_Export() {
@@ -140,7 +142,7 @@ public class GMM_Export {
 	
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createCEUS_2008() throws Exception {
-		Path modelDir = Paths.get(FORECAST_DIR, "2008", CEUS_DIR);
+		Path modelDir = Paths.get(MODEL_DIR, "2008", CEUS_DIR);
 		for (SourceType type : SourceType.values()) {
 			Path typeDir = modelDir.resolve(type.toString());
 			if (!Files.exists(typeDir)) continue;
@@ -180,7 +182,7 @@ public class GMM_Export {
 	
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createCEUS_2014() throws Exception {
-		Path modelDir = Paths.get(FORECAST_DIR, "2014", CEUS_DIR);
+		Path modelDir = Paths.get(MODEL_DIR, "2014", CEUS_DIR);
 		for (SourceType type : SourceType.values()) {
 			Path typeDir = modelDir.resolve(type.toString());
 			if (!Files.exists(typeDir)) continue;
@@ -210,7 +212,7 @@ public class GMM_Export {
 
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createWUS_2008() throws Exception {
-		Path modelDir = Paths.get(FORECAST_DIR, "2008", WUS_DIR);
+		Path modelDir = Paths.get(MODEL_DIR, "2008", WUS_DIR);
 		for (SourceType type : SourceType.values()) {
 			Path typeDir = modelDir.resolve(type.toString());
 			if (!Files.exists(typeDir)) continue;
@@ -246,7 +248,7 @@ public class GMM_Export {
 	
 	@SuppressWarnings({"incomplete-switch", "unchecked"})
 	private void createWUS_2014() throws Exception {
-		Path modelDir = Paths.get(FORECAST_DIR, "2014", WUS_DIR);
+		Path modelDir = Paths.get(MODEL_DIR, "2014", WUS_DIR);
 		for (SourceType type : SourceType.values()) {
 			Path typeDir = modelDir.resolve(type.toString());
 			if (!Files.exists(typeDir)) continue;
@@ -262,13 +264,13 @@ public class GMM_Export {
 					writeFile(dest,
 						Lists.newArrayList(wusFaultMap14),
 						Lists.newArrayList(WUS_R_CUT_14),
-						null, null);
+						WUS_UNC_14, WUS_UNC_WTS);
 					break;
 				case GRID:
 					writeFile(dest,
 						Lists.newArrayList(wusGridMap14),
 						Lists.newArrayList(WUS_R_CUT_14),
-						null, null);
+						WUS_UNC_14, WUS_UNC_WTS);
 					break;
 				case INTERFACE:
 					writeFile(dest,

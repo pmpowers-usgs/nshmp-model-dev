@@ -1,7 +1,7 @@
 package gov.usgs.earthquake.peer;
 
 import static gov.usgs.earthquake.peer.PeerTests.*;
-import static org.opensha.eq.model.RuptureScaling.PEER;
+import static org.opensha.eq.fault.surface.RuptureScaling.PEER;
 import static org.opensha.eq.model.SourceType.*;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
