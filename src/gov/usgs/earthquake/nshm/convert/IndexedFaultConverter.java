@@ -44,7 +44,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.eq.fault.surface.GriddedSurface;
-import org.opensha.eq.fault.surface.GriddedSurfaceWithSubsets;
+import org.opensha.eq.fault.surface.DefaultGriddedSurface;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.util.Parsing;
@@ -335,7 +335,7 @@ class IndexedFaultConverter {
 				// corrected depth
 				double depth = depths.get(i) +
 					(aseises.get(i) * (lowerDepths.get(i) - depths.get(i)));
-				GriddedSurfaceWithSubsets surface = GriddedSurfaceWithSubsets.builder()
+				DefaultGriddedSurface surface = DefaultGriddedSurface.builder()
 					.trace(traces.get(i)).depth(depth).dip(dips.get(i)).dipDir(dipDirs.get(i))
 					.lowerDepth(lowerDepths.get(i)).build();
 				sections.add(surface);
@@ -456,7 +456,7 @@ class IndexedFaultConverter {
 	// }
 
 	// // from FaultSectionPrefData
-	// public synchronized GriddedSurfaceWithSubsets getSectionSurface(
+	// public synchronized DefaultGriddedSurface getSectionSurface(
 	// double gridSpacing, boolean preserveGridSpacingExactly,
 	// boolean aseisReducesArea) {
 	//
@@ -469,7 +469,7 @@ class IndexedFaultConverter {
 	// double spacing;
 	//
 	//
-	// return new GriddedSurfaceWithSubsets(trace, dip, depth, bottom, spacing,
+	// return new DefaultGriddedSurface(trace, dip, depth, bottom, spacing,
 	// spacing);
 	// }
 

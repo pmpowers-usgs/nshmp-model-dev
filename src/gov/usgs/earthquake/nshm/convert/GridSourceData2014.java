@@ -50,7 +50,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.data.DataUtils;
 import org.opensha.eq.fault.FocalMech;
-import org.opensha.eq.fault.surface.RuptureScaling;
+import org.opensha.eq.model.RuptureScaling;
 import org.opensha.eq.model.SourceType;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.mfd.MfdType;

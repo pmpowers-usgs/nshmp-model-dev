@@ -1,11 +1,11 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_CA_ELLB_WC94_AREA;
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.StandardSystemProperty.LINE_SEPARATOR;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
+import static org.opensha.eq.model.RuptureScaling.NSHM_FAULT_CA_ELLB_WC94_AREA;
+import static org.opensha.eq.model.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
 import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
@@ -49,8 +49,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.eq.fault.FocalMech;
-import org.opensha.eq.fault.surface.RuptureScaling;
 import org.opensha.eq.model.MagUncertainty;
+import org.opensha.eq.model.RuptureScaling;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.mfd.Mfds;

@@ -6,7 +6,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
+import static org.opensha.eq.model.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAGS;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;

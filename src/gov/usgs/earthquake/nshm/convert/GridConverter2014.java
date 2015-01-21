@@ -1,8 +1,5 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_SOMERVILLE;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
 import static gov.usgs.earthquake.nshm.util.FaultCode.LONG_HEADER;
@@ -12,6 +9,8 @@ import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
+import static org.opensha.eq.model.RuptureScaling.NSHM_POINT_WC94_LENGTH;
+import static org.opensha.eq.model.RuptureScaling.NSHM_SOMERVILLE;
 import static org.opensha.util.Parsing.splitToDoubleList;
 import static org.opensha.util.Parsing.Delimiter.SPACE;
 import gov.usgs.earthquake.nshm.util.FaultCode;

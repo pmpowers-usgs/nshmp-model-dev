@@ -1,9 +1,9 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
+import static org.opensha.eq.model.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.B;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;

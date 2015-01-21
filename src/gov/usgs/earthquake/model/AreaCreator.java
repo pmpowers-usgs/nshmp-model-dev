@@ -1,6 +1,6 @@
 package gov.usgs.earthquake.model;
 
-import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
+import static org.opensha.eq.model.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
@@ -39,7 +39,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha.eq.fault.surface.RuptureScaling;
+import org.opensha.eq.model.RuptureScaling;
 import org.opensha.eq.model.AreaSource.GridScaling;
 import org.opensha.geo.LocationList;
 import org.opensha.mfd.IncrementalMfd;
