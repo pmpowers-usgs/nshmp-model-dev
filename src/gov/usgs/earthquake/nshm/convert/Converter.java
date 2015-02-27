@@ -33,8 +33,8 @@ class Converter {
 	private static final Level LEVEL = Level.INFO;
 		
 	public static void main(String[] args) {
-		convert2008();
-//		convert2014();
+//		convert2008();
+		convert2014();
 		
 //		for (SourceFile sf : MGR_2014.getAll()) {
 //			System.out.println(sf);
@@ -85,24 +85,24 @@ class Converter {
 		String logPath = LOG_DIR + logID + ".log";
 		Logger log = Utils.logger(logID, logPath, LEVEL);
 		
-//		files = MGR_2014.get(WUS, FAULT);
-//		convertFault(files, "2014", log);
-//		files = MGR_2014.get(WUS, GRID);
-//		convertGrid(files, "2014", log);
-//		files = MGR_2014.get(WUS, INTERFACE);
-//		convertInterface(files, "2014", log);
-//		files = MGR_2014.get(WUS, SLAB);
-//		convertSlab2014(files, "2014", log);
-//		files = MGR_2014.get(WUS, CLUSTER);
-//		convertCluster(files, "2014", log);
+		files = MGR_2014.get(WUS, FAULT);
+		convertFault(files, "2014", log);
+		files = MGR_2014.get(WUS, GRID);
+		convertGrid(files, "2014", log);
+		files = MGR_2014.get(WUS, INTERFACE);
+		convertInterface(files, "2014", log);
+		files = MGR_2014.get(WUS, SLAB);
+		convertSlab2014(files, "2014", log);
+		files = MGR_2014.get(WUS, CLUSTER);
+		convertCluster(files, "2014", log);
 
 		
-//		files = MGR_2014.get(CEUS, FAULT);
-//		convertFault(files, "2014", log);
+		files = MGR_2014.get(CEUS, FAULT);
+		convertFault(files, "2014", log);
 		files = MGR_2014.get(CEUS, GRID);
 		convertGrid(files, "2014", log);
-//		files = MGR_2014.get(CEUS, CLUSTER);
-//		convertCluster(files, "2014", log);
+		files = MGR_2014.get(CEUS, CLUSTER);
+		convertCluster(files, "2014", log);
 		
 	}
 

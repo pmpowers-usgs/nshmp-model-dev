@@ -142,11 +142,11 @@ public class PeerModelMaker {
 		// TODO need to be able to specify point source model; check that for actual point source
 		// ruptureScaling is ignored
 		path = Paths.get(MODEL_DIR, SET1_CASE10, AREA.toString());
-		write(path.resolve(SOURCE_FILE), createArea(SET1_CASE10, A1_GR_MFD, AREA_DEPTH_STR));
+		write(path.resolve(SOURCE_FILE), createArea(SET1_CASE10, A1_GR_MFD, S1_AREA_DEPTH_STR));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
 		path = Paths.get(MODEL_DIR, SET1_CASE11, AREA.toString());
-		write(path.resolve(SOURCE_FILE), createArea(SET1_CASE11, A1_GR_MFD, AREA_DEPTH_VAR_STR));
+		write(path.resolve(SOURCE_FILE), createArea(SET1_CASE11, A1_GR_MFD, S1_AREA_DEPTH_VAR_STR));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 		
 	}
@@ -171,12 +171,12 @@ public class PeerModelMaker {
 		addMfd(mfd, srcElem);
 
 		Element geom = addElement(GEOMETRY, srcElem);
-		addAttribute(DIP, FAULT1_DIP, geom);
-		addAttribute(WIDTH, FAULT1_WIDTH, geom);
-		addAttribute(RAKE, FAULT1_RAKE, geom);
-		addAttribute(DEPTH, FAULT1_ZTOP, geom);
+		addAttribute(DIP, S1_FAULT1_DIP, geom);
+		addAttribute(WIDTH, S1_FAULT1_WIDTH, geom);
+		addAttribute(RAKE, S1_FAULT1_RAKE, geom);
+		addAttribute(DEPTH, S1_FAULT1_ZTOP, geom);
 		Element trace = addElement(TRACE, geom);
-		trace.setTextContent(FAULT_SOURCE_TRACE.toString());
+		trace.setTextContent(S1_FAULT1_TRACE.toString());
 
 		return doc;
 	}
@@ -199,12 +199,12 @@ public class PeerModelMaker {
 		addMfd(mfd, srcElem);
 
 		Element geom = addElement(GEOMETRY, srcElem);
-		addAttribute(DIP, FAULT2_DIP, geom);
-		addAttribute(WIDTH, FAULT2_WIDTH, geom);
-		addAttribute(RAKE, FAULT2_RAKE, geom);
-		addAttribute(DEPTH, FAULT2_ZTOP, geom);
+		addAttribute(DIP, S1_FAULT2_DIP, geom);
+		addAttribute(WIDTH, S1_FAULT2_WIDTH, geom);
+		addAttribute(RAKE, S1_FAULT2_RAKE, geom);
+		addAttribute(DEPTH, S1_FAULT2_ZTOP, geom);
 		Element trace = addElement(TRACE, geom);
-		trace.setTextContent(FAULT_SOURCE_TRACE.toString());
+		trace.setTextContent(S1_FAULT2_TRACE.toString());
 
 		return doc;
 	}
@@ -228,7 +228,8 @@ public class PeerModelMaker {
 		addMfd(mfd, srcElem);
 		Element geom = addElement(GEOMETRY, srcElem);
 		Element border = addElement(BORDER, geom);
-
+		border.setTextContent(S1_AREA_SOURCE_BORDER.toString());
+		
 		return doc;
 	}
 

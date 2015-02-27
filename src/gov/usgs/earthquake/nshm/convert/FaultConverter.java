@@ -6,9 +6,13 @@ import static com.google.common.base.StandardSystemProperty.LINE_SEPARATOR;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_CA_ELLB_WC94_AREA;
 import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
+import static org.opensha.eq.fault.surface.RuptureFloating.NSHM;
+import static org.opensha.eq.fault.surface.RuptureFloating.STRIKE_ONLY;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_FLOATING;
 import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
+import static org.opensha.eq.model.SourceAttribute.SURFACE_SPACING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
@@ -50,12 +54,12 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.eq.model.MagUncertainty;
+import org.opensha.eq.fault.surface.RuptureFloating;
 import org.opensha.eq.fault.surface.RuptureScaling;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.mfd.Mfds;
 import org.opensha.util.Parsing;
-import org.opensha.util.Parsing.Delimiter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -175,7 +179,15 @@ class FaultConverter {
 			// if (fName.contains("3dip")) cleanStrikeSlip(srcList);
 			
 			String S = File.separator;
-			String outPath = outDir + sf.region + S + sf.type + S + export.displayName + ".xml";
+
+			/*
+			 * unsegmented aFaults use full down dip width floaters and
+			 * therefore require config override
+			 */
+			String caSubDir = export.displayName.equals("aFault_unseg") ? "CA Custom" + S : "";
+			
+			String outPath = outDir + sf.region + S + sf.type + S + caSubDir + export.displayName +
+				".xml";
 			File outFile = new File(outPath);
 			Files.createParentDirs(outFile);
 			export.writeXML(new File(outPath));
@@ -266,7 +278,7 @@ class FaultConverter {
 	private static RuptureScaling getScalingModel(String name) {
 		return isCA(name) ? NSHM_FAULT_CA_ELLB_WC94_AREA : NSHM_FAULT_WC94_LENGTH;
 	}
-	
+		
 	private void initRefGR(Exporter export) {
 		if (export.refGR != null) return;
 		export.refGR = GR_Data.create(0.0, 0.8, 6.55, 7.5, 0.1, 1.0);
@@ -402,19 +414,28 @@ class FaultConverter {
 	
 	private static String cleanFileName(String name) {
 		
-		// CEUS conversions
-		if (name.startsWith("CEUScm")) {
-			if (name.contains("meers")) return "SSCn Meers Full Rupture";
-			if (name.contains("recur")) return "SSCn Cheraw Recurrence Model";
-			if (name.contains("srchar")) return "SSCn Cheraw Full Rupture";
-			if (name.contains("srgr")) return "SSCn Cheraw Partial Rupture";
-			return "USGS Cheraw Meers";
+		// CEUS conversions - 2014 only for now
+		if (name.contains("2014")) {
+			if (name.startsWith("CEUScm")) {
+				if (name.contains("meers")) return "SSCn Meers Full Rupture";
+				if (name.contains("recur")) return "SSCn Cheraw Recurrence Model";
+				if (name.contains("srchar")) return "SSCn Cheraw Full Rupture";
+				if (name.contains("srgr")) return "SSCn Cheraw Partial Rupture";
+				return "USGS Cheraw Meers";
+			}
+			if (name.startsWith("NMSZnocl")) {
+				int p1 = name.indexOf('.');
+				int p2 = name.indexOf('.', p1 + 1);
+				return "USGS New Madrid " + name.substring(p1 + 1, p2) + "-year";
+			}
+			
+		} else {
+			// only exception to 2014 being in original source file name
+			if (name.startsWith("NMFS_RFT.RLME")) return "SSCn Reelfoot";
 		}
-		if (name.startsWith("NMFS_RFT.RLME")) return "SSCn Reelfoot";
-		if (name.startsWith("NMSZnocl")) return "USGS New Madrid";
 		
 		// WUS conversions
-		if (name.startsWith("wasatch")) return "Wasatch";
+		if (name.startsWith("wasatch_slc")) return "Wasatch";
 		if (name.startsWith("2014WUS")) {
 			String rupType = (name.contains(".char.")) ? "Full Rupture" : (name.contains(".gr.")) ?
 				"Partial Rupture" : "Small Mag";
@@ -423,6 +444,10 @@ class FaultConverter {
 					"Geologic Model " + rupType;
 			return cleanedName;
 		}
+		
+		// most everything above applies to 2014, for 2008 just
+		// strip the ".in" from the end of the file
+		if (name.endsWith(".in")) return name.substring(0, name.length() - 3);
 		
 		return name;
 	}

@@ -10,13 +10,14 @@ import static org.opensha.eq.fault.FocalMech.REVERSE;
 import static org.opensha.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha.util.Parsing.splitToDoubleList;
 import static org.opensha.util.Parsing.Delimiter.SPACE;
+import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
 import gov.usgs.earthquake.nshm.util.FaultCode;
+import gov.usgs.earthquake.nshm.util.SourceRegion;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +27,6 @@ import java.util.logging.Logger;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.geo.Location;
-import org.opensha.geo.LocationList;
-import org.opensha.geo.Region;
 import org.opensha.geo.Regions;
 import org.opensha.util.Parsing;
 
@@ -42,12 +41,6 @@ import com.google.common.math.DoubleMath;
  */
 class GridConverter {
 
-	// TODO clean up after dealing with CEUS
-	// there are craton notes and things like 'ceusScaleRates' that need
-	// consideration
-
-	// TODO kill FaultCode
-	
 	private Logger log;
 	private GridConverter() {}
 	
@@ -59,39 +52,6 @@ class GridConverter {
 
 	// path to binary grid files in grid source input files
 	private static final String SRC_DIR= "conf";
-//	private static final String GRD_DIR = "GR_DOS/";
-	
-	// parsed
-//	private String srcName;
-//	private SourceRegion srcRegion;
-//	private SourceIMR srcIMR;
-//	private double srcWt;
-//	private double minLat, maxLat, dLat;
-//	private double minLon, maxLon, dLon;
-//	private double[] depths;
-//	private Map<FocalMech, Double> mechWtMap;
-//	private double dR, rMax;
-//	private GR_Data grSrc;
-//	private FaultCode fltCode;
-//	private boolean bGrid, mMaxGrid, weightGrid;
-//	private double mTaper;
-//	private URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
-//	private double timeSpan;
-//	private RateType rateType;
-//	private double strike = Double.NaN;
-
-	// generated
-	private double[] aDat, bDat, mMinDat, mMaxDat, wgtDat;
-
-	// build grids using broad region but reduce to src location and mfd lists
-	// and a border (Region) used by custom calculator to skip grid entirely
-	private LocationList srcLocs;
-//	private List<IncrementalMFD> mfdList;
-	private Region border;
-	
-	// temp list of srcIndices used to create bounding region; list is also
-	// referenced when applying craton/margin weighs to mfds
-	private int[] srcIndices; // already sorted when built
 	
 	void convert(SourceFile sf, String dir) {
 		
@@ -112,6 +72,7 @@ class GridConverter {
 			// read rupture top data (num, [z, wt M<=6.5, wt M>6.5], ...)
 			readRuptureTop(lines.next(), srcDat);
 			srcDat.depthMag = 6.5;
+			srcDat.maxDepth = (sf.region == CEUS) ? 22.0 : sf.name.contains("deep") ? 58.0 : 14.0; 
 			// read focal mech weights (SS, REVERSE, NORMAL)
 			readMechWeights(lines.next(), srcDat);
 			// read gm lookup array parameters; delta R and R max
@@ -258,112 +219,7 @@ class GridConverter {
 		gsd.rateType = (rateDat.get(1).intValue() == 0) ? 
 			INCREMENTAL : CUMULATIVE;
 	}
-
-
-	private static void createGridSource(GridSourceData gsd) throws IOException {
-		
-		initDataGrids(gsd);
-
-		GriddedRegion region = Regions.createRectangularGridded(
-			"NSHMP " + gsd.name,
-			Location.create(gsd.minLat, gsd.minLon),
-			Location.create(gsd.maxLat, gsd.maxLon),
-			gsd.dLat, gsd.dLon,
-			GriddedRegion.ANCHOR_0_0);
-		
-//		generateMFDs(region);
-//		initSrcRegion(region);
-
-//		// KLUDGY: need to post process CEUS grids to handle craton and
-//		// extended margin weighting grids
-//		if (srcName.contains("2007all8")) {
-//			ceusScaleRates();
-//		}
-//
-//		GridERF gs = new GridERF(srcName, generateInfo(), border,
-//			srcLocs, mfdList, depths, mechWtMap, fltCode, strike, srcRegion,
-//			srcIMR, srcWt, rMax, dR);
-//		return gs;
-	}
-
-//	private void initSrcRegion(GriddedRegion region) {
-//		LocationList srcLocs = new LocationList();
-//		int currIdx = srcIndices[0];
-//		srcLocs.add(region.locationForIndex(currIdx));
-//		Direction startDir = Direction.WEST;
-//		Direction sweepDir = startDir.next();
-//		while (sweepDir != startDir) {
-//			int sweepIdx = region.move(currIdx, sweepDir);
-//			int nextIdx = Arrays.binarySearch(srcIndices, sweepIdx);
-//			if (nextIdx >= 0) {
-//				Location nextLoc = region.locationForIndex(srcIndices[nextIdx]);
-//				//System.out.println(aDat[srcIndices[nextIdx]] + " " + nextLoc);
-//				if (nextLoc.equals(srcLocs.get(0))) break;
-//				srcLocs.add(nextLoc);
-//				currIdx = srcIndices[nextIdx];
-//				startDir = sweepDir.opposite().next();
-//				sweepDir = startDir.next();
-//				continue;
-//			}
-//			sweepDir = sweepDir.next();
-//		}
-//		// KLUDGY san gorgonio hack; only 11 grid points whose outline (16 pts)
-	// TODO want ot create outline that steps out half a cell from each valid node
-//		// does not play nice with Region
-//		if (srcLocs.size() == 16) {
-//			for (int i=0; i < srcLocs.size(); i++) {
-//				if (i==0 || i==8) continue;
-//				double offset = (i > 8) ? 0.01 : -0.01;
-//				Location ol = srcLocs.get(i);
-//				Location nl = new Location(ol.getLatitude() + offset, ol.getLongitude());
-//				
-//				srcLocs.set(i, nl);
-//			}
-//		}
-//		border = new Region(srcLocs, null);
-//	}
-
 	
-//	private void generateMFDs(GridSourceData gsd, GriddedRegion region) {
-////		mfdList = Lists.newArrayList();
-////		srcLocs = new LocationList();
-////		List<Integer> srcIndexList = Lists.newArrayList();
-//
-//		for (int i = 0; i < aDat.length; i++) {
-//			if (aDat[i] == 0) {
-//				continue;
-//			}
-//			// use fixed value if mMax matrix value was 0
-//			double maxM = mMaxDat[i] <= 0 ? grSrc.mMax : mMaxDat[i];
-//			// a-value is stored as log10(a)
-//			GR_Data gr = new GR_Data(aDat[i], bDat[i], mMinDat[i], maxM,
-//				grSrc.dMag);
-//			GutenbergRichterMFD mfd = new GutenbergRichterMFD(
-//				gr.mMin, gr.nMag, gr.dMag, 1.0, gr.bVal);
-//			mfd.scaleToIncrRate(gr.mMin, incrRate(gr.aVal, gr.bVal, gr.mMin));
-//			// apply weight
-//			if (weightGrid && mfd.getMaxX() >= mTaper) {
-//				int j = mfd.getXIndex(mTaper + grSrc.dMag / 2);
-//				for (; j < mfd.getNum(); j++)
-//					mfd.set(j, mfd.getY(j) * wgtDat[i]);
-//			}
-//			mfdList.add(mfd);
-//			srcLocs.add(region.locationForIndex(i));
-////			if (Locations.areSimilar(region.locationForIndex(i), 
-////				NEHRP_TestCity.SEATTLE.location())) {
-////				System.out.println("aVal: " + aDat[i]);
-////			}
-////			if (i==61222) {
-////				System.out.println("aValMax: " + aDat[i]);
-////				System.out.println(mfd);
-////			}
-//			srcIndexList.add(i);
-//		}
-//		srcIndices = Ints.toArray(srcIndexList);
-////		System.out.println("max aVal: " + Doubles.max(aDat));
-////		System.out.println("max aVal: " + Math.pow(10, Doubles.max(aDat)));
-//	}
-
 	private static void initDataGrids(GridSourceData gsd) throws IOException {
 		int nRows = (int) Math.rint((gsd.maxLat - gsd.minLat) / gsd.dLat) + 1;
 		int nCols = (int) Math.rint((gsd.maxLon - gsd.minLon) / gsd.dLon) + 1;
@@ -391,12 +247,6 @@ class GridConverter {
 		if (gsd.weightGrid) {
 			gsd.wgtDat = readGrid(gsd.weightGridURL, nRows, nCols, 0);
 		}
-	}
-
-	private static double[] makeGrid(int size, double value) {
-		double[] dat = new double[size];
-		Arrays.fill(dat, value);
-		return dat;
 	}
 
 }

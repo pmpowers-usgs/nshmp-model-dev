@@ -7,6 +7,7 @@ import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.B;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
+import static org.opensha.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.STRIKE;
@@ -76,6 +77,7 @@ class GridSourceData2014 {
 
 	double[] depths;
 	double depthMag;
+	double maxDepth;
 	Map<FocalMech, Double> mechWtMap;
 
 	GR_Data grDat;
@@ -227,6 +229,7 @@ class GridSourceData2014 {
 	private void addSourceProperties(Element settings) {
 		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
 		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
+		addAttribute(MAX_DEPTH, maxDepth, propsElem);
 		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
 		addAttribute(STRIKE, strike, propsElem);
 		addAttribute(RUPTURE_SCALING, rupScaling, propsElem);

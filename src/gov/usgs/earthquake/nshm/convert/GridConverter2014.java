@@ -388,34 +388,6 @@ class GridConverter2014 {
 			INCREMENTAL : CUMULATIVE;
 	}
 
-
-	private static void createGridSource(GridSourceData2014 gsd) throws IOException {
-		
-		initDataGrids(gsd);
-
-		GriddedRegion region = Regions.createRectangularGridded(
-			"NSHMP " + gsd.name,
-			Location.create(gsd.minLat, gsd.minLon),
-			Location.create(gsd.maxLat, gsd.maxLon),
-			gsd.dLat, gsd.dLon,
-			GriddedRegion.ANCHOR_0_0);
-		
-//		generateMFDs(region);
-//		initSrcRegion(region);
-
-//		// KLUDGY: need to post process CEUS grids to handle craton and
-//		// extended margin weighting grids
-//		if (srcName.contains("2007all8")) {
-//			ceusScaleRates();
-//		}
-//
-//		GridERF gs = new GridERF(srcName, generateInfo(), border,
-//			srcLocs, mfdList, depths, mechWtMap, fltCode, strike, srcRegion,
-//			srcIMR, srcWt, rMax, dR);
-//		return gs;
-	}
-
-
 	// long headers were added to Charleston aGrids in 2014
 	private static final int LONG_HEAD_SIZE = 896; // in bytes
 	

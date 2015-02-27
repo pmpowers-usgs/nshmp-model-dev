@@ -34,26 +34,68 @@ public class PeerTests {
 
 	static final double[] IMLS;
 	
-	static final LocationList FAULT_SITES;
-	static final LocationList FAULT_SOURCE_TRACE;
-	static final double FAULT1_ZTOP = 0.0; // km
-	static final double FAULT1_ZBOT = 12.0; // km
-	static final double FAULT1_WIDTH = FAULT1_ZBOT - FAULT1_ZTOP; // km
-	static final double FAULT1_LENGTH = 25.0; // km
-	static final double FAULT1_DIP = 90.0;
-	static final double FAULT1_RAKE = 0.0;
+	static final LocationList S1_FAULT_SITES;
 	
-	static final double FAULT2_ZTOP = 1.0; // km
-	static final double FAULT2_ZBOT = 12.0; // km
-	static final double FAULT2_DIP = 60.0; // degrees
-	static final double FAULT2_WIDTH = (FAULT2_ZBOT - FAULT2_ZTOP) / Math.sin(FAULT2_DIP * TO_RAD);
-	static final double FAULT2_LENGTH = FAULT1_LENGTH;
-	static final double FAULT2_RAKE = 90.0;
+	// defined from north to south so that reverse representation
+	// is east-vergent
+	private static final LocationList S1_FAULT_TRACE = LocationList.create(
+		Location.create(38.2248, -122.0000),
+		Location.create(38.000, -122.000));
+	
+	static LocationList S1_FAULT1_TRACE = S1_FAULT_TRACE;
+	static final double S1_FAULT1_ZTOP = 0.0; // km
+	static final double S1_FAULT1_ZBOT = 12.0; // km
+	static final double S1_FAULT1_WIDTH = S1_FAULT1_ZBOT - S1_FAULT1_ZTOP; // km
+	static final double S1_FAULT1_LENGTH = 25.0; // km
+	static final double S1_FAULT1_DIP = 90.0;
+	static final double S1_FAULT1_RAKE = 0.0;
+	
+	static final LocationList S1_FAULT2_TRACE = S1_FAULT_TRACE;
+	static final double S1_FAULT2_ZTOP = 1.0; // km
+	static final double S1_FAULT2_ZBOT = 12.0; // km
+	static final double S1_FAULT2_DIP = 60.0; // degrees
+	static final double S1_FAULT2_WIDTH = (S1_FAULT2_ZBOT - S1_FAULT2_ZTOP) / Math.sin(S1_FAULT2_DIP * TO_RAD);
+	static final double S1_FAULT2_LENGTH = S1_FAULT1_LENGTH;
+	static final double S1_FAULT2_RAKE = 90.0;
 
-	static final String AREA_DEPTH_STR;
-	static final String AREA_DEPTH_VAR_STR;
-	static final LocationList AREA_SITES;
-	static final LocationList AREA_SOURCE_BORDER;
+	static final String S1_AREA_DEPTH_STR;
+	static final String S1_AREA_DEPTH_VAR_STR;
+	
+	static final LocationList S1_AREA_SITES;
+	static final LocationList S1_AREA_SOURCE_BORDER;
+	
+	static final Location S2_DEAGG_SITE;
+	
+	static final LocationList S2_FAULTB_TRACE = LocationList.create(
+		Location.create(0.44966, -65.38222),
+		Location.create(0.44966, -64.61778));
+	
+	static final LocationList S2_FAULTC_TRACE = LocationList.create(
+		Location.create(-0.22483, -65.22484),
+		Location.create(-0.22483, -64.77516));
+	
+	static final LocationList S2_FAULT3_TRACE = LocationList.create(
+		Location.create(0.38221, -65.0),
+		Location.create(-0.38221, -65.0));
+	static final double S2_FAULT3_ZTOP = 0.0;
+	static final double S2_FAULT3_ZBOT = 12.0;
+	static final double S2_FAULT3_DIP = 90.0;
+	static final double S2_FAULT3_WIDTH = S2_FAULT3_ZBOT - S2_FAULT3_ZTOP;
+	static final double S2_FAULT3_LENGTH = 85.0; // km
+	static final double S2_FAULT3_RAKE = 0.0;
+	
+	static final LocationList S2_FAULT4_TRACE = S2_FAULT3_TRACE;
+	static final double S2_FAULT4_ZTOP = 1.0;
+	static final double S2_FAULT4_ZBOT = 12.0;
+	static final double S2_FAULT4_DIP = 45.0;
+	static final double S2_FAULT4_WIDTH = (S2_FAULT4_ZBOT - S2_FAULT4_ZTOP) / Math.sin(S2_FAULT4_DIP * TO_RAD);
+	static final double S2_FAULT4_LENGTH = S2_FAULT3_LENGTH;
+	static final double S2_FAULT4_RAKE = 90.0;
+
+	static final LocationList S2_NGA_SITES;
+	
+	static final LocationList S2_AREA_SOURCE_BORDER;
+	
 	
 	static final double B_VAL = 0.9;
 	static final double SINGLE_M1 = 6.5;
@@ -98,8 +140,8 @@ public class PeerTests {
 	}
 
 	static {
-		double f1area = FAULT1_LENGTH * 1000.0 * FAULT1_WIDTH * 1000.0;
-		double f2area = FAULT2_LENGTH * 1000.0 * FAULT2_WIDTH * 1000.0;
+		double f1area = S1_FAULT1_LENGTH * 1000.0 * S1_FAULT1_WIDTH * 1000.0;
+		double f2area = S1_FAULT2_LENGTH * 1000.0 * S1_FAULT2_WIDTH * 1000.0;
 		
 		double f1tmr = Magnitudes.moment(f1area, SLIP_RATE / 1000.0);
 		double f2tmr = Magnitudes.moment(f2area, SLIP_RATE / 1000.0);
@@ -141,7 +183,7 @@ public class PeerTests {
 		
 		IMLS = new double[] { 0.001, 0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 1.0 };
 		
-		FAULT_SITES = LocationList.create(
+		S1_FAULT_SITES = LocationList.create(
 			Location.create(38.113, -122.000),
 			Location.create(38.113, -122.114),
 			Location.create(38.111, -122.570),
@@ -150,23 +192,17 @@ public class PeerTests {
 			Location.create(38.225, -122.000),
 			Location.create(38.113, -121.886));
 
-		// defined from north to south so that reverse representation
-		// is east-vergent
-		FAULT_SOURCE_TRACE = LocationList.create(
-			Location.create(38.2248, -122.0000),
-			Location.create(38.000, -122.000));
+		S1_AREA_DEPTH_STR = "[10.0::[5.0:1.0]]";
 		
-		AREA_DEPTH_STR = "[10.0::[5.0:1.0]]";
+		S1_AREA_DEPTH_VAR_STR = "[10.0::[5.0:0.1667, 6.0:0.1666, 7.0:0.1667, 8.0:0.1667, 9.0:0.1666, 10.0:0.1667]";
 		
-		AREA_DEPTH_VAR_STR = "[10.0::[5.0:0.1667, 6.0:0.1666, 7.0:0.1667, 8.0:0.1667, 9.0:0.1666, 10.0:0.1667]";
-		
-		AREA_SITES = LocationList.create(
+		S1_AREA_SITES = LocationList.create(
 			Location.create(38.000, -122.000),
 			Location.create(37.550, -122.000),
 			Location.create(37.099, -122.000),
 			Location.create(36.874, -122.000));
 		
-		AREA_SOURCE_BORDER = LocationList.create(
+		S1_AREA_SOURCE_BORDER = LocationList.create(
 			Location.create(38.901, -122.000),
 			Location.create(38.899, -121.920),
 			Location.create(38.892, -121.840),
@@ -257,6 +293,109 @@ public class PeerTests {
 			Location.create(38.881, -122.240),
 			Location.create(38.892, -122.160),
 			Location.create(38.899, -122.080));
+		
+		S2_DEAGG_SITE = Location.create(0.00000, -65.0000);
+		
+		S2_AREA_SOURCE_BORDER = LocationList.create(
+			Location.create(0.8993, -65.0000),
+			Location.create(0.8971, -64.9373),
+			Location.create(0.8906, -64.8748),
+			Location.create(0.8797, -64.8130),
+			Location.create(0.8645, -64.7521),
+			Location.create(0.8451, -64.6924),
+			Location.create(0.8216, -64.6342),
+			Location.create(0.7940, -64.5778),
+			Location.create(0.7627, -64.5234),
+			Location.create(0.7276, -64.4714),
+			Location.create(0.6899, -64.4219),
+			Location.create(0.6469, -64.3753),
+			Location.create(0.6017, -64.3316),
+			Location.create(0.5537, -64.2913),
+			Location.create(0.5029, -64.2544),
+			Location.create(0.4496, -64.2211),
+			Location.create(0.3942, -64.1917),
+			Location.create(0.3369, -64.1662),
+			Location.create(0.2779, -64.1447),
+			Location.create(0.2176, -64.1274),
+			Location.create(0.1562, -64.1143),
+			Location.create(0.0940, -64.1056),
+			Location.create(0.0314, -64.1012),
+			Location.create(-0.0314, -64.1012),
+			Location.create(-0.0940, -64.1056),
+			Location.create(-0.1562, -64.1143),
+			Location.create(-0.2176, -64.1274),
+			Location.create(-0.2779, -64.1447),
+			Location.create(-0.3369, -64.1662),
+			Location.create(-0.3942, -64.1917),
+			Location.create(-0.4496, -64.2211),
+			Location.create(-0.5029, -64.2544),
+			Location.create(-0.5537, -64.2913),
+			Location.create(-0.6017, -64.3316),
+			Location.create(-0.6469, -64.3753),
+			Location.create(-0.6889, -64.4219),
+			Location.create(-0.7276, -64.4714),
+			Location.create(-0.7627, -64.5234),
+			Location.create(-0.7940, -64.5778),
+			Location.create(-0.8216, -64.6342),
+			Location.create(-0.8451, -64.6924),
+			Location.create(-0.8645, -64.7521),
+			Location.create(-0.8797, -64.8130),
+			Location.create(-0.8906, -64.8748),
+			Location.create(-0.8971, -64.9373),
+			Location.create(-0.8993, -65.0000),
+			Location.create(-0.8971, -65.0627),
+			Location.create(-0.8906, -65.1252),
+			Location.create(-0.8797, -65.1870),
+			Location.create(-0.8645, -65.2479),
+			Location.create(-0.8451, -65.3076),
+			Location.create(-0.8216, -65.3658),
+			Location.create(-0.7940, -65.4222),
+			Location.create(-0.7627, -65.4766),
+			Location.create(-0.7276, -65.5286),
+			Location.create(-0.6889, -65.5781),
+			Location.create(-0.6469, -65.6247),
+			Location.create(-0.6017, -65.6684),
+			Location.create(-0.5537, -65.7087),
+			Location.create(-0.5029, -65.7456),
+			Location.create(-0.4496, -65.7789),
+			Location.create(-0.3942, -65.8083),
+			Location.create(-0.3369, -65.8338),
+			Location.create(-0.2779, -65.8553),
+			Location.create(-0.2176, -65.8726),
+			Location.create(-0.1562, -65.8857),
+			Location.create(-0.0940, -65.8944),
+			Location.create(-0.0314, -65.8988),
+			Location.create(0.0314, -65.8988),
+			Location.create(0.0940, -65.8944),
+			Location.create(0.1562, -65.8857),
+			Location.create(0.2176, -65.8726),
+			Location.create(0.2779, -65.8553),
+			Location.create(0.3369, -65.8338),
+			Location.create(0.3942, -65.8083),
+			Location.create(0.4496, -65.7789),
+			Location.create(0.5029, -65.7456),
+			Location.create(0.5537, -65.7087),
+			Location.create(0.6017, -65.6684),
+			Location.create(0.6469, -65.6247),
+			Location.create(0.6889, -65.5781),
+			Location.create(0.7276, -65.5286),
+			Location.create(0.7627, -65.4766),
+			Location.create(0.7940, -65.4222),
+			Location.create(0.8216, -65.3658),
+			Location.create(0.8451, -65.3076),
+			Location.create(0.8645, -65.2479),
+			Location.create(0.8797, -65.1870),
+			Location.create(0.8906, -65.1252),
+			Location.create(0.8971, -65.0627));
+
+		S2_NGA_SITES = LocationList.create(
+			Location.create(0.0, -64.91005),
+			Location.create(0.0, -65.04497),
+			Location.create(0.0, -65.08995),
+			Location.create(0.0, -65.13490),
+			Location.create(0.0, -65.22483),
+			Location.create(-0.42718, -65.009));
+		
 	}
 
 }

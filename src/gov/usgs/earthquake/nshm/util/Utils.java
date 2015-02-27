@@ -1,20 +1,14 @@
 package gov.usgs.earthquake.nshm.util;
 
-import static gov.usgs.earthquake.nshm.util.GaussTruncation.ONE_SIDED;
-import static com.google.common.base.Preconditions.*;
+import static org.opensha.calc.GaussTruncation.ONE_SIDED;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -25,6 +19,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.apache.commons.math3.special.Erf;
+import org.opensha.calc.GaussTruncation;
 import org.opensha.eq.Magnitudes;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.BorderType;
@@ -33,33 +28,16 @@ import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.geo.Regions;
 import org.opensha.mfd.Mfds;
-//import org.opensha.commons.calc.GaussianDistCalc;
-//import org.opensha.commons.data.function.DiscretizedFunc;
-//import org.opensha.commons.exceptions.IMRException;
-//import org.opensha.commons.exceptions.ParameterException;
-//import org.opensha.commons.param.Parameter;
-//import org.opensha.sha.imr.AttenRelRef;
-//import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
-
-
 
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.collect.BoundType;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Range;
 import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.primitives.Doubles;
 
 /**
- * Add comments here
- * 
- * 
- * @author Peter Powers
- * @version $Id:$
+ * TODO clean unused
  */
 public class Utils {
 	
@@ -251,8 +229,6 @@ public class Utils {
 	 * @param std deviation
 	 * @param value to exceed
 	 * @return the probability of exceeding the supplied value
-	 * @throws MathException (due to internal use of
-	 *         org.apache.commons.math3.special.Erf)
 	 */
 	public static double gaussProbExceed(double mean, double std, double value) {
 		return (Erf.erf((mean - value) / (std * SQRT_2)) + 1.0) * 0.5;
