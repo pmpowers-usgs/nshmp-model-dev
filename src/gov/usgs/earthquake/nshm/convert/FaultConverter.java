@@ -149,6 +149,11 @@ class FaultConverter {
 				// other sources TODO these peculiarities are handled when sources
 				// are reconstituted so this cloning probably isn't necessary
 				List<String> mfdDat = Parsing.toLineList(lines, fDat.nMag);
+				
+				// starting with 2014 this may return a source with no mfds (due
+				// to weights being set to 0; Zeng and Bird low-weight offshore
+				// faults). Exception is caught below, a warning logged, and
+				// iteration continues.
 				read_MFDs(fDat, mfdType, mfdDat, export);
 				
 				readTrace(lines, fDat);
@@ -158,8 +163,8 @@ class FaultConverter {
 					fDat.name += " " + ((int) fDat.dip);
 				}
 				if (fDat.mfds.size() == 0) {
-					log.severe("Source with no mfds");
-					System.exit(1);
+					log.warning("Dropping source with no MFDs: " + fDat.name);
+					continue;
 				}
 				if (export.map.containsKey(fDat.name)) {
 					log.warning("Name map already contains: " + fDat.name);
@@ -258,6 +263,13 @@ class FaultConverter {
 				Parsing.readDouble(line, 1),
 				Parsing.readDouble(line, 2),
 				floats);
+			
+			// added 2014 filter for 0 weight MFDs
+			if (ch.weight == 0.0) {
+				log.warning("Source MFD with zero weight: " + fd.name);
+				continue;
+			}
+			
 			fd.mfds.add(ch);
 			log(fd, MFD_Type.CH, floats);
 		}
@@ -289,6 +301,13 @@ class FaultConverter {
 		List<GR_Data> grData = new ArrayList<GR_Data>();
 		for (String line : lines) {
 			GR_Data gr = GR_Data.createForFault(line, fd, log);
+
+			// added 2014 filter for 0 weight MFDs
+			if (gr.weight == 0.0) {
+				log.warning("Source MFD with zero weight: " + fd.name);
+				continue;
+			}
+			
 			grData.add(gr);
 		}
 

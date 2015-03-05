@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
 import static gov.usgs.earthquake.nshm.util.RateType.CUMULATIVE;
 import static gov.usgs.earthquake.nshm.util.RateType.INCREMENTAL;
+import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
@@ -27,8 +28,6 @@ import java.util.logging.Logger;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.GriddedRegion;
 import org.opensha.geo.Location;
-import org.opensha.geo.LocationList;
-import org.opensha.geo.Region;
 import org.opensha.geo.Regions;
 import org.opensha.util.Parsing;
 
@@ -55,8 +54,6 @@ class SlabConverter2014 {
 	// there are craton notes and things like 'ceusScaleRates' that need
 	// consideration
 
-	// TODO kill FaultCode
-	
 	private Logger log;
 	private SlabConverter2014() {}
 	
@@ -87,7 +84,6 @@ class SlabConverter2014 {
 			lines.next();
 			// read rupture top data (num, [z, wt M<=6.5, wt M>6.5], ...)
 			readRuptureTop(lines.next(), srcDat);
-			srcDat.depthMag = 6.5;
 			// read focal mech weights (SS, REVERSE, NORMAL)
 			readMechWeights(lines.next(), srcDat);
 			// read gm lookup array parameters; delta R and R max
@@ -162,11 +158,11 @@ class SlabConverter2014 {
 			
 			
 			for (Map.Entry<Double, Range<Double>> entry : srcDat.lonDepthMap.entrySet()) {
-				Double depth = entry.getKey();
+				srcDat.depth = entry.getKey();
+				srcDat.maxDepth = srcDat.depth + 8;
 				String outName = outNameBase + "_" + entry.getKey().intValue() + "km.xml";
 				File outFile = new File(outPath, outName);
 				Files.createParentDirs(outFile);
-				srcDat.depths = new double[] {depth, depth};
 				srcDat.writeXML(outFile, entry.getValue(), entry.getKey());
 			}
 			

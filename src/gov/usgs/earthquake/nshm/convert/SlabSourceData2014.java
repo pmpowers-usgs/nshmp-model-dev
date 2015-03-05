@@ -7,6 +7,7 @@ import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.B;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAGS;
+import static org.opensha.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.M_MAX;
@@ -81,8 +82,8 @@ class SlabSourceData2014 {
 	double weight;
 
 	Map<Double, Range<Double>> lonDepthMap;
-	double[] depths;
-	double depthMag;
+	double depth;
+	double maxDepth;
 	Map<FocalMech, Double> mechWtMap;
 
 	GR_Data grDat;
@@ -192,30 +193,17 @@ class SlabSourceData2014 {
 	// source attribute settings
 	private void addSourceProperties(Element settings) {
 		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(depthMag, depths), propsElem);
+		addAttribute(MAG_DEPTH_MAP, magDepthDataToString(depth), propsElem);
+		addAttribute(MAX_DEPTH, maxDepth, propsElem);
 		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(mechWtMap), propsElem);
 		addAttribute(STRIKE, strike, propsElem);
 		addAttribute(RUPTURE_SCALING, rupScaling, propsElem);
 	}
 			
-	/*
-	 * This actually reproduces something closer to the originally supplied
-	 * NSHMP mag-depth-weight distribution, but it's not worth going back to
-	 * the parser to change it. Example outputs that can be parsed as
-	 * stringToValueValueWeightMap:
-	 * 		[6.5::[5.0:1.0]; 10.0::[1.0:1.0]]	standard two depth
-	 * 		[10.0::[50.0:1.0]]					standard single depth
-	 */
-	static String magDepthDataToString(double mag, double[] depths) {
+	static String magDepthDataToString(double depth) {
 		StringBuffer sb = new StringBuffer("[");
-		if (DoubleMath.fuzzyEquals(depths[0], depths[1], 0.000001)) {
-			sb.append("10.0::[").append(depths[0]);
-			sb.append(":1.0]]");
-		} else {
-			sb.append(mag).append("::[");
-			sb.append(depths[0]).append(":1.0]; 10.0::[");
-			sb.append(depths[1]).append(":1.0]]");
-		}
+		sb.append("10.0::[").append(depth);
+		sb.append(":1.0]]");
 		return sb.toString();
 	}
 

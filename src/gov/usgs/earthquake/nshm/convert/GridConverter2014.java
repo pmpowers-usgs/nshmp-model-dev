@@ -5,6 +5,7 @@ import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
 import static gov.usgs.earthquake.nshm.util.FaultCode.LONG_HEADER;
 import static gov.usgs.earthquake.nshm.util.RateType.CUMULATIVE;
 import static gov.usgs.earthquake.nshm.util.RateType.INCREMENTAL;
+import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
 import static org.opensha.eq.fault.FocalMech.NORMAL;
 import static org.opensha.eq.fault.FocalMech.REVERSE;
@@ -213,6 +214,7 @@ class GridConverter2014 {
 			// read rupture top data (num, [z, wt M<=6.5, wt M>6.5], ...)
 			readRuptureTop(lines.next(), srcDat);
 			srcDat.depthMag = 6.5;
+			srcDat.maxDepth = (sf.region == CEUS) ? 22.0 : 14.0; 
 			// read focal mech weights (SS, REVERSE, NORMAL)
 			readMechWeights(lines.next(), srcDat);
 			// read gm lookup array parameters; delta R and R max
