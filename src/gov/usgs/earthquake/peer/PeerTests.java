@@ -23,6 +23,7 @@ import org.opensha.mfd.YC_1985_CharMfd;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -32,8 +33,27 @@ import com.google.common.primitives.Doubles;
  */
 public class PeerTests {
 
-	static final double[] IMLS;
-	
+	static final String S1_C1 = "Set1-Case1";
+	static final String S1_C2 = "Set1-Case2";
+	static final String S1_C3 = "Set1-Case3";
+	static final String S1_C4 = "Set1-Case4";
+	static final String S1_C5 = "Set1-Case5";
+	static final String S1_C6 = "Set1-Case6";
+	static final String S1_C7 = "Set1-Case7";
+	static final String S1_C8A = "Set1-Case8a";
+	static final String S1_C8B = "Set1-Case8b";
+	static final String S1_C8C = "Set1-Case8c";
+	static final String S1_C10 = "Set1-Case10";
+	static final String S1_C11 = "Set1-Case11";
+
+	static final String S2_C1 = "Set2-Case1";
+	static final String S2_C2 = "Set2-Case2";
+	static final String S2_C3 = "Set2-Case3";
+	static final String S2_C4A = "Set2-Case4a";
+	static final String S2_C4B = "Set2-Case4b";
+	static final String S2_C5A = "Set2-Case5a";
+	static final String S2_C5B = "Set2-Case5b";
+
 	static final LocationList S1_FAULT_SITES;
 	
 	// defined from north to south so that reverse representation
@@ -126,6 +146,8 @@ public class PeerTests {
 	static final Map<Gmm, Double> GMM_WT_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
 	static final List<Map<Gmm, Double>> GMM_MAP_LIST = Lists.newArrayList(GMM_WT_MAP);
 	
+	static final Map<String, String> COMMENTS = Maps.newHashMap();
+	
 	public static void main(String[] args) {
 //		System.out.println(F1_SINGLE_6P5_MFD);
 //		System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
@@ -180,8 +202,6 @@ public class PeerTests {
 	
 	static {
 		// @formatter:off
-		
-		IMLS = new double[] { 0.001, 0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 1.0 };
 		
 		S1_FAULT_SITES = LocationList.create(
 			Location.create(38.113, -122.000),
@@ -396,6 +416,26 @@ public class PeerTests {
 			Location.create(0.0, -65.22483),
 			Location.create(-0.42718, -65.009));
 		
+		COMMENTS.put(S1_C1, "Single rupture of entire fault plane");
+		COMMENTS.put(S1_C2, "Single rupture smaller than fault plane (floating rupture)");
+		COMMENTS.put(S1_C3, "Single rupture smaller than fault plane with uncertainty");
+		COMMENTS.put(S1_C4, "Single rupture smaller than dipping fault plane");
+		COMMENTS.put(S1_C5, "MFD: Truncated exponential model");
+		COMMENTS.put(S1_C6, "MFD: Truncated normal model");
+		COMMENTS.put(S1_C7, "MFD: Characteristic model (Youngs & Coppersmith, 1985)");
+		COMMENTS.put(S1_C8A, "Single rupture smaller than fault plane; no sigma truncation");
+		COMMENTS.put(S1_C8B, "Single rupture smaller than fault plane; 2x sigma truncation");
+		COMMENTS.put(S1_C8C, "Single rupture smaller than fault plane; 3x sigma truncation");
+		COMMENTS.put(S1_C10, "Area source; fixed depth 5km");
+		COMMENTS.put(S1_C11, "Volume source; depth 5 to 10 km");
+		
+		COMMENTS.put(S2_C1, "Multiple sources; Deaggregation");
+		COMMENTS.put(S2_C2, "NGA West 2 Ground Motion Models");
+		COMMENTS.put(S2_C3, "Hanging wall effects");
+		COMMENTS.put(S2_C4A, "Uniform down-dip distribution of hypocenters");
+		COMMENTS.put(S2_C4B, "Triangular down-dip distribution of hypocenters");
+		COMMENTS.put(S2_C5A, "Upper tails");
+		COMMENTS.put(S2_C5B, "Mixture model");
 	}
 
 }

@@ -26,10 +26,9 @@ import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.model.SourceElement.TRACE;
 import static org.opensha.mfd.MfdType.INCR;
 import static org.opensha.util.Parsing.addAttribute;
+import static org.opensha.util.Parsing.addComment;
 import static org.opensha.util.Parsing.addElement;
 import gov.usgs.earthquake.model.GmmCreator;
-import gov.usgs.earthquake.nshm.convert.CH_Data;
-import gov.usgs.earthquake.nshm.convert.MFD_Data;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,14 +40,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha.eq.model.SourceType;
-import org.opensha.geo.Location;
 import org.opensha.mfd.IncrementalMfd;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
@@ -60,19 +56,6 @@ import org.w3c.dom.Element;
  * @author Peter Powers
  */
 public class PeerModelMaker {
-
-	static final String SET1_CASE1 = "Set1-Case1";
-	static final String SET1_CASE2 = "Set1-Case2";
-	static final String SET1_CASE3 = "Set1-Case3";
-	static final String SET1_CASE4 = "Set1-Case4";
-	static final String SET1_CASE5 = "Set1-Case5";
-	static final String SET1_CASE6 = "Set1-Case6";
-	static final String SET1_CASE7 = "Set1-Case7";
-	static final String SET1_CASE8A = "Set1-Case8a";
-	static final String SET1_CASE8B = "Set1-Case8b";
-	static final String SET1_CASE8C = "Set1-Case8c";
-	static final String SET1_CASE10 = "Set1-Case10";
-	static final String SET1_CASE11 = "Set1-Case11";
 
 	static final String FAULT1_SOURCE = "PEER: Fault 1";
 	static final String FAULT2_SOURCE = "PEER: Fault 2";
@@ -96,57 +79,57 @@ public class PeerModelMaker {
 	void writeModels() throws Exception {
 		Path path = null;
 		
-		path = Paths.get(MODEL_DIR, SET1_CASE1, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE1, F1_SINGLE_6P5_MFD));
+		path = Paths.get(MODEL_DIR, S1_C1, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C1, F1_SINGLE_6P5_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 		
-		path = Paths.get(MODEL_DIR, SET1_CASE2, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE2, F1_SINGLE_6P0_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C2, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C2, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 		
 		// TODO needs to be able to handle ruptureScaling sigma
-		path = Paths.get(MODEL_DIR, SET1_CASE3, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE3, F1_SINGLE_6P0_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C3, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C3, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE4, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault2(SET1_CASE4, F2_SINGLE_6P0_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C4, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault2(S1_C4, F2_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE5, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE5, F1_GR_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C5, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C5, F1_GR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE6, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE6, F1_GAUSS_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C6, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C6, F1_GAUSS_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE7, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE7, F1_YC_CHAR_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C7, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C7, F1_YC_CHAR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 		
 		// TODO how to handle gmm sigma overrides; all cases above should be zero
 		// cases below are sigma with various truncations
-		path = Paths.get(MODEL_DIR, SET1_CASE8A, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE8A, F1_SINGLE_6P0_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C8A, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C8A, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE8B, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE8B, F1_SINGLE_6P0_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C8B, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C8B, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE8C, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault1(SET1_CASE8C, F1_SINGLE_6P0_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S1_C8C, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault1(S1_C8C, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
 		// TODO need to be able to specify point source model; check that for actual point source
 		// ruptureScaling is ignored
-		path = Paths.get(MODEL_DIR, SET1_CASE10, AREA.toString());
-		write(path.resolve(SOURCE_FILE), createArea(SET1_CASE10, A1_GR_MFD, S1_AREA_DEPTH_STR));
+		path = Paths.get(MODEL_DIR, S1_C10, AREA.toString());
+		write(path.resolve(SOURCE_FILE), createArea(S1_C10, A1_GR_MFD, S1_AREA_DEPTH_STR));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, SET1_CASE11, AREA.toString());
-		write(path.resolve(SOURCE_FILE), createArea(SET1_CASE11, A1_GR_MFD, S1_AREA_DEPTH_VAR_STR));
+		path = Paths.get(MODEL_DIR, S1_C11, AREA.toString());
+		write(path.resolve(SOURCE_FILE), createArea(S1_C11, A1_GR_MFD, S1_AREA_DEPTH_VAR_STR));
 		GmmCreator.write(path.resolve(GMM_FILE), GMM_MAP_LIST, GMM_CUTOFFS, null, null);
 		
 	}
@@ -160,6 +143,8 @@ public class PeerModelMaker {
 		addAttribute(NAME, testName, root);
 		addAttribute(WEIGHT, 1.0, root);
 		doc.appendChild(root);
+		
+		addComment(COMMENTS.get(testName), root);
 
 		Element settings = addElement(SETTINGS, root);
 
@@ -189,6 +174,8 @@ public class PeerModelMaker {
 		addAttribute(WEIGHT, 1.0, root);
 		doc.appendChild(root);
 
+		addComment(COMMENTS.get(testName), root);
+
 		Element settings = addElement(SETTINGS, root);
 
 		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
@@ -216,6 +203,8 @@ public class PeerModelMaker {
 		addAttribute(NAME, testName, root);
 		addAttribute(WEIGHT, 1.0, root);
 		doc.appendChild(root);
+
+		addComment(COMMENTS.get(testName), root);
 
 		Element settings = addElement(SETTINGS, root);
 
