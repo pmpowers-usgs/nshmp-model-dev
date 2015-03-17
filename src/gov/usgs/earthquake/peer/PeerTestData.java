@@ -1,5 +1,7 @@
 package gov.usgs.earthquake.peer;
 
+import static org.opensha.eq.Magnitudes.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,7 @@ import com.google.common.primitives.Doubles;
  * 
  * @author Peter Powers
  */
-public class PeerTests {
+public class PeerTestData {
 
 	static final String S1_C1 = "Set1-Case1";
 	static final String S1_C2 = "Set1-Case2";
@@ -47,149 +49,225 @@ public class PeerTests {
 	static final String S1_C11 = "Set1-Case11";
 
 	static final String S2_C1 = "Set2-Case1";
-	static final String S2_C2 = "Set2-Case2";
-	static final String S2_C3 = "Set2-Case3";
+	static final String S2_C2A1 = "Set2-Case2a1";
+	static final String S2_C2A2 = "Set2-Case2a2";
+	static final String S2_C2B1 = "Set2-Case2b1";
+	static final String S2_C2B2 = "Set2-Case2b2";
+	static final String S2_C2C1 = "Set2-Case2c1";
+	static final String S2_C2C2 = "Set2-Case2c2";
+	static final String S2_C2D1 = "Set2-Case2d1";
+	static final String S2_C2D2 = "Set2-Case2d2";
+	static final String S2_C3A = "Set2-Case3a";
+	static final String S2_C3B = "Set2-Case3b";
+	static final String S2_C3C = "Set2-Case3c";
+	static final String S2_C3D = "Set2-Case3d";
 	static final String S2_C4A = "Set2-Case4a";
 	static final String S2_C4B = "Set2-Case4b";
 	static final String S2_C5A = "Set2-Case5a";
 	static final String S2_C5B = "Set2-Case5b";
 
-	static final LocationList S1_FAULT_SITES;
-	
+
 	// defined from north to south so that reverse representation
 	// is east-vergent
-	private static final LocationList S1_FAULT_TRACE = LocationList.create(
-		Location.create(38.2248, -122.0000),
-		Location.create(38.000, -122.000));
-	
-	static LocationList S1_FAULT1_TRACE = S1_FAULT_TRACE;
-	static final double S1_FAULT1_ZTOP = 0.0; // km
-	static final double S1_FAULT1_ZBOT = 12.0; // km
-	static final double S1_FAULT1_WIDTH = S1_FAULT1_ZBOT - S1_FAULT1_ZTOP; // km
-	static final double S1_FAULT1_LENGTH = 25.0; // km
-	static final double S1_FAULT1_DIP = 90.0;
-	static final double S1_FAULT1_RAKE = 0.0;
-	
-	static final LocationList S1_FAULT2_TRACE = S1_FAULT_TRACE;
-	static final double S1_FAULT2_ZTOP = 1.0; // km
-	static final double S1_FAULT2_ZBOT = 12.0; // km
-	static final double S1_FAULT2_DIP = 60.0; // degrees
-	static final double S1_FAULT2_WIDTH = (S1_FAULT2_ZBOT - S1_FAULT2_ZTOP) / Math.sin(S1_FAULT2_DIP * TO_RAD);
-	static final double S1_FAULT2_LENGTH = S1_FAULT1_LENGTH;
-	static final double S1_FAULT2_RAKE = 90.0;
+	private static final LocationList TRACE_1_2 = LocationList.create(
+		Location.create(38.2248, -122.0000), Location.create(38.000, -122.000));
 
-	static final String S1_AREA_DEPTH_STR;
-	static final String S1_AREA_DEPTH_VAR_STR;
-	
-	static final LocationList S1_AREA_SITES;
+	private static final LocationList TRACE_B = LocationList.create(
+		Location.create(0.44966, -65.38222), Location.create(0.44966, -64.61778));
+
+	private static final LocationList TRACE_C = LocationList.create(
+		Location.create(-0.22483, -65.22484), Location.create(-0.22483, -64.77516));
+
+	private static final LocationList TRACE_3_4 = LocationList.create(
+		Location.create(0.38221, -65.0), Location.create(-0.38221, -65.0));
+
+	private static final LocationList TRACE_5_6 = LocationList.create(
+		Location.create(0.11240, -65.0), Location.create(-0.11240, -65.0));
+
+	private static final double ZTOP_0 = 0.0;
+	private static final double ZTOP_1 = 1.0;
+	private static final double ZBOT_12 = 12.0;
+	private static final double ZBOT_30 = 30.0;
+	private static final double LENGTH_25 = 25.0;
+	private static final double LENGTH_50 = 50.0;
+	private static final double LENGTH_85 = 85.0;
+	private static final double DIP_90 = 90.0;
+	private static final double DIP_60 = 60.0;
+	private static final double DIP_45 = 45.0;
+	private static final double RAKE_SS = 0.0;
+	private static final double RAKE_REV = 90.0;
+
+	static class Fault {
+
+		final LocationList trace;
+		final double length;
+		final double dip;
+		final double rake;
+		final double depth;
+		final double width;
+		final String name;
+
+		Fault(LocationList trace, double length, double dip, double rake, double zTop, double zBot, String id) {
+			this.trace = trace;
+			this.length = length;
+			this.dip = dip;
+			this.rake = rake;
+			this.depth = zTop;
+			this.width = downDipWidth(zTop, zBot, dip);
+			this.name = "Fault " + id;
+		}
+	}
+
+	static final Fault F1 = new Fault(TRACE_1_2, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "1");
+	static final Fault F2 = new Fault(TRACE_1_2, LENGTH_25, DIP_60, RAKE_REV, ZTOP_1, ZBOT_12, "2");
+	static final Fault FB = new Fault(TRACE_B, LENGTH_85, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "B");
+	static final Fault FC = new Fault(TRACE_C, LENGTH_50, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "C");
+	static final Fault F3 = new Fault(TRACE_3_4, LENGTH_85, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "3");
+	static final Fault F4 = new Fault(TRACE_3_4, LENGTH_85, DIP_45, RAKE_REV, ZTOP_1, ZBOT_12, "4");
+	static final Fault F5 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_30, "5");
+	static final Fault F6 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "6");
+
+
+	static final String AREA_DEPTH_STR;
+	static final String AREA_DEPTH_VAR_STR;
+
 	static final LocationList S1_AREA_SOURCE_BORDER;
-	
-	static final Location S2_DEAGG_SITE;
-	
-	static final LocationList S2_FAULTB_TRACE = LocationList.create(
-		Location.create(0.44966, -65.38222),
-		Location.create(0.44966, -64.61778));
-	
-	static final LocationList S2_FAULTC_TRACE = LocationList.create(
-		Location.create(-0.22483, -65.22484),
-		Location.create(-0.22483, -64.77516));
-	
-	static final LocationList S2_FAULT3_TRACE = LocationList.create(
-		Location.create(0.38221, -65.0),
-		Location.create(-0.38221, -65.0));
-	static final double S2_FAULT3_ZTOP = 0.0;
-	static final double S2_FAULT3_ZBOT = 12.0;
-	static final double S2_FAULT3_DIP = 90.0;
-	static final double S2_FAULT3_WIDTH = S2_FAULT3_ZBOT - S2_FAULT3_ZTOP;
-	static final double S2_FAULT3_LENGTH = 85.0; // km
-	static final double S2_FAULT3_RAKE = 0.0;
-	
-	static final LocationList S2_FAULT4_TRACE = S2_FAULT3_TRACE;
-	static final double S2_FAULT4_ZTOP = 1.0;
-	static final double S2_FAULT4_ZBOT = 12.0;
-	static final double S2_FAULT4_DIP = 45.0;
-	static final double S2_FAULT4_WIDTH = (S2_FAULT4_ZBOT - S2_FAULT4_ZTOP) / Math.sin(S2_FAULT4_DIP * TO_RAD);
-	static final double S2_FAULT4_LENGTH = S2_FAULT3_LENGTH;
-	static final double S2_FAULT4_RAKE = 90.0;
 
+	static final Location S2_DEAGG_SITE;
 	static final LocationList S2_NGA_SITES;
-	
+
 	static final LocationList S2_AREA_SOURCE_BORDER;
-	
-	
+
 	static final double B_VAL = 0.9;
-	static final double SINGLE_M1 = 6.5;
-	static final double SINGLE_M2 = 6.0;
+	static final double SINGLE_6P0 = 6.0;
+	static final double SINGLE_6P5 = 6.5;
+	static final double SINGLE_7P0 = 6.5;
 	static final double GR_MIN = 5.0;
 	static final double GR_MAX = 6.5;
-	static final double YC_MAX = 6.45;
-	static final double YC_MAX_BIN = 6.445;
+	static final double NGA_GR_MAX = 7.0;
+	static final double YC_MAX1 = 6.45;
+	static final double YC_MAX1_BIN = 6.445;
+	static final double YC_MAX2 = 7.0;
+	static final double YC_MAX2_BIN = 6.995;
+	static final double YC_MAX3 = 6.75;
+	static final double YC_MAX3_BIN = 6.745;
 	static final double GAUSS_MEAN = 6.2;
 	static final double GAUSS_SIGMA = 0.25;
-	static final double SLIP_RATE = 2.0; // mm/yr
+	static final double SLIP_2MM = 2.0;
+	static final double SLIP_1MM = 1.0;
 	static final double AREA_EVENT_RATE = 0.0395;
+
+	// static final CH_Data F1_SINGLE_6P5_MFD;
+	// static final CH_Data F1_SINGLE_6P0_FLOAT_MFD;
+	// static final CH_Data F2_SINGLE_6P0_FLOAT_MFD;
+	// static final GR_Data F1_GR_FLOAT_MFD;
+
+	static final IncrementalMfd F1_SINGLE_6P5_MFD; // 1.1
+	static final IncrementalMfd F1_SINGLE_6P0_FLOAT_MFD; // 1.2, 1.3, 1.8a, 1.8b, 1.8c
+	static final IncrementalMfd F2_SINGLE_6P0_FLOAT_MFD; // 1.4
+	static final IncrementalMfd F1_GR_FLOAT_MFD; // 1.5
+	static final IncrementalMfd F1_GAUSS_FLOAT_MFD; // 1.6
+	static final IncrementalMfd F1_YC_CHAR_FLOAT_MFD; // 1.7
+	static final IncrementalMfd AREA_GR_MFD; // 1.10 ,1.11, 2.1
+	static final IncrementalMfd FB_YC_CHAR_FLOAT_MFD; // 2.1
+	static final IncrementalMfd FC_YC_CHAR_FLOAT_MFD; // 2.1
+	static final IncrementalMfd F3_GR_FLOAT_MFD; // 2.2
+	static final IncrementalMfd F4_SINGLE_7P0_FLOAT_MFD; // 2.3
+	static final IncrementalMfd F5_SINGLE_6P0_FLOAT_MFD; // 2.4
+	static final IncrementalMfd F6_SINGLE_6P0_FLOAT_MFD; // 2.5
 	
-//	static final CH_Data F1_SINGLE_6P5_MFD;
-//	static final CH_Data F1_SINGLE_6P0_FLOAT_MFD;
-//	static final CH_Data F2_SINGLE_6P0_FLOAT_MFD;
-//	static final GR_Data F1_GR_FLOAT_MFD;
-	
-	static final IncrementalMfd F1_SINGLE_6P5_MFD;			// case 1
-	static final IncrementalMfd F1_SINGLE_6P0_FLOAT_MFD;	// case 2,3,8a,8b,8c
-	static final IncrementalMfd F2_SINGLE_6P0_FLOAT_MFD;	// case 4
-	static final IncrementalMfd F1_GR_FLOAT_MFD;			// case 5
-	static final IncrementalMfd F1_GAUSS_FLOAT_MFD;			// case 6
-	static final IncrementalMfd F1_YC_CHAR_FLOAT_MFD;		// case 7
-	static final IncrementalMfd A1_GR_MFD;					// case 10,11
-	
+
 	static final List<Double> GMM_CUTOFFS = Lists.newArrayList(200.0);
-	static final Map<Gmm, Double> GMM_WT_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
-	static final List<Map<Gmm, Double>> GMM_MAP_LIST = Lists.newArrayList(GMM_WT_MAP);
-	
+
+	private static final Map<Gmm, Double> SADIGH_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
+	private static final Map<Gmm, Double> ASK14_MAP = ImmutableMap.of(Gmm.ASK_14, 1.0);
+	private static final Map<Gmm, Double> BSSA14_MAP = ImmutableMap.of(Gmm.BSSA_14, 1.0);
+	private static final Map<Gmm, Double> CB14_MAP = ImmutableMap.of(Gmm.CB_14, 1.0);
+	private static final Map<Gmm, Double> CY14_MAP = ImmutableMap.of(Gmm.CY_14, 1.0);
+
+	static final List<Map<Gmm, Double>> SADIGH_GMM = Lists.newArrayList(SADIGH_MAP);
+	static final List<Map<Gmm, Double>> ASK14_GMM = Lists.newArrayList(ASK14_MAP);
+	static final List<Map<Gmm, Double>> BSSA14_GMM = Lists.newArrayList(BSSA14_MAP);
+	static final List<Map<Gmm, Double>> CB14_GMM = Lists.newArrayList(CB14_MAP);
+	static final List<Map<Gmm, Double>> CY14_GMM = Lists.newArrayList(CY14_MAP);
+
 	static final Map<String, String> COMMENTS = Maps.newHashMap();
-	
+
 	public static void main(String[] args) {
-//		System.out.println(F1_SINGLE_6P5_MFD);
-//		System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
-//		System.out.println(F2_SINGLE_6P0_FLOAT_MFD);
-//		System.out.println(F1_GR_FLOAT_MFD);
-		System.out.println(F1_GAUSS_FLOAT_MFD);
-//		System.out.println(F1_YC_CHAR_FLOAT_MFD);
-//		System.out.println(A1_GR_MFD);
-		
-//		System.out.println(F1_TMR);
-//		System.out.println(F2_TMR);
+		// System.out.println(F1_SINGLE_6P5_MFD);
+		// System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
+		// System.out.println(F2_SINGLE_6P0_FLOAT_MFD);
+		 System.out.println(F3_GR_FLOAT_MFD);
+//		System.out.println(F1_GAUSS_FLOAT_MFD);
+//		 System.out.println(FC_YC_CHAR_FLOAT_MFD);
+		// System.out.println(A1_GR_MFD);
+
+		// System.out.println(F1_TMR);
+		// System.out.println(F2_TMR);
+	}
+
+	/* Compute down dip width */
+	static double downDipWidth(double zTop, double zBot, double dip) {
+		return (zBot - zTop) / Math.sin(dip * TO_RAD);
+	}
+
+	/* Compute area in m^2 given length and width args in km */
+	static double area(Fault fault) {
+		return fault.length * 1000.0 * fault.width * 1000.0;
+	}
+	
+	/* Compute the moment rate for a fault and slip (in mm/yr) */
+	static double moRate(Fault fault, double slip) {
+		return Magnitudes.moment(area(fault), slip / 1000.0);
 	}
 
 	static {
-		double f1area = S1_FAULT1_LENGTH * 1000.0 * S1_FAULT1_WIDTH * 1000.0;
-		double f2area = S1_FAULT2_LENGTH * 1000.0 * S1_FAULT2_WIDTH * 1000.0;
-		
-		double f1tmr = Magnitudes.moment(f1area, SLIP_RATE / 1000.0);
-		double f2tmr = Magnitudes.moment(f2area, SLIP_RATE / 1000.0);
-		
-		F1_SINGLE_6P5_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_M1, f1tmr, false);
-		F1_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_M2, f1tmr, true);
-		F2_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_M2, f2tmr, true);
 
-		IncrementalMfd gmMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, f1tmr);
+		// moment rates
+		double F1tmr = moRate(F1, SLIP_2MM);
+		double F2tmr = moRate(F2, SLIP_2MM);
+		double FBtmr = moRate(FB, SLIP_2MM);
+		double FCtmr = moRate(FC, SLIP_1MM);
+		double F3tmr = moRate(F3, SLIP_2MM);
+		double F4tmr = moRate(F4, SLIP_2MM);
+		double F5tmr = moRate(F5, SLIP_2MM);
+		double F6tmr = moRate(F6, SLIP_2MM);
+
+		F1_SINGLE_6P5_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P5, F1tmr, false);
+		F1_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F1tmr, true);
+		F2_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F2tmr, true);
+
+		IncrementalMfd gmMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, F1tmr);
 		F1_GR_FLOAT_MFD = trimToRange(gmMfd, GR_MIN, GR_MAX);
-		
+
 		GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000);
-		gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, f1tmr, 1.19, 1);
+		gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, F1tmr, 1.19, 1);
 		F1_GAUSS_FLOAT_MFD = trimToRange(gaussMfd, GR_MIN, GR_MAX);
+
+		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX1_BIN, 0.49, 5.945, 1.0, B_VAL, F1tmr);
+		F1_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX1);
+
+		AREA_GR_MFD = Mfds.newGutenbergRichterMFD(5.05, 0.1, 15, B_VAL, AREA_EVENT_RATE);
 		
-		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX_BIN, 0.49, 5.945, 1.0, B_VAL, f1tmr);
-		F1_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX);
+		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX2_BIN, 0.49, 6.495, 1.0, B_VAL, FBtmr);
+		FB_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX2);
 		
-		A1_GR_MFD = Mfds.newGutenbergRichterMFD(5.05, 0.1, 15, B_VAL, AREA_EVENT_RATE);
+		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX3_BIN, 0.49, 6.245, 1.0, B_VAL, FCtmr);
+		FC_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX3);
+
+		IncrementalMfd ngaMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 700, B_VAL, F3tmr);
+		F3_GR_FLOAT_MFD = trimToRange(ngaMfd, GR_MIN, NGA_GR_MAX);
+		
+		F4_SINGLE_7P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_7P0, F4tmr, true);
+		F5_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F5tmr, true);
+		F6_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F6tmr, true);
 		
 	}
-	
+
 	private static IncrementalMfd trimToRange(IncrementalMfd mfd, double mMin, double mMax) {
 		List<Double> mags = new ArrayList<>();
 		List<Double> rates = new ArrayList<>();
-		for (int i=0; i<mfd.getNum(); i++) {
+		for (int i = 0; i < mfd.getNum(); i++) {
 			double mag = mfd.getX(i);
 			double rate = mfd.getY(i);
 			if (mag > mMin && mag < mMax && rate > 0.0) {
@@ -199,28 +277,13 @@ public class PeerTests {
 		}
 		return Mfds.newIncrementalMFD(Doubles.toArray(mags), Doubles.toArray(rates));
 	}
-	
+
 	static {
 		// @formatter:off
 		
-		S1_FAULT_SITES = LocationList.create(
-			Location.create(38.113, -122.000),
-			Location.create(38.113, -122.114),
-			Location.create(38.111, -122.570),
-			Location.create(38.000, -122.000),
-			Location.create(37.910, -122.000),
-			Location.create(38.225, -122.000),
-			Location.create(38.113, -121.886));
-
-		S1_AREA_DEPTH_STR = "[10.0::[5.0:1.0]]";
+		AREA_DEPTH_STR = "[10.0::[5.0:1.0]]";
 		
-		S1_AREA_DEPTH_VAR_STR = "[10.0::[5.0:0.1667, 6.0:0.1666, 7.0:0.1667, 8.0:0.1667, 9.0:0.1666, 10.0:0.1667]";
-		
-		S1_AREA_SITES = LocationList.create(
-			Location.create(38.000, -122.000),
-			Location.create(37.550, -122.000),
-			Location.create(37.099, -122.000),
-			Location.create(36.874, -122.000));
+		AREA_DEPTH_VAR_STR = "[10.0::[5.0:0.1667, 6.0:0.1666, 7.0:0.1667, 8.0:0.1667, 9.0:0.1666, 10.0:0.1667]";
 		
 		S1_AREA_SOURCE_BORDER = LocationList.create(
 			Location.create(38.901, -122.000),
@@ -423,15 +486,27 @@ public class PeerTests {
 		COMMENTS.put(S1_C5, "MFD: Truncated exponential model");
 		COMMENTS.put(S1_C6, "MFD: Truncated normal model");
 		COMMENTS.put(S1_C7, "MFD: Characteristic model (Youngs & Coppersmith, 1985)");
-		COMMENTS.put(S1_C8A, "Single rupture smaller than fault plane; no sigma truncation");
-		COMMENTS.put(S1_C8B, "Single rupture smaller than fault plane; 2x sigma truncation");
-		COMMENTS.put(S1_C8C, "Single rupture smaller than fault plane; 3x sigma truncation");
+		COMMENTS.put(S1_C8A, "Single rupture smaller than fault plane; no σ truncation");
+		COMMENTS.put(S1_C8B, "Single rupture smaller than fault plane; 2x σ truncation");
+		COMMENTS.put(S1_C8C, "Single rupture smaller than fault plane; 3x σ truncation");
 		COMMENTS.put(S1_C10, "Area source; fixed depth 5km");
 		COMMENTS.put(S1_C11, "Volume source; depth 5 to 10 km");
 		
 		COMMENTS.put(S2_C1, "Multiple sources; Deaggregation");
-		COMMENTS.put(S2_C2, "NGA West 2 Ground Motion Models");
-		COMMENTS.put(S2_C3, "Hanging wall effects");
+		String ngaw2 = "NGA West 2 Ground Motion Models";
+		COMMENTS.put(S2_C2A1, ngaw2 + "; ASK14; σ=0");
+		COMMENTS.put(S2_C2A2, ngaw2 + "; ASK14; no σ truncation");
+		COMMENTS.put(S2_C2B1, ngaw2 + "; BSSA14; σ=0");
+		COMMENTS.put(S2_C2B2, ngaw2 + "; BSSA14; no σ truncation");
+		COMMENTS.put(S2_C2C1, ngaw2 + "; CB14; σ=0");
+		COMMENTS.put(S2_C2C2, ngaw2 + "; CB14; no σ truncation");
+		COMMENTS.put(S2_C2D1, ngaw2 + "; CY14; σ=0");
+		COMMENTS.put(S2_C2D2, ngaw2 + "; CY14; no σ truncation");
+		String hw = "Hanging wall effects";
+		COMMENTS.put(S2_C3A, hw + "; ASK14; σ=0");
+		COMMENTS.put(S2_C3B, hw + "; BSSA14; σ=0");
+		COMMENTS.put(S2_C3C, hw + "; CB14; σ=0");
+		COMMENTS.put(S2_C3D, hw + "; CY14; σ=0");
 		COMMENTS.put(S2_C4A, "Uniform down-dip distribution of hypocenters");
 		COMMENTS.put(S2_C4B, "Triangular down-dip distribution of hypocenters");
 		COMMENTS.put(S2_C5A, "Upper tails");
