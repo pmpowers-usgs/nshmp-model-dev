@@ -1,42 +1,44 @@
 package gov.usgs.earthquake.peer;
 
-import static com.google.common.base.Preconditions.checkState;
 import static gov.usgs.earthquake.peer.PeerTestData.*;
 import static org.opensha.eq.fault.surface.RuptureScaling.PEER;
-import static org.opensha.eq.model.SourceType.*;
+import static org.opensha.eq.model.SourceAttribute.A;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
 import static org.opensha.eq.model.SourceAttribute.DIP;
 import static org.opensha.eq.model.SourceAttribute.FLOATS;
+import static org.opensha.eq.model.SourceAttribute.M;
 import static org.opensha.eq.model.SourceAttribute.MAGS;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.RATES;
+import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha.eq.model.SourceAttribute.TYPE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceAttribute.WIDTH;
 import static org.opensha.eq.model.SourceElement.AREA_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.FAULT_SOURCE_SET;
-import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha.eq.model.SourceElement.BORDER;
+import static org.opensha.eq.model.SourceElement.FAULT_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.GEOMETRY;
+import static org.opensha.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha.eq.model.SourceElement.TRACE;
+import static org.opensha.eq.model.SourceType.AREA;
+import static org.opensha.eq.model.SourceType.FAULT;
 import static org.opensha.mfd.MfdType.INCR;
+import static org.opensha.mfd.MfdType.SINGLE;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addComment;
 import static org.opensha.util.Parsing.addElement;
 import gov.usgs.earthquake.model.GmmCreator;
+import gov.usgs.earthquake.peer.PeerTestData.Fault;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,14 +50,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha.geo.LocationList;
-import org.opensha.gmm.Gmm;
 import org.opensha.mfd.IncrementalMfd;
 import org.opensha.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.google.common.collect.Lists;
 
 /**
  * Add comments here
@@ -69,7 +67,7 @@ public class PeerModelMaker {
 	static final String AREA1_SOURCE = "PEER: Area 1";
 
 	static final String MODEL_DIR = "models/PEER";
-	static final String SOURCE_FILE = "test.xml";
+	static final String SOURCE_FILE = "source.xml";
 	static final String GMM_FILE = "gmm.xml";
 
 	private final DocumentBuilder docBuilder;
@@ -150,8 +148,8 @@ public class PeerModelMaker {
 		write(path.resolve(SOURCE_FILE), createArea(S2_C1, AREA_GR_MFD, AREA_DEPTH_VAR_STR, 2));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
 		path = Paths.get(MODEL_DIR, S2_C1, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C1, FB, FB_YC_CHAR_FLOAT_MFD));
-		write(path.resolve(SOURCE_FILE), createFault(S2_C1, FC, FC_YC_CHAR_FLOAT_MFD));
+		write(path.resolve("source1.xml"), createFault(S2_C1, FB, FB_YC_CHAR_FLOAT_MFD));
+		write(path.resolve("source2.xml"), createFault(S2_C1, FC, FC_YC_CHAR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
 
 		// NGAW2
@@ -295,10 +293,17 @@ public class PeerModelMaker {
 
 	private static void addMfd(IncrementalMfd mfd, Element e) {
 		Element mfdElem = addElement(INCREMENTAL_MFD, e);
-		addAttribute(TYPE, INCR, mfdElem);
-		addAttribute(RATES, Parsing.toString(mfd.yValues(), "%.8g"), mfdElem);
-		addAttribute(MAGS, Parsing.toString(mfd.xValues(), "%.3f"), mfdElem);
+		if (mfd.getNum() == 1) {
+			addAttribute(TYPE, SINGLE, mfdElem);
+			addAttribute(A, String.format("%.8g", mfd.yValues().get(0)), mfdElem);
+			addAttribute(M, String.format("%.3f", mfd.xValues().get(0)), mfdElem);
+		} else {
+			addAttribute(TYPE, INCR, mfdElem);
+			addAttribute(RATES, Parsing.toString(mfd.yValues(), "%.8g"), mfdElem);
+			addAttribute(MAGS, Parsing.toString(mfd.xValues(), "%.3f"), mfdElem);
+		}
 		addAttribute(FLOATS, mfd.floats(), mfdElem);
+		addAttribute(WEIGHT, 1.0, mfdElem);
 	}
 
 }

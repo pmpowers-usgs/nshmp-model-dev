@@ -194,16 +194,16 @@ public class PeerTestData {
 	static final Map<String, String> COMMENTS = Maps.newHashMap();
 
 	public static void main(String[] args) {
-		// System.out.println(F1_SINGLE_6P5_MFD);
+		 System.out.println(F1_SINGLE_6P5_MFD);
 		// System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
 		// System.out.println(F2_SINGLE_6P0_FLOAT_MFD);
-		 System.out.println(F3_GR_FLOAT_MFD);
+//		 System.out.println(F3_GR_FLOAT_MFD);
 //		System.out.println(F1_GAUSS_FLOAT_MFD);
 //		 System.out.println(FC_YC_CHAR_FLOAT_MFD);
 		// System.out.println(A1_GR_MFD);
 
-		// System.out.println(F1_TMR);
 		// System.out.println(F2_TMR);
+//		 System.out.println(moRate(F1, SLIP_2MM));
 	}
 
 	/* Compute down dip width */

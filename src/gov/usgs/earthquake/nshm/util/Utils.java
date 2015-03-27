@@ -1,6 +1,5 @@
 package gov.usgs.earthquake.nshm.util;
 
-import static org.opensha.calc.GaussTruncation.ONE_SIDED;
 
 import java.awt.Color;
 import java.io.DataInputStream;
@@ -19,7 +18,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.apache.commons.math3.special.Erf;
-import org.opensha.calc.GaussTruncation;
 import org.opensha.eq.Magnitudes;
 import org.opensha.eq.fault.FocalMech;
 import org.opensha.geo.BorderType;
@@ -202,21 +200,21 @@ public class Utils {
 	 *         org.apache.commons.math3.special.Erf)
 	 * @see #gaussProbExceed(double, double, double)
 	 */
-	public static double gaussProbExceed(double mean, double std, double value,
-			double trunc, GaussTruncation type) {
-		// checkArgument(trunc >= 0,
-		// "Truncation must be a positive value or 0");
-		double P = gaussProbExceed(mean, std, value);
-		if (type == GaussTruncation.ONE_SIDED) {
-			P = (P - trunc) / (1.0 - trunc);
-			return probBoundsCheck(P);
-		} else if (type == GaussTruncation.TWO_SIDED) {
-			P = (P - trunc) / (1 - 2 * trunc);
-			return probBoundsCheck(P);
-		} else {
-			return P;
-		}
-	}
+//	public static double gaussProbExceed(double mean, double std, double value,
+//			double trunc, GaussTruncation type) {
+//		// checkArgument(trunc >= 0,
+//		// "Truncation must be a positive value or 0");
+//		double P = gaussProbExceed(mean, std, value);
+//		if (type == GaussTruncation.ONE_SIDED) {
+//			P = (P - trunc) / (1.0 - trunc);
+//			return probBoundsCheck(P);
+//		} else if (type == GaussTruncation.TWO_SIDED) {
+//			P = (P - trunc) / (1 - 2 * trunc);
+//			return probBoundsCheck(P);
+//		} else {
+//			return P;
+//		}
+//	}
 
 	private static double probBoundsCheck(double P) {
 		return (P < 0) ? 0 : (P > 1) ? 1 : P;
@@ -302,18 +300,18 @@ public class Utils {
 //		return imls;
 //	}
 	
-	public static double getExceedProbability(double iml,
-			double mean, double sigma, boolean clamp, double clampVal) {
-
-		double clip = mean + 3 * sigma;
-		if (clamp) {
-			double clip3s = Math.exp(clip);
-			double clipPer = clampVal;
-			if (clipPer < clip3s && clipPer > 0) clip = Math.log(clipPer);
-		}
-		double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
-		return Utils.gaussProbExceed(mean, sigma, Math.log(iml), Pclip, ONE_SIDED);
-	}
+//	public static double getExceedProbability(double iml,
+//			double mean, double sigma, boolean clamp, double clampVal) {
+//
+//		double clip = mean + 3 * sigma;
+//		if (clamp) {
+//			double clip3s = Math.exp(clip);
+//			double clipPer = clampVal;
+//			if (clipPer < clip3s && clipPer > 0) clip = Math.log(clipPer);
+//		}
+//		double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
+//		return Utils.gaussProbExceed(mean, sigma, Math.log(iml), Pclip, ONE_SIDED);
+//	}
 
 
 	// public static void main(String[] args) {
