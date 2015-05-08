@@ -23,20 +23,27 @@ import static org.opensha.eq.model.SourceElement.NODE;
 import static org.opensha.eq.model.SourceElement.NODES;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE_PROPERTIES;
+import static org.opensha.eq.model.SourceType.SYSTEM;
 import static org.opensha.mfd.MfdType.INCR;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 import static org.opensha.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.Utils;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -66,13 +73,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -83,6 +88,7 @@ import com.google.common.primitives.Doubles;
 public class IndexedGridConverter {
 
 	private static final String GRID_XML = "grid_sources.xml";
+	private static final String GRID_BIN = "grid_sources.bin";
 
 	private static final Region CA_REGION;
 
@@ -106,7 +112,7 @@ public class IndexedGridConverter {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		
+
 		// this is unused but added to <SourceProperties> for consistency
 		// with other grid sources that require it; mechs can be overridden
 		// in each <Node>
@@ -143,29 +149,137 @@ public class IndexedGridConverter {
 	}
 
 
-	private Logger log;
-
 	private IndexedGridConverter() {};
 
-	static IndexedGridConverter create(Logger log) {
+	static IndexedGridConverter create() {
 		IndexedGridConverter igc = new IndexedGridConverter();
-		igc.log = checkNotNull(log);
 		return igc;
 	}
 
-	void processGridFile(String solDirPath, String sol, String outDirPath, double weight)
-			throws Exception {
+	void process(Path solPath, Path outDir) throws Exception {
 
-		File outDir = new File(outDirPath + sol);
-		outDir.mkdirs();
-		File gridOut = new File(outDir, GRID_XML);
+		String solName = solPath.getFileName().toString();
+		solName = solName.substring(0, solName.lastIndexOf('.'));
+		Path brAvgId = solPath.getParent().getFileName();
+		Path solDir = outDir.resolve(brAvgId).resolve(SYSTEM.toString()).resolve(solName);
+		Files.createDirectories(solDir);
+		File gridOut = solDir.resolve(GRID_XML).toFile();
 
-		ZipFile zip = new ZipFile(solDirPath + sol + ".zip");
+		ZipFile zip = new ZipFile(solPath.toString());
 		ZipEntry entry = zip.getEntry(GRID_XML);
-		InputStream gridIn = zip.getInputStream(entry);
-		processGridFile(gridIn, gridOut, sol, weight);
+		
+		System.out.println("Processing grid file...");
+		
+		double weight = IndexedConverter.computeWeight(solName);
+		
+		if (entry != null) {
+			System.out.println("    File format: xml");
+			InputStream gridIn = zip.getInputStream(entry);
+			processGridFileXml(gridIn, gridOut, solName, weight);
+		} else {
+			System.out.println("    File format: bin");
+			entry = zip.getEntry(GRID_BIN);
+			InputStream gridIn = zip.getInputStream(entry);
+			processGridFileBin(gridIn, gridOut, solName, weight);
+		}
+		System.out.println("         Weight: " + weight);
 
 		zip.close();
+	}
+
+	// when kevin converted to the binary format, mfds were reduced to
+	// mag range 5.05 to 8.95; we further reduce to 5.05 to 7.85 ([29])
+	private void processGridFileBin(InputStream in, File out, String id, double weight)
+			throws ParserConfigurationException,
+			TransformerConfigurationException, TransformerException,
+			IOException {
+				
+        GriddedRegion gr = Utils.RELM_Region(0.1);
+        
+        // file out
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document docOut = dBuilder.newDocument();
+        Element rootOut = docOut.createElement(GRID_SOURCE_SET.toString());
+        docOut.appendChild(rootOut);
+        addAttribute(NAME, id, rootOut);
+        addAttribute(WEIGHT, weight, rootOut);
+        
+        Element settings = addElement(SETTINGS, rootOut);
+        
+        Element mfdRef = addElement(DEFAULT_MFDS, settings);
+        Element mfd = addElement(INCREMENTAL_MFD, mfdRef);
+        addAttribute(TYPE, INCR, mfd);
+        List<Double> magList = Doubles.asList(mags);
+		addAttribute(MAGS, Parsing.toString(magList, "%.2f"), mfd);
+		List<Double> ratesRef = Doubles.asList(new double[mags.length]);
+		addAttribute(RATES, Parsing.toString(ratesRef, "%.1f"), mfd);
+		addAttribute(WEIGHT, 1.0, mfd);
+		
+		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+		String magDepthData = GridSourceData.magDepthDataToString(6.5, new double[] {5.0, 1.0});
+		addAttribute(MAG_DEPTH_MAP, magDepthData, propsElem);
+		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(defaultMechMap), propsElem);
+		addAttribute(STRIKE, Double.NaN, propsElem);
+		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
+		
+        Element nodesOut = addElement(NODES, rootOut);
+        
+        // data in
+        List<List<Double>> rates = readRates(in);
+        for (int i=0; i<rates.size(); i++) {
+        	Location loc = gr.locationForIndex(i);
+
+        	// filter sources outside CA border for UC3-NSHMP compatibility
+        	if (!CA_REGION.contains(loc)) continue;
+        	
+        	List<Double> rateList = rates.get(i).subList(0, mags.length);
+        	// filter aftershocks via rate reduction
+        	rateList = removeAftershocks(magList, rateList);
+        	
+        	Element nodeOut = addElement(NODE, nodesOut);
+        	nodeOut.setTextContent(Utils.locToString(loc));
+			addAttribute(RATES, Parsing.toString(rateList, "%.8g"), nodeOut);
+			addAttribute(TYPE, INCR, nodeOut);
+			addAttribute(FOCAL_MECH_MAP, enumValueMapToString(createMechMap(i)), nodeOut);
+        }
+       
+		TransformerFactory transFactory = TransformerFactory.newInstance();
+		Transformer trans = transFactory.newTransformer();
+		trans.setOutputProperty(OutputKeys.INDENT, "yes");
+		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		DOMSource source = new DOMSource(docOut);
+		StreamResult result = new StreamResult(out);
+		trans.transform(source, result);
+ 	}
+		
+	private List<List<Double>> readRates(InputStream in) throws IOException {
+		if (!(checkNotNull(in) instanceof BufferedInputStream)) {
+			in = new BufferedInputStream(in);
+		}
+		DataInputStream din = new DataInputStream(in);
+		int count = din.readInt();
+		int arraySize = din.readInt();
+		
+		for (int i=0; i<arraySize; i++) {
+			// step through mag array
+			din.readDouble();
+		}
+		
+		List<List<Double>> rates = new ArrayList<>();
+		for (int i=0; i<count - 1; i+=2) {
+			List<Double> nodeRates = Doubles.asList(new double[arraySize]);
+			for (int j = 0; j < 2; j++) {
+				int rateSize = din.readInt();
+				for (int k = 0; k < rateSize; k++) {
+					double rate = din.readDouble();
+					nodeRates.set(k, nodeRates.get(k) + rate);
+				}
+			}
+			rates.add(nodeRates);
+		}
+		in.close();
+		return rates;
 	}
 
 	/*
@@ -175,7 +289,7 @@ public class IndexedGridConverter {
 	 * desired grid source output format. We can also compose focal mech maps in
 	 * correct order as the focal mech dat files are similarly ordered.
 	 */
-	private void processGridFile(InputStream in, File out, String id, double weight)
+	private void processGridFileXml(InputStream in, File out, String id, double weight)
 			throws ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException,
 			IOException {
@@ -293,8 +407,8 @@ public class IndexedGridConverter {
 	private static final String MECH_DATA_DIR = "../../svn/OpenSHA/dev/scratch/UCERF3/data/seismicityGrids/";
 
 	private static double[] readFocalMechs(String filename) throws IOException {
-		File mechFile = new File(MECH_DATA_DIR, filename);
-		List<String> lines = Files.readLines(mechFile, Charsets.US_ASCII);
+		Path mechPath = Paths.get(MECH_DATA_DIR, filename);
+		List<String> lines = Files.readAllLines(mechPath, StandardCharsets.US_ASCII);
 		double[] data = new double[lines.size()];
 		int count = 0;
 		for (String line : lines) {

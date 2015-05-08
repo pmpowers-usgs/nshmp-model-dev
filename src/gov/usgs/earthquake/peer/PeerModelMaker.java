@@ -260,17 +260,13 @@ public class PeerModelMaker {
 
 		addComment(COMMENTS.get(testName), root);
 
-		Element settings = addElement(SETTINGS, root);
-
-		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-		addAttribute(MAG_DEPTH_MAP, magDepthMap, propsElem);
-		addAttribute(RUPTURE_SCALING, PEER, propsElem);
-
 		Element srcElem = addElement(SOURCE, root);
 		addAttribute(NAME, "Area Source " + id, srcElem);
 		addMfd(mfd, srcElem);
-		Element geom = addElement(GEOMETRY, srcElem);
-		Element border = addElement(BORDER, geom);
+		Element propsElem = addElement(SOURCE_PROPERTIES, srcElem);
+		addAttribute(MAG_DEPTH_MAP, magDepthMap, propsElem);
+		addAttribute(RUPTURE_SCALING, PEER, propsElem);
+		Element border = addElement(BORDER, srcElem);
 		border.setTextContent(S1_AREA_SOURCE_BORDER.toString());
 
 		return doc;

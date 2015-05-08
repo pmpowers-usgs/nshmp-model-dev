@@ -1,7 +1,6 @@
 package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.opensha.eq.model.SourceAttribute.ASEIS;
 import static org.opensha.eq.model.SourceAttribute.DEPTH;
@@ -14,22 +13,24 @@ import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RAKE;
 import static org.opensha.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha.eq.model.SourceAttribute.WIDTH;
-import static org.opensha.eq.model.SourceElement.GEOMETRY;
-import static org.opensha.eq.model.SourceElement.SYSTEM_FAULT_SECTIONS;
-import static org.opensha.eq.model.SourceElement.SYSTEM_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.DEFAULT_MFDS;
+import static org.opensha.eq.model.SourceElement.GEOMETRY;
 import static org.opensha.eq.model.SourceElement.SECTION;
 import static org.opensha.eq.model.SourceElement.SETTINGS;
 import static org.opensha.eq.model.SourceElement.SOURCE;
+import static org.opensha.eq.model.SourceElement.SYSTEM_FAULT_SECTIONS;
+import static org.opensha.eq.model.SourceElement.SYSTEM_SOURCE_SET;
 import static org.opensha.eq.model.SourceElement.TRACE;
+import static org.opensha.eq.model.SourceType.SYSTEM;
 import static org.opensha.util.Parsing.addAttribute;
 import static org.opensha.util.Parsing.addElement;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -43,8 +44,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha.eq.fault.surface.GriddedSurface;
 import org.opensha.eq.fault.surface.DefaultGriddedSurface;
+import org.opensha.eq.fault.surface.GriddedSurface;
 import org.opensha.geo.Location;
 import org.opensha.geo.LocationList;
 import org.opensha.util.Parsing;
@@ -74,60 +75,65 @@ class IndexedFaultConverter {
 	static final String RATES_BIN_IN = "rates.bin";
 	static final String RAKES_BIN_IN = "rakes.bin";
 
-	private Logger log;
-
 	private IndexedFaultConverter() {};
 
-	static IndexedFaultConverter create(Logger log) {
+	static IndexedFaultConverter create() {
 		IndexedFaultConverter ifc = new IndexedFaultConverter();
-		ifc.log = checkNotNull(log);
 		return ifc;
 	}
 
-	void processSolution(String solDirPath, String sol, String outDirPath, double weight, UC3_Filter filter)
+	void process(Path solPath, Path outDir, UC3_Filter filter)
 			throws IOException, ParserConfigurationException, SAXException, TransformerException {
 
-		ZipFile zip = new ZipFile(solDirPath + sol + ".zip");
-		File outDir = new File(outDirPath + sol);
-		outDir.mkdirs();
+		String solName = solPath.getFileName().toString();
+		solName = solName.substring(0, solName.lastIndexOf('.'));
+		Path brAvgId = solPath.getParent().getFileName();
+		Path solDir = outDir.resolve(brAvgId).resolve(SYSTEM.toString()).resolve(solName);
+		Files.createDirectories(solDir);
 
-		log.info("");
-		log.info("  Solution file: " + zip.getName());
+		ZipFile zip = new ZipFile(solPath.toString());
 
+		double weight = IndexedConverter.computeWeight(solName);
+		
+		System.out.println("");
+		System.out.println("  Solution file: " + zip.getName());
+		System.out.println("         Weight: " + weight);
+		
 		// section XML
-		File sectionsOut = new File(outDir, SECTION_XML_OUT);
+		File sectionsOut = solDir.resolve(SECTION_XML_OUT).toFile();
 		ZipEntry sectionsEntry = zip.getEntry(SECTION_XML_IN);
-		SectionData sectData = processSections(zip.getInputStream(sectionsEntry), sectionsOut, sol);
+		SectionData sectData = processSections(zip.getInputStream(sectionsEntry), sectionsOut,
+			solName);
 
 		// rupture XML -- the file reading below assumes files smaller
 		// than 4G per... (int) magsEntry.getSize()
 		ZipEntry magsEntry = zip.getEntry(MAGS_BIN_IN);
 		List<Double> rupMags = Parsing.readBinaryDoubleList(zip.getInputStream(magsEntry),
 			(int) magsEntry.getSize());
-		log.info("      Mags file: " + rupMags.size());
+		System.out.println("      Mags file: " + rupMags.size());
 		ZipEntry ratesEntry = zip.getEntry(RATES_BIN_IN);
 		List<Double> rupRates = Parsing.readBinaryDoubleList(zip.getInputStream(ratesEntry),
 			(int) ratesEntry.getSize());
-		log.info("     Rates file: " + rupRates.size());
+		System.out.println("     Rates file: " + rupRates.size());
 		ZipEntry rakesEntry = zip.getEntry(RAKES_BIN_IN);
 		List<Double> rupRakes = Parsing.readBinaryDoubleList(zip.getInputStream(rakesEntry),
 			(int) rakesEntry.getSize());
-		log.info("     Rakes file: " + rupRakes.size());
+		System.out.println("     Rakes file: " + rupRakes.size());
 		ZipEntry rupsEntry = zip.getEntry(RUPTURES_BIN_IN);
 		List<List<Integer>> rupIndices = Parsing.readBinaryIntLists(zip.getInputStream(rupsEntry));
-		log.info("   Indices file: " + rupIndices.size());
-		File rupsOut = new File(outDir, RUPTURES_XML_OUT);
+		System.out.println("   Indices file: " + rupIndices.size());
+		File rupsOut = solDir.resolve(RUPTURES_XML_OUT).toFile();
 
 		// build rupture fields that require building indexed surfaces
-		log.info("Building averaged rupture data ...");
-		sectData.buildRuptureData(rupIndices, log);
+		System.out.println("Building averaged rupture data ...");
+		sectData.buildRuptureData(rupIndices);
 		List<Double> rupDips = Doubles.asList(sectData.rupDips);
 		List<Double> rupDepths = Doubles.asList(sectData.rupDepths);
 		List<Double> rupWidths = Doubles.asList(sectData.rupWidths);
-		log.info(" Fault ruptures: " + rupDips.size());
+		System.out.println(" Fault ruptures: " + rupDips.size());
 
 		processRuptures(rupIndices, rupMags, rupRates, rupRakes, rupDips, rupWidths, rupDepths,
-			sol, rupsOut, weight, filter);
+			solName, rupsOut, weight, filter);
 
 		zip.close();
 	}
@@ -190,9 +196,9 @@ class IndexedFaultConverter {
 			addAttribute(RAKE, rakes.get(i), "%.1f", geom);
 			nonZeroRate++;
 		}
-		log.info("      Zero rate: " + zeroRate);
-		log.info("   UC3 Filtered: " + uc3filter);
-		log.info("  Positive rate: " + nonZeroRate);
+		System.out.println("      Zero rate: " + zeroRate);
+		System.out.println("   UC3 Filtered: " + uc3filter);
+		System.out.println("  Positive rate: " + nonZeroRate);
 		checkState(zeroRate + nonZeroRate + uc3filter == rupIndices.size());
 
 		TransformerFactory transFactory = TransformerFactory.newInstance();
@@ -202,10 +208,6 @@ class IndexedFaultConverter {
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(out);
 		trans.transform(source, result);
-
-		log.info("Conversion complete");
-		log.info("");
-
 	}
 
 	private static void checkSize(List<Double> data, int target, String id) {
@@ -283,7 +285,8 @@ class IndexedFaultConverter {
 			traceOut.setTextContent(trace.toString());
 			data.traces.add(trace);
 
-			log.fine("        Section: [" + sectIdx + "] " + sectName);
+			// System.out.println("        Section: [" + sectIdx + "] " +
+			// sectName);
 		}
 
 		TransformerFactory transFactory = TransformerFactory.newInstance();
@@ -294,7 +297,7 @@ class IndexedFaultConverter {
 		StreamResult result = new StreamResult(out);
 		trans.transform(source, result);
 
-		log.info(" Fault sections: " + data.traces.size());
+		System.out.println(" Fault sections: " + data.traces.size());
 
 		return data;
 	}
@@ -327,7 +330,7 @@ class IndexedFaultConverter {
 			traces = Lists.newArrayListWithCapacity(size);
 		}
 
-		void buildRuptureData(List<List<Integer>> indicesList, Logger log) {
+		void buildRuptureData(List<List<Integer>> indicesList) {
 
 			// create sesction list
 			List<GriddedSurface> sections = Lists.newArrayList();
@@ -355,7 +358,7 @@ class IndexedFaultConverter {
 				rupWidths[count] = ifs.rupWidth();
 				rupDips[count] = ifs.rupDip();
 				if (count % 50000 == 0) {
-					log.info("      completed: " + count);
+					System.out.println("      completed: " + count);
 				}
 				count++;
 			}
@@ -388,8 +391,7 @@ class IndexedFaultConverter {
 	static String cleanName(String name) {
 		return name.replace(", Subsection", " :");
 	}
-	
-	
+
 	/*
 	 * Filter enum for Klamath and Carson rupture filters. Carson ruptures are
 	 * restricted to the Carson-Kings (Genoa) parent fault. Klamath ruptures
@@ -400,46 +402,42 @@ class IndexedFaultConverter {
 	 * This filtering makes no accomodation for removing (now unused) fault
 	 * sections.
 	 */
-	
+
 	static final int KLAMATH_MIN_FM31 = 2422;
 	static final int KLAMATH_MAX_FM31 = 2430;
 	static final int KLAMATH_MIN_FM32 = 2487;
 	static final int KLAMATH_MAX_FM32 = 2495;
-	
+
 	static final int CARSON_MIN_FM31 = 257;
 	static final int CARSON_MAX_FM31 = 263;
 	static final int CARSON_MIN_FM32 = 261;
 	static final int CARSON_MAX_FM32 = 267;
 
 	static enum UC3_Filter {
-		
+
 		FM31(CARSON_MIN_FM31, CARSON_MAX_FM31, KLAMATH_MIN_FM31, KLAMATH_MAX_FM31),
 		FM32(CARSON_MIN_FM32, CARSON_MAX_FM32, KLAMATH_MIN_FM32, KLAMATH_MAX_FM32);
-		
+
 		private Range<Integer> carsonRange;
 		private Range<Integer> klamathRange;
-		
+
 		private UC3_Filter(int carsonMin, int carsonMax, int klamathMin, int klamathMax) {
 			carsonRange = Range.closed(carsonMin, carsonMax);
 			klamathRange = Range.closed(klamathMin, klamathMax);
 		}
-		
+
 		public boolean filter(List<Integer> indices) {
 			int index = indices.get(0);
 			return carsonRange.contains(index) || klamathRange.contains(index);
 		};
-		
+
 	}
-	
-	public static void main(String[] args) {
-		
-	}
-	
+
 	// TODO clean
-//	static final int CARSON_FM31_MIN = 
-//	static boolean filterForNSHMP() {
-//		
-//	}
+	// static final int CARSON_FM31_MIN =
+	// static boolean filterForNSHMP() {
+	//
+	// }
 
 	// @formatter:on
 

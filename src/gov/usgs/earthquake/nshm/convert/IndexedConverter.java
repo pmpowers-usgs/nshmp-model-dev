@@ -6,6 +6,10 @@ import gov.usgs.earthquake.nshm.convert.IndexedFaultConverter.UC3_Filter;
 import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -39,45 +43,59 @@ import com.google.common.collect.ImmutableBiMap;
  */
 public class IndexedConverter {
 
-	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
-	private static final String FCAST_DIR = "forecasts" + S;
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("[yy-MM-dd-HH-mm]");
-	private static final String LOG_DIR = FCAST_DIR + "logs" + S;
-	private static final Level LEVEL = Level.INFO;
-
-	private static final String SOL_DIR = "../../svn/OpenSHA/tmp/UC33/src/bravg/FM/";
-	private static final String FM31_SOL = "UC33brAvg_FM31";
-	private static final String FM32_SOL = "UC33brAvg_FM32";
-	private static final String OUT_DIR = FCAST_DIR + "/TestUC3/IndexedFault/";
+	private static final Path SRC_DIR = Paths.get("../../svn/OpenSHA/tmp/UC33/src/bravg");
+	private static final Path OUT_DIR = Paths.get("models/UCERF3/");
 
 	public static void main(String[] args) throws Exception {
+		Path solDir = SRC_DIR.resolve("FM");
+		// Path solDir = SRC_DIR.resolve("FM-DM");
+		// Path solDir = SRC_DIR.resolve("FM-DM-MS");
+		// Path solDir = SRC_DIR.resolve("FM-DM-MS-SS");
+		convertUC3(solDir);
+
 		// compareFaultModelIndices();
-		convertUC3();
+		// TODO can slip scaling 
 	}
 
-	static void convertUC3() throws Exception {
-		String logID = Converter.class.getName() + "-2008-" + sdf.format(new Date());
-		String logPath = LOG_DIR + logID + ".log";
-		Logger log = Utils.logger(logID, logPath, LEVEL);
+	static void convertUC3(Path solDir) throws Exception {
 
-		double weight = 1.0;
+		IndexedFaultConverter faultConverter = IndexedFaultConverter.create();
+		IndexedGridConverter gridConverter = IndexedGridConverter.create();
 
-		IndexedFaultConverter faultConverter = IndexedFaultConverter.create(log);
-		IndexedGridConverter gridConverter = IndexedGridConverter.create(log);
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(solDir, "*.zip")) {
+			for (Path path : stream) {
+				faultConverter.process(path, OUT_DIR, UC3_Filter.FM31);
+				gridConverter.process(path, OUT_DIR);
 
-		// convert branch averaged solution fault and grid sources
-		faultConverter.processSolution(SOL_DIR, FM31_SOL, OUT_DIR, weight, UC3_Filter.FM31);
-		gridConverter.processGridFile(SOL_DIR, FM31_SOL, OUT_DIR, weight);
-
-		faultConverter.processSolution(SOL_DIR, FM32_SOL, OUT_DIR, weight, UC3_Filter.FM32);
-		gridConverter.processGridFile(SOL_DIR, FM32_SOL, OUT_DIR, weight);
-
+				System.out.println("Conversion complete");
+				System.out.println("");
+			}
+		}
 	}
 
-	/*
-	 * 
-	 */
-
+	static double computeWeight(String name) {
+		double w = 1.0;
+		
+		if (name.contains("FM31")) w *= 0.5;
+		if (name.contains("FM32"))  w *= 0.5;
+		
+		if (name.contains("ABM")) w *= 0.1;
+		if (name.contains("GEOL")) w *= 0.3;
+		if (name.contains("NEOK")) w *= 0.3;
+		if (name.contains("ZENGBB"))  w *= 0.3;
+		
+		if (name.contains("ELLB"))  w *= 0.2;
+		if (name.contains("ELLBSL"))  w *= 0.2;
+		if (name.contains("HB08"))  w *= 0.2;
+		if (name.contains("SH09M"))  w *= 0.2;
+		if (name.contains("SHCSD"))  w *= 0.2;
+		
+		if (name.contains("U2"))  w *= 0.5;
+		if (name.contains("U3"))  w *= 0.5;
+		
+		return w;
+	}
+	
 	/*
 	 * Combining UC3 fault model branch averaged solutions:
 	 * 
@@ -97,8 +115,10 @@ public class IndexedConverter {
 
 	static void compareFaultModelIndices() throws Exception {
 
-		BiMap<Integer, String> fm31map = readSections(SOL_DIR, FM31_SOL);
-		BiMap<Integer, String> fm32map = readSections(SOL_DIR, FM32_SOL);
+		BiMap<Integer, String> fm31map = null; // readSections(SOL_DIR,
+												// FM31_SOL);
+		BiMap<Integer, String> fm32map = null; // readSections(SOL_DIR,
+												// FM32_SOL);
 
 		int count = 0;
 
