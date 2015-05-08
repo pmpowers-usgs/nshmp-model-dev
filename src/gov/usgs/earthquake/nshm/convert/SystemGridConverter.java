@@ -85,7 +85,7 @@ import com.google.common.primitives.Doubles;
  * 
  * @author Peter Powers
  */
-public class IndexedGridConverter {
+public class SystemGridConverter {
 
 	private static final String GRID_XML = "grid_sources.xml";
 	private static final String GRID_BIN = "grid_sources.bin";
@@ -149,10 +149,10 @@ public class IndexedGridConverter {
 	}
 
 
-	private IndexedGridConverter() {};
+	private SystemGridConverter() {};
 
-	static IndexedGridConverter create() {
-		IndexedGridConverter igc = new IndexedGridConverter();
+	static SystemGridConverter create() {
+		SystemGridConverter igc = new SystemGridConverter();
 		return igc;
 	}
 
@@ -170,7 +170,7 @@ public class IndexedGridConverter {
 		
 		System.out.println("Processing grid file...");
 		
-		double weight = IndexedConverter.computeWeight(solName);
+		double weight = SystemConverter.computeWeight(solName);
 		
 		if (entry != null) {
 			System.out.println("    File format: xml");
@@ -421,7 +421,7 @@ public class IndexedGridConverter {
 	private static List<Double> removeAftershocks(List<Double> mags, List<Double> rates) {
 		checkArgument(mags.size() == rates.size());
 		for (int i=0; i<rates.size(); i++) {
-			rates.set(i, IndexedAftershockFilter.scaleGridRate(mags.get(i), rates.get(i)));
+			rates.set(i, SystemAftershockFilter.scaleGridRate(mags.get(i), rates.get(i)));
 		}
 		return rates;
 	}

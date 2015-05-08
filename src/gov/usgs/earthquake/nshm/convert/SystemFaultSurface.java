@@ -11,7 +11,7 @@ import org.opensha.geo.Locations;
 /*
  * Reduction of CompoundSurface bidiness logic to bare minimum .
  */
-class IndexedFaultSurface {
+class SystemFaultSurface {
 	
 	List<? extends GriddedSurface> surfaces;
 	
@@ -29,7 +29,7 @@ class IndexedFaultSurface {
 	private LocationList trace;
 	
 	
-	IndexedFaultSurface(List<? extends GriddedSurface> surfaces) {
+	SystemFaultSurface(List<? extends GriddedSurface> surfaces) {
 		this.surfaces = surfaces;
 		init();
 		

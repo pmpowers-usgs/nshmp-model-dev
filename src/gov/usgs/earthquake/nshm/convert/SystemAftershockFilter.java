@@ -10,7 +10,7 @@ import org.opensha.mfd.GutenbergRichterMfd;
  * of gridded sources (Gardiner-Knopoff style) or fault sources
  * (UCERF2) style.
  */
-class IndexedAftershockFilter extends EvenlyDiscretizedFunc {
+class SystemAftershockFilter extends EvenlyDiscretizedFunc {
 	
 	// fraction of events that are mainshocks >= M 5
 	// from Table 21 of Felzer's UCERF2 Appendix I
@@ -21,13 +21,13 @@ class IndexedAftershockFilter extends EvenlyDiscretizedFunc {
 	// supra sesmogenic ruptures
 	private static final double SUPRA_SEIS_SCALE = 0.97;
 	
-	private static IndexedAftershockFilter instance;
+	private static SystemAftershockFilter instance;
 	
 	GutenbergRichterMfd allGR;
 	GutenbergRichterMfd mainGR;
 	
 	static {
-		instance = new IndexedAftershockFilter(0.05, 100, 0.1);
+		instance = new SystemAftershockFilter(0.05, 100, 0.1);
 	}
 	
 	static double scaleGridRate(double m, double rate) {
@@ -40,7 +40,7 @@ class IndexedAftershockFilter extends EvenlyDiscretizedFunc {
 		return SUPRA_SEIS_SCALE * rate;
 	}
 
-	IndexedAftershockFilter(double min, int num, double delta) {
+	SystemAftershockFilter(double min, int num, double delta) {
 		super(min, num, delta);
 
 		allGR = new GutenbergRichterMfd(min, num, delta);

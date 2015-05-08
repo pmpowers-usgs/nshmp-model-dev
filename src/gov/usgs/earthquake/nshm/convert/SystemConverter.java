@@ -1,8 +1,8 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static gov.usgs.earthquake.nshm.convert.IndexedFaultConverter.SECTION_XML_IN;
-import static gov.usgs.earthquake.nshm.convert.IndexedFaultConverter.cleanName;
-import gov.usgs.earthquake.nshm.convert.IndexedFaultConverter.UC3_Filter;
+import static gov.usgs.earthquake.nshm.convert.SystemFaultConverter.SECTION_XML_IN;
+import static gov.usgs.earthquake.nshm.convert.SystemFaultConverter.cleanName;
+import gov.usgs.earthquake.nshm.convert.SystemFaultConverter.UC3_Filter;
 import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ import com.google.common.collect.ImmutableBiMap;
  * 
  * @author Peter Powers
  */
-public class IndexedConverter {
+public class SystemConverter {
 
 	private static final Path SRC_DIR = Paths.get("../../svn/OpenSHA/tmp/UC33/src/bravg");
 	private static final Path OUT_DIR = Paths.get("models/UCERF3/");
@@ -59,8 +59,8 @@ public class IndexedConverter {
 
 	static void convertUC3(Path solDir) throws Exception {
 
-		IndexedFaultConverter faultConverter = IndexedFaultConverter.create();
-		IndexedGridConverter gridConverter = IndexedGridConverter.create();
+		SystemFaultConverter faultConverter = SystemFaultConverter.create();
+		SystemGridConverter gridConverter = SystemGridConverter.create();
 
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(solDir, "*.zip")) {
 			for (Path path : stream) {

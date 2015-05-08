@@ -64,7 +64,7 @@ import com.google.common.primitives.Doubles;
  * 
  * @author Peter Powers
  */
-class IndexedFaultConverter {
+class SystemFaultConverter {
 
 	static final String SECTION_XML_IN = "fault_sections.xml";
 	static final String SECTION_XML_OUT = SECTION_XML_IN;
@@ -75,10 +75,10 @@ class IndexedFaultConverter {
 	static final String RATES_BIN_IN = "rates.bin";
 	static final String RAKES_BIN_IN = "rakes.bin";
 
-	private IndexedFaultConverter() {};
+	private SystemFaultConverter() {};
 
-	static IndexedFaultConverter create() {
-		IndexedFaultConverter ifc = new IndexedFaultConverter();
+	static SystemFaultConverter create() {
+		SystemFaultConverter ifc = new SystemFaultConverter();
 		return ifc;
 	}
 
@@ -93,7 +93,7 @@ class IndexedFaultConverter {
 
 		ZipFile zip = new ZipFile(solPath.toString());
 
-		double weight = IndexedConverter.computeWeight(solName);
+		double weight = SystemConverter.computeWeight(solName);
 		
 		System.out.println("");
 		System.out.println("  Solution file: " + zip.getName());
@@ -184,7 +184,7 @@ class IndexedFaultConverter {
 			}
 			Element sourceElem = addElement(SOURCE, root);
 			double mag = mags.get(i);
-			double scaledRate = IndexedAftershockFilter.scaleFaultRate(mag, rate);
+			double scaledRate = SystemAftershockFilter.scaleFaultRate(mag, rate);
 			CH_Data mfdData = CH_Data.create(mag, scaledRate, 1.0, false);
 			mfdData.appendTo(sourceElem, refCH);
 			Element geom = addElement(GEOMETRY, sourceElem);
@@ -353,7 +353,7 @@ class IndexedFaultConverter {
 
 			int count = 0;
 			for (List<Integer> indices : indicesList) {
-				IndexedFaultSurface ifs = createIndexedSurface(sections, indices);
+				SystemFaultSurface ifs = createIndexedSurface(sections, indices);
 				rupDepths[count] = ifs.rupDepth();
 				rupWidths[count] = ifs.rupWidth();
 				rupDips[count] = ifs.rupDip();
@@ -365,14 +365,14 @@ class IndexedFaultConverter {
 		}
 	}
 
-	private static IndexedFaultSurface createIndexedSurface(List<GriddedSurface> sections,
+	private static SystemFaultSurface createIndexedSurface(List<GriddedSurface> sections,
 			List<Integer> indices) {
 
 		List<GriddedSurface> rupSections = Lists.newArrayList();
 		for (int i : indices) {
 			rupSections.add(sections.get(i));
 		}
-		return new IndexedFaultSurface(rupSections);
+		return new SystemFaultSurface(rupSections);
 	}
 
 	private static LocationList readTrace(Element trace) {
