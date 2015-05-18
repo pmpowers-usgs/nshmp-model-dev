@@ -10,6 +10,7 @@ import static org.opensha.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH
 import static org.opensha.eq.model.SourceAttribute.FOCAL_MECH_MAP;
 import static org.opensha.eq.model.SourceAttribute.MAGS;
 import static org.opensha.eq.model.SourceAttribute.MAG_DEPTH_MAP;
+import static org.opensha.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha.eq.model.SourceAttribute.NAME;
 import static org.opensha.eq.model.SourceAttribute.RATES;
 import static org.opensha.eq.model.SourceAttribute.RUPTURE_SCALING;
@@ -206,23 +207,10 @@ public class SystemGridConverter {
         addAttribute(WEIGHT, weight, rootOut);
         
         Element settings = addElement(SETTINGS, rootOut);
-        
-        Element mfdRef = addElement(DEFAULT_MFDS, settings);
-        Element mfd = addElement(INCREMENTAL_MFD, mfdRef);
-        addAttribute(TYPE, INCR, mfd);
+		addDefaultMfds(settings);
+		addSourceProperties(settings);
+		
         List<Double> magList = Doubles.asList(mags);
-		addAttribute(MAGS, Parsing.toString(magList, "%.2f"), mfd);
-		List<Double> ratesRef = Doubles.asList(new double[mags.length]);
-		addAttribute(RATES, Parsing.toString(ratesRef, "%.1f"), mfd);
-		addAttribute(WEIGHT, 1.0, mfd);
-		
-		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-		String magDepthData = GridSourceData.magDepthDataToString(6.5, new double[] {5.0, 1.0});
-		addAttribute(MAG_DEPTH_MAP, magDepthData, propsElem);
-		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(defaultMechMap), propsElem);
-		addAttribute(STRIKE, Double.NaN, propsElem);
-		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
-		
         Element nodesOut = addElement(NODES, rootOut);
         
         // data in
@@ -309,23 +297,10 @@ public class SystemGridConverter {
         addAttribute(WEIGHT, weight, rootOut);
         
         Element settings = addElement(SETTINGS, rootOut);
-        
-        Element mfdRef = addElement(DEFAULT_MFDS, settings);
-        Element mfd = addElement(INCREMENTAL_MFD, mfdRef);
-        addAttribute(TYPE, INCR, mfd);
+		addDefaultMfds(settings);
+		addSourceProperties(settings);
+				
         List<Double> magList = Doubles.asList(mags);
-		addAttribute(MAGS, Parsing.toString(magList, "%.2f"), mfd);
-		List<Double> ratesRef = Doubles.asList(new double[mags.length]);
-		addAttribute(RATES, Parsing.toString(ratesRef, "%.1f"), mfd);
-		addAttribute(WEIGHT, 1.0, mfd);
-		
-		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-		String magDepthData = GridSourceData.magDepthDataToString(6.5, new double[] {5.0, 1.0});
-		addAttribute(MAG_DEPTH_MAP, magDepthData, propsElem);
-		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(defaultMechMap), propsElem);
-		addAttribute(STRIKE, Double.NaN, propsElem);
-		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
-		
         Element nodesOut = addElement(NODES, rootOut);
         
         // file in
@@ -359,6 +334,27 @@ public class SystemGridConverter {
 		StreamResult result = new StreamResult(out);
 		trans.transform(source, result);
  	}
+	
+	private static void addDefaultMfds(Element e) {
+        Element mfdRef = addElement(DEFAULT_MFDS, e);
+        Element mfd = addElement(INCREMENTAL_MFD, mfdRef);
+        addAttribute(TYPE, INCR, mfd);
+        List<Double> magList = Doubles.asList(mags);
+		addAttribute(MAGS, Parsing.toString(magList, "%.2f"), mfd);
+		List<Double> ratesRef = Doubles.asList(new double[mags.length]);
+		addAttribute(RATES, Parsing.toString(ratesRef, "%.1f"), mfd);
+		addAttribute(WEIGHT, 1.0, mfd);
+	}
+
+	private static void addSourceProperties(Element e) {
+		Element propsElem = addElement(SOURCE_PROPERTIES, e);
+		String magDepthData = GridSourceData.magDepthDataToString(6.5, new double[] {5.0, 1.0});
+		addAttribute(MAG_DEPTH_MAP, magDepthData, propsElem);
+		addAttribute(FOCAL_MECH_MAP, enumValueMapToString(defaultMechMap), propsElem);
+		addAttribute(STRIKE, Double.NaN, propsElem);
+		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
+		addAttribute(MAX_DEPTH, 14.0, propsElem);
+	}
 
 	private static List<Double> processGridNode(Element e) {
 		NodeList unassocElem = e.getElementsByTagName("UnassociatedFD");
