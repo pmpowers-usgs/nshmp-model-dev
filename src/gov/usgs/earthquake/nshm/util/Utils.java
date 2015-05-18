@@ -18,14 +18,14 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.apache.commons.math3.special.Erf;
-import org.opensha.eq.Magnitudes;
-import org.opensha.eq.fault.FocalMech;
-import org.opensha.geo.BorderType;
-import org.opensha.geo.GriddedRegion;
-import org.opensha.geo.Location;
-import org.opensha.geo.LocationList;
-import org.opensha.geo.Regions;
-import org.opensha.mfd.Mfds;
+import org.opensha2.eq.Magnitudes;
+import org.opensha2.eq.fault.FocalMech;
+import org.opensha2.geo.BorderType;
+import org.opensha2.geo.GriddedRegion;
+import org.opensha2.geo.Location;
+import org.opensha2.geo.LocationList;
+import org.opensha2.geo.Regions;
+import org.opensha2.mfd.Mfds;
 
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Strings;

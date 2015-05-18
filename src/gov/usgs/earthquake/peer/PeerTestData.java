@@ -1,6 +1,6 @@
 package gov.usgs.earthquake.peer;
 
-import static org.opensha.eq.Magnitudes.*;
+import static org.opensha2.eq.Magnitudes.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,19 +9,19 @@ import java.util.Map;
 import gov.usgs.earthquake.nshm.convert.CH_Data;
 import gov.usgs.earthquake.nshm.convert.GR_Data;
 
-import org.opensha.data.XY_Sequence;
-import org.opensha.eq.Magnitudes;
+import org.opensha2.data.XY_Sequence;
+import org.opensha2.eq.Magnitudes;
 
-import static org.opensha.geo.GeoTools.TO_RAD;
+import static org.opensha2.geo.GeoTools.TO_RAD;
 
-import org.opensha.geo.Location;
-import org.opensha.geo.LocationList;
-import org.opensha.gmm.Gmm;
-import org.opensha.mfd.GaussianMfd;
-import org.opensha.mfd.GutenbergRichterMfd;
-import org.opensha.mfd.IncrementalMfd;
-import org.opensha.mfd.Mfds;
-import org.opensha.mfd.YC_1985_CharMfd;
+import org.opensha2.geo.Location;
+import org.opensha2.geo.LocationList;
+import org.opensha2.gmm.Gmm;
+import org.opensha2.mfd.GaussianMfd;
+import org.opensha2.mfd.GutenbergRichterMfd;
+import org.opensha2.mfd.IncrementalMfd;
+import org.opensha2.mfd.Mfds;
+import org.opensha2.mfd.YC_1985_CharMfd;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;

@@ -2,7 +2,7 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
-import static org.opensha.eq.model.SourceType.*;
+import static org.opensha2.eq.model.SourceType.*;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
 

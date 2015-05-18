@@ -2,10 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import java.util.List;
 
-import org.opensha.eq.Magnitudes;
-import org.opensha.geo.GeoTools;
-import org.opensha.geo.LocationList;
-import org.opensha.mfd.Mfds;
+import org.opensha2.eq.Magnitudes;
+import org.opensha2.geo.GeoTools;
+import org.opensha2.geo.LocationList;
+import org.opensha2.mfd.Mfds;
 
 import com.google.common.collect.Lists;
 

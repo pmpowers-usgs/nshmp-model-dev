@@ -2,10 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import java.util.List;
 
-import org.opensha.eq.fault.surface.GriddedSurface;
-import org.opensha.eq.fault.surface.RuptureSurface;
-import org.opensha.geo.LocationList;
-import org.opensha.geo.Locations;
+import org.opensha2.eq.fault.surface.GriddedSurface;
+import org.opensha2.eq.fault.surface.RuptureSurface;
+import org.opensha2.geo.LocationList;
+import org.opensha2.geo.Locations;
 
 
 /*

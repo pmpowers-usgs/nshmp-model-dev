@@ -3,11 +3,11 @@ package gov.usgs.earthquake.nshm.convert;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CA;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CASC;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.WUS;
-import static org.opensha.eq.model.SourceType.CLUSTER;
-import static org.opensha.eq.model.SourceType.FAULT;
-import static org.opensha.eq.model.SourceType.GRID;
-import static org.opensha.eq.model.SourceType.INTERFACE;
-import static org.opensha.eq.model.SourceType.SLAB;
+import static org.opensha2.eq.model.SourceType.CLUSTER;
+import static org.opensha2.eq.model.SourceType.FAULT;
+import static org.opensha2.eq.model.SourceType.GRID;
+import static org.opensha2.eq.model.SourceType.INTERFACE;
+import static org.opensha2.eq.model.SourceType.SLAB;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 
 import java.io.File;
@@ -17,9 +17,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import org.opensha.eq.model.SourceType;
-import org.opensha.util.Parsing;
-import org.opensha.util.Parsing.Delimiter;
+import org.opensha2.eq.model.SourceType;
+import org.opensha2.util.Parsing;
+import org.opensha2.util.Parsing.Delimiter;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;

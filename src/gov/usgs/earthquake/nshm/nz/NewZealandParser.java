@@ -12,15 +12,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.opensha.eq.Magnitudes;
-import org.opensha.eq.TectonicSetting;
-import org.opensha.eq.fault.Faults;
-import org.opensha.geo.GeoTools;
-import org.opensha.geo.Location;
-import org.opensha.geo.LocationList;
-import org.opensha.mfd.GutenbergRichterMfd;
-import org.opensha.mfd.IncrementalMfd;
-import org.opensha.mfd.Mfds;
+import org.opensha2.eq.Magnitudes;
+import org.opensha2.eq.TectonicSetting;
+import org.opensha2.eq.fault.Faults;
+import org.opensha2.geo.GeoTools;
+import org.opensha2.geo.Location;
+import org.opensha2.geo.LocationList;
+import org.opensha2.mfd.GutenbergRichterMfd;
+import org.opensha2.mfd.IncrementalMfd;
+import org.opensha2.mfd.Mfds;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
