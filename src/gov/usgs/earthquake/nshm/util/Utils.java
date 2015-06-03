@@ -39,12 +39,6 @@ import com.google.common.primitives.Doubles;
  */
 public class Utils {
 	
-	public static final String WARN_INDENT = "          ";
-
-	/** Multiplicative conversion from log (base-10) to natural log (base-e). */
-	public static final double LOG_BASE_10_TO_E = 1.0 / 0.434294;
-	// TODO this should really be more precise Math.log10(Math.E)
-
 	/** Precomputed square-root of 2. */
 	public static final double SQRT_2 = Math.sqrt(2);
 

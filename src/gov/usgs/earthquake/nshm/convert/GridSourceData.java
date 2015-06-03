@@ -6,20 +6,21 @@ import static org.opensha2.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha2.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha2.eq.model.SourceAttribute.A;
 import static org.opensha2.eq.model.SourceAttribute.B;
-import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha2.eq.model.SourceAttribute.MAGS;
-import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
-import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.FOCAL_MECH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.ID;
+import static org.opensha2.eq.model.SourceAttribute.MAGS;
+import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.M_MAX;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
 import static org.opensha2.eq.model.SourceAttribute.RATES;
+import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.STRIKE;
 import static org.opensha2.eq.model.SourceAttribute.TYPE;
 import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
+import static org.opensha2.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha2.eq.model.SourceElement.GRID_SOURCE_SET;
 import static org.opensha2.eq.model.SourceElement.INCREMENTAL_MFD;
-import static org.opensha2.eq.model.SourceElement.DEFAULT_MFDS;
 import static org.opensha2.eq.model.SourceElement.NODE;
 import static org.opensha2.eq.model.SourceElement.NODES;
 import static org.opensha2.eq.model.SourceElement.SETTINGS;
@@ -67,11 +68,13 @@ import com.google.common.primitives.Doubles;
 
 /*
  * Grid source data container.
+ * 
  * @author Peter Powers
  */
 class GridSourceData {
 
 	String name;
+	int id;
 	double weight;
 
 	double[] depths;
@@ -90,8 +93,8 @@ class GridSourceData {
 	FaultCode fltCode;
 	boolean bGrid, mMaxGrid, weightGrid;
 	double mTaper;
-	
-	// we're now ignoring mTaper in favor of using 
+
+	// we're now ignoring mTaper in favor of using
 	// incremental MFDs where appropriate/necessary
 
 	URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
@@ -127,6 +130,7 @@ class GridSourceData {
 		doc.setXmlStandalone(true);
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
 		addAttribute(NAME, name, root);
+		addAttribute(ID, id, root);
 		addAttribute(WEIGHT, weight, root);
 		doc.appendChild(root);
 		

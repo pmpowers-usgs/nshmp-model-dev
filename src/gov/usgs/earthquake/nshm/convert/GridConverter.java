@@ -60,6 +60,7 @@ class GridConverter {
 			GridSourceData srcDat = new GridSourceData();
 			srcDat.name = sf.name;
 			srcDat.weight = sf.weight;
+			srcDat.id = -1; 
 					
 			Iterator<String> lines = sf.lineIterator();
 	

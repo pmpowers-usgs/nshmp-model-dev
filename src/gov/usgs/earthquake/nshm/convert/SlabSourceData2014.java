@@ -5,28 +5,24 @@ import static org.opensha2.eq.fault.FocalMech.REVERSE;
 import static org.opensha2.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha2.eq.model.SourceAttribute.A;
 import static org.opensha2.eq.model.SourceAttribute.B;
-import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha2.eq.model.SourceAttribute.MAGS;
-import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
-import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.FOCAL_MECH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.ID;
+import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.M_MAX;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
-import static org.opensha2.eq.model.SourceAttribute.RATES;
+import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.STRIKE;
 import static org.opensha2.eq.model.SourceAttribute.TYPE;
 import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
-import static org.opensha2.eq.model.SourceElement.GRID_SOURCE_SET;
-import static org.opensha2.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha2.eq.model.SourceElement.DEFAULT_MFDS;
+import static org.opensha2.eq.model.SourceElement.GRID_SOURCE_SET;
 import static org.opensha2.eq.model.SourceElement.NODE;
 import static org.opensha2.eq.model.SourceElement.NODES;
 import static org.opensha2.eq.model.SourceElement.SETTINGS;
 import static org.opensha2.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha2.mfd.MfdType.GR;
 import static org.opensha2.mfd.MfdType.GR_TAPER;
-import static org.opensha2.mfd.MfdType.INCR;
-import static org.opensha2.mfd.MfdType.SINGLE;
 import static org.opensha2.util.Parsing.addAttribute;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.enumValueMapToString;
@@ -36,7 +32,6 @@ import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -50,35 +45,28 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha2.data.DataUtils;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.eq.fault.surface.RuptureScaling;
 import org.opensha2.geo.GriddedRegion;
 import org.opensha2.geo.Location;
-import org.opensha2.mfd.GutenbergRichterMfd;
-import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.MfdType;
-import org.opensha2.mfd.Mfds;
-import org.opensha2.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Range;
 import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Doubles;
 
 /*
- * Slab source data container for 2014 required by use of stair-step
- * depth model wherein a single fortran input is split into three
- * dept-specific files. Much of this class is not relevant to or
- * used when handling the slab-depth issue.
+ * Slab source data container for 2014 required by use of stair-step depth model
+ * wherein a single fortran input is split into three dept-specific files. Much
+ * of this class is not relevant to or used when handling the slab-depth issue.
  * 
  * @author Peter Powers
  */
 class SlabSourceData2014 {
 
 	String name;
+	int id;
 	double weight;
 
 	Map<Double, Range<Double>> lonDepthMap;
@@ -97,8 +85,8 @@ class SlabSourceData2014 {
 	FaultCode fltCode;
 	boolean bGrid, mMaxGrid, weightGrid;
 	double mTaper;
-	
-	// we're now ignoring mTaper in favor of using 
+
+	// we're now ignoring mTaper in favor of using
 	// incremental MFDs where appropriate/necessary
 
 	URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
@@ -120,11 +108,12 @@ class SlabSourceData2014 {
 	 * Write grid data to XML.
 	 * 
 	 * @param out file
+	 * @param lonRange 
 	 * @throws ParserConfigurationException
 	 * @throws TransformerConfigurationException
 	 * @throws TransformerException
 	 */
-	public void writeXML(File out, Range<Double> lonRange, double depth) throws
+	public void writeXML(File out, Range<Double> lonRange) throws
 			ParserConfigurationException,
 			TransformerConfigurationException, TransformerException {
 
@@ -136,10 +125,11 @@ class SlabSourceData2014 {
 		doc.setXmlStandalone(true);
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
 		addAttribute(NAME, name, root);
+		addAttribute(ID, id, root);
 		addAttribute(WEIGHT, weight, root);
 		doc.appendChild(root);
 		
-		writeStandardGrid(root, lonRange, depth);
+		writeStandardGrid(root, lonRange);
 		
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -155,7 +145,7 @@ class SlabSourceData2014 {
 	}
 		
 	// standard grid without customizations requiring incremental MFDs
-	private void writeStandardGrid(Element root, Range<Double> lonRange, double depth) {
+	private void writeStandardGrid(Element root, Range<Double> lonRange) {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(DEFAULT_MFDS, settings);
 		grDat.appendTo(mfdRef, null);

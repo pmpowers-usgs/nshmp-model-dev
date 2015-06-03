@@ -2,13 +2,11 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static gov.usgs.earthquake.nshm.util.MFD_Type.GR;
-import static org.opensha2.eq.fault.surface.RuptureFloating.STRIKE_ONLY;
 import static org.opensha2.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
-import static org.opensha2.eq.model.SourceAttribute.RUPTURE_FLOATING;
-import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
+import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
 import static org.opensha2.eq.model.SourceAttribute.RAKE;
-import static org.opensha2.eq.model.SourceAttribute.SURFACE_SPACING;
+import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha2.eq.model.SourceElement.GEOMETRY;
 import static org.opensha2.eq.model.SourceElement.LOWER_TRACE;
@@ -20,10 +18,11 @@ import static org.opensha2.eq.model.SourceElement.TRACE;
 import static org.opensha2.util.Parsing.addAttribute;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.readInt;
+import static org.opensha2.util.Parsing.splitToDoubleList;
+import static org.opensha2.util.Parsing.splitToList;
+import static org.opensha2.util.Parsing.Delimiter.SPACE;
 import gov.usgs.earthquake.nshm.util.MFD_Type;
 import gov.usgs.earthquake.nshm.util.Utils;
-import static org.opensha2.util.Parsing.*;
-import static org.opensha2.util.Parsing.Delimiter.*;
 
 import java.io.File;
 import java.util.Iterator;
@@ -108,6 +107,7 @@ class SubductionConverter {
 					fDat.nMag = 1;
 					fDat.name = Joiner.on(' ').join(Iterables.skip(srcInfo, 2));
 				}
+				fDat.id = -1;
 	
 				List<String> mfdSrcDat =  Parsing.toLineList(lines, fDat.nMag);
 				generateMFDs(fDat, mfdType, mfdSrcDat);
@@ -220,6 +220,7 @@ class SubductionConverter {
 		FocalMech focalMech;
 		int nMag;
 		String name;
+		int id;
 		LocationList upperTrace;
 		LocationList lowerTrace;
 	}
@@ -242,6 +243,7 @@ class SubductionConverter {
 			Element root = doc.createElement(SUBDUCTION_SOURCE_SET.toString());
 			doc.appendChild(root);
 			addAttribute(NAME, file, root);
+			addAttribute(ID, -1, root);
 			addAttribute(WEIGHT, weight, root);
 
 			// source properties
@@ -254,6 +256,7 @@ class SubductionConverter {
 				addAttribute(NAME, entry.getKey(), src);
 
 				SourceData sDat = entry.getValue();
+				addAttribute(ID, sDat.id, src);
 
 				// MFDs
 				for (MFD_Data mfdDat : sDat.mfds) {

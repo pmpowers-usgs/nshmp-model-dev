@@ -186,8 +186,9 @@ public class GR_Data implements MFD_Data {
 	 * and file information.
 	 */
 	static void appendFaultDat(StringBuilder b, SourceData fd) {
-		b.append(LF).append(Utils.WARN_INDENT).append(fd.name).append(LF).append(Utils.WARN_INDENT)
-			.append(fd.file);
+		b.append(LF);
+		b.append("          ").append(fd.name).append(LF);
+		b.append("          ").append(fd.file);
 	}
 
 }

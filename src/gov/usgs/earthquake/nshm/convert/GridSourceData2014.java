@@ -6,6 +6,7 @@ import static org.opensha2.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha2.eq.model.SourceAttribute.A;
 import static org.opensha2.eq.model.SourceAttribute.B;
 import static org.opensha2.eq.model.SourceAttribute.FOCAL_MECH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
@@ -63,15 +64,17 @@ import com.google.common.math.DoubleMath;
 
 /*
  * Grid source data container.
+ * 
  * @author Peter Powers
  */
 class GridSourceData2014 {
 
 	String name; // original name
+	int id;
 	String displayName;
 	String fileName;
 	double weight;
-	
+
 	SourceRegion srcRegion;
 	SourceType srcType;
 
@@ -94,8 +97,8 @@ class GridSourceData2014 {
 	double mTaper;
 	List<Map<Double, Double>> mMaxWtMaps;
 	Multiset<Double> mMaxZoneBag;
-	
-	// we're now ignoring mTaper in favor of using 
+
+	// we're now ignoring mTaper in favor of using
 	// incremental MFDs where appropriate/necessary
 
 	URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
@@ -104,7 +107,7 @@ class GridSourceData2014 {
 	RateType rateType;
 
 	double strike = Double.NaN;
-	
+
 	RuptureScaling rupScaling;
 
 	GriddedRegion region;
@@ -118,6 +121,7 @@ class GridSourceData2014 {
 	 * Write grid data to XML.
 	 * 
 	 * @param out file
+	 * @param mMaxIndex 
 	 * @throws ParserConfigurationException
 	 * @throws TransformerConfigurationException
 	 * @throws TransformerException
@@ -133,6 +137,7 @@ class GridSourceData2014 {
 		doc.setXmlStandalone(true);
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
 		addAttribute(NAME, displayName, root);
+		addAttribute(ID, id, root);
 		addAttribute(WEIGHT,  DataUtils.clean(8, weight)[0], root);
 		addComment(" Original source file: " + name + " ", root);
 		doc.appendChild(root);

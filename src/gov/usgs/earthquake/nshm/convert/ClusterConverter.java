@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.opensha2.eq.fault.surface.RuptureScaling.NSHM_FAULT_WC94_LENGTH;
 import static org.opensha2.eq.model.SourceAttribute.DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.DIP;
+import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
 import static org.opensha2.eq.model.SourceAttribute.RAKE;
 import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
@@ -85,6 +86,7 @@ class ClusterConverter {
 			log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
 			Exporter export = new Exporter();
 			export.name = sf.name;
+			export.id = -1;
 			export.displayName = cleanName(export.name);
 			export.weight = sf.weight; // TODO need to get weight from lookup
 										// arrays in SrcMgr
@@ -112,8 +114,7 @@ class ClusterConverter {
 				String fltDat = lines.next();
 				// For NMSZ NSHMP uses a group id to identify fault variants, in
 				// this case 5 arrayed west to east, and a segment or section id
-				// to
-				// identify north, central and southern cluster model faults
+				// to identify north, central and southern cluster model faults
 				int groupNum = Parsing.readInt(fltDat, 3);
 				int sectionNum = Parsing.readInt(fltDat, 4);
 				String sectionName = Parsing.splitToList(fltDat, Delimiter.SPACE).get(5);
@@ -124,12 +125,14 @@ class ClusterConverter {
 					cd = new ClusterData();
 					cd.name = createGroupName(sf.name, groupNum);
 					cd.weight = srcMgr.getClusterWeight(sf.name, groupNum);
+					cd.id = -1;
 					srcMap.put(groupNum, cd);
 				}
 
 				SourceData sd = new SourceData();
 				cd.sources.add(sd);
 				sd.name = createSectionName(sf.name, sectionNum, sectionName);
+				sd.id = -1;
 				sd.focalMech = Utils.typeForID(Parsing.readInt(fltDat, 1));
 				sd.nMag = Parsing.readInt(fltDat, 2);
 				sd.mfds = Lists.newArrayList();
@@ -311,7 +314,7 @@ class ClusterConverter {
 			throw new UnsupportedOperationException("Name not recognized: " + filename);
 		}
 	}
-	
+
 	private static String cleanName(String name) {
 		if (name.startsWith("wasatch")) return "Wasatch";
 		if (name.startsWith("newmad2014")) {
@@ -325,6 +328,7 @@ class ClusterConverter {
 	static class ClusterData {
 		String name;
 		double weight;
+		int id;
 		List<SourceData> sources = Lists.newArrayList();
 	}
 
@@ -334,6 +338,7 @@ class ClusterConverter {
 		FocalMech focalMech;
 		int nMag;
 		String name;
+		int id;
 		LocationList locs;
 		double dip;
 		double width;
@@ -361,6 +366,7 @@ class ClusterConverter {
 		String name; // original name
 		String displayName;
 		double weight = 1.0;
+		int id;
 		SourceRegion region = null;
 		Map<String, ClusterData> map = Maps.newLinkedHashMap();
 		MagUncertainty magDat;
@@ -378,6 +384,7 @@ class ClusterConverter {
 			Element root = doc.createElement(CLUSTER_SOURCE_SET.toString());
 			doc.appendChild(root);
 			addAttribute(NAME, displayName, root);
+			addAttribute(ID, id, root);
 			addAttribute(WEIGHT, weight, root);
 			addComment(" Original source file: " + name + " ", root);
 
@@ -399,12 +406,15 @@ class ClusterConverter {
 
 				Element cluster = addElement(CLUSTER, root);
 				addAttribute(NAME, cd.name, cluster);
+				addAttribute(ID, cd.id, cluster);
 				addAttribute(WEIGHT, cd.weight, cluster);
 
 				// consolidate MFDs at beginning of element
 				for (SourceData sd : cd.sources) {
 					Element source = addElement(SOURCE, cluster);
 					addAttribute(NAME, sd.name, source);
+					addAttribute(ID, sd.id, source);
+					
 					// MFDs
 					for (MFD_Data mfdDat : sd.mfds) {
 						mfdDat.appendTo(source, refCH);

@@ -31,7 +31,9 @@ class Converter {
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("[yy-MM-dd-HH-mm]");
 	private static final String LOG_DIR = FCAST_DIR + "logs" + S;
 	private static final Level LEVEL = Level.INFO;
-		
+	
+	static FaultNames faultNames;
+	
 	public static void main(String[] args) {
 //		convert2008();
 		convert2014();
@@ -42,6 +44,8 @@ class Converter {
 	}
 	
 	static void convert2008() {
+		faultNames = FaultNames.create(2008);
+		
 		List<SourceFile> files;
 		String logID = Converter.class.getName() + "-2008-" + sdf.format(new Date());
 		String logPath = LOG_DIR + logID + ".log";
@@ -80,6 +84,8 @@ class Converter {
 	}
 	
 	static void convert2014() {
+		faultNames = FaultNames.create(2014);
+		
 		List<SourceFile> files;
 		String logID = Converter.class.getName() + "-2014-" + sdf.format(new Date());
 		String logPath = LOG_DIR + logID + ".log";

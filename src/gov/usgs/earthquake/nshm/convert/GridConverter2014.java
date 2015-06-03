@@ -199,6 +199,7 @@ class GridConverter2014 {
 			log.info("Starting source: " + sf.name);
 			GridSourceData2014 srcDat = new GridSourceData2014();
 			srcDat.name = sf.name;
+			srcDat.id = -1;
 			srcDat.weight = sf.weight;
 			srcDat.srcRegion = sf.region;
 			srcDat.srcType = sf.type;
