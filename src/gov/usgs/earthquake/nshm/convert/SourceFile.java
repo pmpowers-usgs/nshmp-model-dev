@@ -2,13 +2,13 @@ package gov.usgs.earthquake.nshm.convert;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import org.opensha2.eq.model.SourceType;
 
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -49,7 +49,7 @@ class SourceFile {
 	 */
 	Iterator<String> lineIterator() throws IOException {
 		return Iterables.transform(
-			Resources.readLines(url, Charsets.US_ASCII),
+			Resources.readLines(url, StandardCharsets.US_ASCII),
 			CommentStripper.INSTANCE).iterator();
 	}
 	

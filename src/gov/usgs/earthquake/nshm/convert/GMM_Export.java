@@ -2,8 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opensha2.gmm.Gmm.AB_03_CASC_SLAB;
+import static org.opensha2.gmm.Gmm.AB_03_CASC_SLAB_LOW_SAT;
 import static org.opensha2.gmm.Gmm.AB_03_GLOB_INTER;
 import static org.opensha2.gmm.Gmm.AB_03_GLOB_SLAB;
+import static org.opensha2.gmm.Gmm.AB_03_GLOB_SLAB_LOW_SAT;
 import static org.opensha2.gmm.Gmm.AB_06_140BAR;
 import static org.opensha2.gmm.Gmm.AB_06_140BAR_AB;
 import static org.opensha2.gmm.Gmm.AB_06_140BAR_J;
@@ -123,7 +125,7 @@ public class GMM_Export {
 	private static final double[] WUS_UNC_14 = { 0.370, 0.250, 0.400, 0.220, 0.230, 0.360, 0.220, 0.230, 0.330 };
 
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
-	private static final String MODEL_DIR = "models";
+	private static final String MODEL_DIR =  ".." + S + "hazard-models" + S+ "US" + S;
 	private static final String GMM_FILE = "gmm.xml";
 	private static final String CEUS_DIR = SourceRegion.CEUS.toString();
 	private static final String WUS_DIR = SourceRegion.WUS.toString();
@@ -307,6 +309,8 @@ public class GMM_Export {
 		Element root = doc.createElement(GROUND_MOTION_MODELS.toString());
 		doc.appendChild(root);
 		
+		Converter.addDisclaimer(root);
+		
 		if (uncValues != null) {
 			Element unc = addElement(UNCERTAINTY, root);
 			addAttribute(VALUES, uncValues, unc);
@@ -372,10 +376,10 @@ public class GMM_Export {
 		wusSlabMap08.put(YOUNGS_97_SLAB,   0.50);
 		
 		wusSlabMap14 = Maps.newEnumMap(Gmm.class);
-		wusSlabMap14.put(AB_03_CASC_SLAB,  0.1665);
-		wusSlabMap14.put(AB_03_GLOB_SLAB,  0.1665);
-		wusSlabMap14.put(BCHYDRO_12_SLAB,  0.3330);
-		wusSlabMap14.put(ZHAO_06_SLAB,     0.3340);
+		wusSlabMap14.put(AB_03_CASC_SLAB_LOW_SAT, 0.1665);
+		wusSlabMap14.put(AB_03_GLOB_SLAB_LOW_SAT, 0.1665);
+		wusSlabMap14.put(BCHYDRO_12_SLAB,         0.3330);
+		wusSlabMap14.put(ZHAO_06_SLAB,            0.3340);
 		
 		
 		

@@ -13,6 +13,7 @@ import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.M_MAX;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
+import static org.opensha2.eq.model.SourceAttribute.RATE;
 import static org.opensha2.eq.model.SourceAttribute.RATES;
 import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.STRIKE;
@@ -30,6 +31,7 @@ import static org.opensha2.mfd.MfdType.GR_TAPER;
 import static org.opensha2.mfd.MfdType.INCR;
 import static org.opensha2.mfd.MfdType.SINGLE;
 import static org.opensha2.util.Parsing.addAttribute;
+import static org.opensha2.util.Parsing.addComment;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.FaultCode;
@@ -132,6 +134,8 @@ class GridSourceData {
 		addAttribute(NAME, name, root);
 		addAttribute(ID, id, root);
 		addAttribute(WEIGHT, weight, root);
+		Converter.addDisclaimer(root);
+		addComment(" Original source file: " + name + " ", root);
 		doc.appendChild(root);
 		
 		if (chDat != null) { // single mag defaults e.g. charleston
@@ -170,7 +174,7 @@ class GridSourceData {
 			Element nodeElem = addElement(NODE, nodesElem);
 			nodeElem.setTextContent(Utils.locToString(region.locationForIndex(i)));
 			double singleMagRate = Mfds.incrRate(aVal, grDat.bVal, chDat.mag);
-			addAttribute(A, singleMagRate, "%.8g", nodeElem);
+			addAttribute(RATE, singleMagRate, "%.8g", nodeElem);
 			addAttribute(TYPE, SINGLE, nodeElem);
 		}
 	}

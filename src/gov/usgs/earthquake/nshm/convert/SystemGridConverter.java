@@ -27,6 +27,7 @@ import static org.opensha2.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha2.eq.model.SourceType.SYSTEM;
 import static org.opensha2.mfd.MfdType.INCR;
 import static org.opensha2.util.Parsing.addAttribute;
+import static org.opensha2.util.Parsing.addComment;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.Utils;
@@ -291,17 +292,19 @@ public class SystemGridConverter {
         
         // file out
         Document docOut = dBuilder.newDocument();
-        Element rootOut = docOut.createElement(GRID_SOURCE_SET.toString());
-        docOut.appendChild(rootOut);
-        addAttribute(NAME, id, rootOut);
-        addAttribute(WEIGHT, weight, rootOut);
-        
-        Element settings = addElement(SETTINGS, rootOut);
+        Element root = docOut.createElement(GRID_SOURCE_SET.toString());
+        docOut.appendChild(root);
+        addAttribute(NAME, id, root);
+        addAttribute(WEIGHT, weight, root);
+		Converter.addDisclaimer(root);
+		addComment(" Original source file: " + id + " ", root);
+
+        Element settings = addElement(SETTINGS, root);
 		addDefaultMfds(settings);
 		addSourceProperties(settings);
 				
         List<Double> magList = Doubles.asList(mags);
-        Element nodesOut = addElement(NODES, rootOut);
+        Element nodesOut = addElement(NODES, root);
         
         // file in
         Element rootIn = docIn.getDocumentElement();

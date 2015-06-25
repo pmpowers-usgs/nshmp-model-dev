@@ -23,6 +23,7 @@ import static org.opensha2.eq.model.SourceElement.SYSTEM_SOURCE_SET;
 import static org.opensha2.eq.model.SourceElement.TRACE;
 import static org.opensha2.eq.model.SourceType.SYSTEM;
 import static org.opensha2.util.Parsing.addAttribute;
+import static org.opensha2.util.Parsing.addComment;
 import static org.opensha2.util.Parsing.addElement;
 
 import java.io.File;
@@ -162,6 +163,8 @@ class SystemFaultConverter {
 		doc.appendChild(root);
 		addAttribute(NAME, id, root);
 		addAttribute(WEIGHT, weight, root);
+		Converter.addDisclaimer(root);
+		addComment(" Reference: " + id + " ", root);
 
 		// settings and defaults
 		Element settings = addElement(SETTINGS, root);
@@ -228,9 +231,12 @@ class SystemFaultConverter {
 
 		// file out
 		Document docOut = dBuilder.newDocument();
-		Element rootOut = docOut.createElement(SYSTEM_FAULT_SECTIONS.toString());
-		addAttribute(NAME, id, rootOut);
-		docOut.appendChild(rootOut);
+		Element root = docOut.createElement(SYSTEM_FAULT_SECTIONS.toString());
+		addAttribute(NAME, id, root);
+		Converter.addDisclaimer(root);
+		addComment(" Reference: " + id + " ", root);
+
+		docOut.appendChild(root);
 
 		// file in
 		Element rootIn = docIn.getDocumentElement();
@@ -248,7 +254,7 @@ class SystemFaultConverter {
 				.item(0));
 
 			// add to out
-			Element sectOut = addElement(SECTION, rootOut);
+			Element sectOut = addElement(SECTION, root);
 			String sectName = sectIn.getAttribute("sectionName");
 			addAttribute(NAME, sectName, sectOut);
 			String sectIdx = sectIn.getAttribute("sectionId");

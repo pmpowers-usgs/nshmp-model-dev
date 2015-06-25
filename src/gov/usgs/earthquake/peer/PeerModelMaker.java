@@ -2,7 +2,7 @@ package gov.usgs.earthquake.peer;
 
 import static gov.usgs.earthquake.peer.PeerTestData.*;
 import static org.opensha2.eq.fault.surface.RuptureScaling.PEER;
-import static org.opensha2.eq.model.SourceAttribute.A;
+import static org.opensha2.eq.model.SourceAttribute.RATE;
 import static org.opensha2.eq.model.SourceAttribute.DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.DIP;
 import static org.opensha2.eq.model.SourceAttribute.FLOATS;
@@ -291,7 +291,7 @@ public class PeerModelMaker {
 		Element mfdElem = addElement(INCREMENTAL_MFD, e);
 		if (mfd.getNum() == 1) {
 			addAttribute(TYPE, SINGLE, mfdElem);
-			addAttribute(A, String.format("%.8g", mfd.yValues().get(0)), mfdElem);
+			addAttribute(RATE, String.format("%.8g", mfd.yValues().get(0)), mfdElem);
 			addAttribute(M, String.format("%.3f", mfd.xValues().get(0)), mfdElem);
 		} else {
 			addAttribute(TYPE, INCR, mfdElem);

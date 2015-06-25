@@ -24,6 +24,7 @@ import static org.opensha2.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha2.mfd.MfdType.GR;
 import static org.opensha2.mfd.MfdType.GR_TAPER;
 import static org.opensha2.util.Parsing.addAttribute;
+import static org.opensha2.util.Parsing.addComment;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.enumValueMapToString;
 import gov.usgs.earthquake.nshm.util.FaultCode;
@@ -127,6 +128,8 @@ class SlabSourceData2014 {
 		addAttribute(NAME, name, root);
 		addAttribute(ID, id, root);
 		addAttribute(WEIGHT, weight, root);
+		Converter.addDisclaimer(root);
+		addComment(" Original source file: " + name + " ", root);
 		doc.appendChild(root);
 		
 		writeStandardGrid(root, lonRange);

@@ -1,9 +1,8 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha2.eq.model.SourceAttribute.A;
 import static org.opensha2.eq.model.SourceAttribute.FLOATS;
 import static org.opensha2.eq.model.SourceAttribute.M;
-import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
+import static org.opensha2.eq.model.SourceAttribute.RATE;
 import static org.opensha2.eq.model.SourceAttribute.TYPE;
 import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha2.eq.model.SourceElement.INCREMENTAL_MFD;
@@ -12,7 +11,6 @@ import static org.opensha2.util.Parsing.addAttribute;
 import static org.opensha2.util.Parsing.addElement;
 
 import org.opensha2.data.DataUtils;
-import org.opensha2.eq.model.SourceElement;
 import org.w3c.dom.Element;
 
 /*
@@ -44,12 +42,12 @@ public class CH_Data implements MFD_Data {
 		addAttribute(TYPE, SINGLE, e);
 		if (ref != null) {
 			CH_Data refCH = (CH_Data) ref;
-			if (rate != refCH.rate) addAttribute(A, rate, "%.8g", e);
+			if (rate != refCH.rate) addAttribute(RATE, rate, "%.8g", e);
 			if (mag != refCH.mag) addAttribute(M, mag, "%.3f", e);
 			if (floats != refCH.floats) addAttribute(FLOATS, floats, e);
 			if (weight != refCH.weight) addAttribute(WEIGHT, weight, e);
 		} else {
-			addAttribute(A, rate, "%.8g", e);
+			addAttribute(RATE, rate, "%.8g", e);
 			addAttribute(M, mag, "%.3f", e);
 			addAttribute(FLOATS, floats, e);
 			addAttribute(WEIGHT, weight, e);

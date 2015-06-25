@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import org.opensha2.mfd.GutenbergRichterMfd;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.Mfds;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Throwables;
@@ -97,7 +97,7 @@ class NewZealandParser {
 //		URL url = Resources.getResource(NewZealandParser.class, faultPath.toString());
 		List<String> lines = null;
 		try {
-			lines = Resources.readLines(faultPath.toUri().toURL(), Charsets.US_ASCII);
+			lines = Resources.readLines(faultPath.toUri().toURL(), StandardCharsets.US_ASCII);
 		} catch (IOException ioe) {
 			Throwables.propagate(ioe);
 		}
@@ -263,7 +263,7 @@ class NewZealandParser {
 
 		List<String> lines = null;
 		try {
-			lines = Resources.readLines(gridPath.toUri().toURL(), Charsets.US_ASCII);
+			lines = Resources.readLines(gridPath.toUri().toURL(), StandardCharsets.US_ASCII);
 		} catch (IOException ioe) {
 			Throwables.propagate(ioe);
 		}

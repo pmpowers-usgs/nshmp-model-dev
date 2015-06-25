@@ -386,6 +386,7 @@ class ClusterConverter {
 			addAttribute(NAME, displayName, root);
 			addAttribute(ID, id, root);
 			addAttribute(WEIGHT, weight, root);
+			Converter.addDisclaimer(root);
 			addComment(" Original source file: " + name + " ", root);
 
 			// reference MFDs and uncertainty

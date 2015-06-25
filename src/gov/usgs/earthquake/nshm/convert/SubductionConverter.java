@@ -16,6 +16,7 @@ import static org.opensha2.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha2.eq.model.SourceElement.SUBDUCTION_SOURCE_SET;
 import static org.opensha2.eq.model.SourceElement.TRACE;
 import static org.opensha2.util.Parsing.addAttribute;
+import static org.opensha2.util.Parsing.addComment;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.readInt;
 import static org.opensha2.util.Parsing.splitToDoubleList;
@@ -245,6 +246,8 @@ class SubductionConverter {
 			addAttribute(NAME, file, root);
 			addAttribute(ID, -1, root);
 			addAttribute(WEIGHT, weight, root);
+			Converter.addDisclaimer(root);
+			addComment(" Original source file: " + file + " ", root);
 
 			// source properties
 			Element settings = addElement(SETTINGS, root);

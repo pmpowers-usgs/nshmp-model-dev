@@ -3,6 +3,7 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkArgument;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
 import static org.opensha2.eq.model.SourceType.*;
+import static org.opensha2.util.Parsing.addComment;
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
 
@@ -11,6 +12,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.opensha2.util.Parsing;
+import org.w3c.dom.Element;
 
 import com.google.common.base.StandardSystemProperty;
 
@@ -26,7 +30,7 @@ class Converter {
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
 	private static final SourceManager MGR_2008 = SourceManager_2008.instance();
 	private static final SourceManager MGR_2014 = SourceManager_2014.instance();
-	private static final String FCAST_DIR = "models" + S;
+	private static final String FCAST_DIR = ".." + S + "hazard-models" + S+ "US" + S;
 	
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("[yy-MM-dd-HH-mm]");
 	private static final String LOG_DIR = FCAST_DIR + "logs" + S;
@@ -101,7 +105,6 @@ class Converter {
 		convertSlab2014(files, "2014", log);
 		files = MGR_2014.get(WUS, CLUSTER);
 		convertCluster(files, "2014", log);
-
 		
 		files = MGR_2014.get(CEUS, FAULT);
 		convertFault(files, "2014", log);
@@ -109,7 +112,6 @@ class Converter {
 		convertGrid(files, "2014", log);
 		files = MGR_2014.get(CEUS, CLUSTER);
 		convertCluster(files, "2014", log);
-		
 	}
 
 	static void convertSlab2014(List<SourceFile> files, String yr, Logger log) {
@@ -169,5 +171,11 @@ class Converter {
 		String loggerID = clazz.getName() + "-" + region.name() + "-" + yr;
 		String logName = LOG_DIR + name + "-" + yr + "-" + region.name() + "-" + time + ".log";
 		return Utils.logger(loggerID, logName, LEVEL);
+	}
+	
+	static final String DISCLAIMER = " This model is an example and for review purposes only ";
+
+	static void addDisclaimer(Element e) {
+		Parsing.addComment(DISCLAIMER, e);
 	}
 }

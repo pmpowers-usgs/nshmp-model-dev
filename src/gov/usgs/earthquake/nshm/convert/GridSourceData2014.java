@@ -10,6 +10,7 @@ import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
+import static org.opensha2.eq.model.SourceAttribute.RATE;
 import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
 import static org.opensha2.eq.model.SourceAttribute.STRIKE;
 import static org.opensha2.eq.model.SourceAttribute.TYPE;
@@ -139,6 +140,7 @@ class GridSourceData2014 {
 		addAttribute(NAME, displayName, root);
 		addAttribute(ID, id, root);
 		addAttribute(WEIGHT,  DataUtils.clean(8, weight)[0], root);
+		Converter.addDisclaimer(root);
 		addComment(" Original source file: " + name + " ", root);
 		doc.appendChild(root);
 		
@@ -184,14 +186,8 @@ class GridSourceData2014 {
 	private void writeRlmeMFDdata(Element nodeElem, int i) {
 		MfdType type = SINGLE;
 		addAttribute(TYPE, type, nodeElem);
-		addAttribute(A, aDat[i], "%.8g", nodeElem);
-		if (bGrid) {
-			double nodebVal = bDat[i];
-			if (!DoubleMath.fuzzyEquals(nodebVal, grDat.bVal, 0.000001)) {
-				addAttribute(B, nodebVal, "%.6f", nodeElem);
-			}
-		}
-		// never any mMax grid
+		addAttribute(RATE, aDat[i], "%.8g", nodeElem);
+		// no mMax of bGrids
 	}
 
 	// standard grid without customizations requiring incremental MFDs
