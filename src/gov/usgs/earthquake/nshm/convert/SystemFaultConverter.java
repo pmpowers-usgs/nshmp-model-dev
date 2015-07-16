@@ -6,6 +6,7 @@ import static org.opensha2.eq.model.SourceAttribute.ASEIS;
 import static org.opensha2.eq.model.SourceAttribute.DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.DIP;
 import static org.opensha2.eq.model.SourceAttribute.DIP_DIR;
+import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.INDEX;
 import static org.opensha2.eq.model.SourceAttribute.INDICES;
 import static org.opensha2.eq.model.SourceAttribute.LOWER_DEPTH;
@@ -163,8 +164,10 @@ class SystemFaultConverter {
 		doc.appendChild(root);
 		addAttribute(NAME, id, root);
 		addAttribute(WEIGHT, weight, root);
+		addAttribute(ID, -1, root);
 		Converter.addDisclaimer(root);
 		addComment(" Reference: " + id + " ", root);
+		addComment(" Description: " + nameToDescription(id), root);
 
 		// settings and defaults
 		Element settings = addElement(SETTINGS, root);
@@ -397,6 +400,16 @@ class SystemFaultConverter {
 	static String cleanName(String name) {
 		return name.replace(", Subsection", " :");
 	}
+	
+	static String nameToDescription(String name) {
+		StringBuilder sb = new StringBuilder();
+		if (name.contains("UC33")) sb.append("UCERF 3.3 ");
+		if (name.contains("brAvg")) sb.append("Branch Averaged Solution (");
+		if (name.contains("FM31")) sb.append("FM31");
+		if (name.contains("FM32")) sb.append("FM32");
+		sb.append(")");
+		return sb.toString();
+	}
 
 	/*
 	 * Filter enum for Klamath and Carson rupture filters. Carson ruptures are
@@ -438,81 +451,5 @@ class SystemFaultConverter {
 		};
 
 	}
-
-	// TODO clean
-	// static final int CARSON_FM31_MIN =
-	// static boolean filterForNSHMP() {
-	//
-	// }
-
-	// @formatter:on
-
-	// compute lists of dip, width, and depth
-	// identifiers
-	// enum SectionDataType { DIPS, DIP_DIRS, DEPTHS, LOWER_DEPTHS, ASEISES }
-
-	// need list of sections
-	// and list of section indices for each rupture
-
-	// static List<RuptureSurface> createSectionSurfaces() {
-	//
-	//
-	// }
-
-	// // from FaultSectionPrefData
-	// public synchronized DefaultGriddedSurface getSectionSurface(
-	// double gridSpacing, boolean preserveGridSpacingExactly,
-	// boolean aseisReducesArea) {
-	//
-	// // need to get the aseis reduced area section attributes
-	// LocationList trace;
-	// double dip;
-	// double depth;
-	// double width; // --> compute bottom
-	// double bottom;
-	// double spacing;
-	//
-	//
-	// return new DefaultGriddedSurface(trace, dip, depth, bottom, spacing,
-	// spacing);
-	// }
-
-	// TODO
-	// static void combineSolution(String solDirPath, String sol1, String sol2,
-	// String outDirPath)
-	// throws IOException, ParserConfigurationException, SAXException,
-	// TransformerException {
-	//
-	// ZipFile zip = new ZipFile(solDirPath + sol + ".zip");
-	// File outDir = new File(outDirPath + sol);
-	// outDir.mkdirs();
-	//
-	// // rupture XML -- the file reading below assumes files smaller
-	// // than 4G per... (int) magsEntry.getSize()
-	// ZipEntry magsEntry = zip.getEntry(MAGS_BIN_IN);
-	// List<Double> mags =
-	// Parsing.readBinaryDoubleList(zip.getInputStream(magsEntry), (int)
-	// magsEntry.getSize());
-	// ZipEntry ratesEntry = zip.getEntry(RATES_BIN_IN);
-	// List<Double> rates =
-	// Parsing.readBinaryDoubleList(zip.getInputStream(ratesEntry), (int)
-	// ratesEntry.getSize());
-	// ZipEntry rakesEntry = zip.getEntry(RAKES_BIN_IN);
-	// List<Double> rakes =
-	// Parsing.readBinaryDoubleList(zip.getInputStream(rakesEntry), (int)
-	// rakesEntry.getSize());
-	// ZipEntry rupsEntry = zip.getEntry(RUPTURES_BIN_IN);
-	// List<List<Integer>> rupIndices =
-	// Parsing.readBinaryIntLists(zip.getInputStream(rupsEntry));
-	// File rupsOut = new File(outDir, RUPTURES_XML_OUT);
-	// processRuptures(rupIndices, mags, rates, rakes, sol, rupsOut);
-	//
-	// // section XML
-	// File sectionsOut = new File(outDir, SECTION_XML_OUT);
-	// ZipEntry sectionsEntry = zip.getEntry(SECTION_XML_IN);
-	// processSections(zip.getInputStream(sectionsEntry), sectionsOut, sol);
-	//
-	// zip.close();
-	// }
 
 }

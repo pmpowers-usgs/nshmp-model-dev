@@ -50,13 +50,13 @@ class SourceManager_2014 extends SourceManager {
 		files.add(create("WUS/faults/2014WUSbird.gr.in",   0.0333));  // 0.333
 				
 		// Geo get 0.8 wt after combining
-		files.add(create("WUS/faults/2014WUSgeo.65.in",    0.8));       // 1.0
+		files.add(create("WUS/faults/2014WUSgeo.65.in",    0.8));     // 1.0
 		files.add(create("WUS/faults/2014WUSgeo.char.in",  0.5336));  // 0.667
-		files.add(create("WUS/faults/2014WUSgeo.gr.in",    0.2664));    // 0.333
+		files.add(create("WUS/faults/2014WUSgeo.gr.in",    0.2664));  // 0.333
 		// Zeng gets 0.1 wt after combining
-		files.add(create("WUS/faults/2014WUSzeng.65.in",   0.1));      // 1.0
-		files.add(create("WUS/faults/2014WUSzeng.char.in", 0.0667)); // 0.667
-		files.add(create("WUS/faults/2014WUSzeng.gr.in",   0.0333));   // 0.333
+		files.add(create("WUS/faults/2014WUSzeng.65.in",   0.1));     // 1.0
+		files.add(create("WUS/faults/2014WUSzeng.char.in", 0.0667));  // 0.667
+		files.add(create("WUS/faults/2014WUSzeng.gr.in",   0.0333));  // 0.333
 		
 		// Wasatch unclustered
 		files.add(create("WUS/faults/wasatch_slc.noclu.in", 0.24));
@@ -248,22 +248,22 @@ class SourceManager_2014 extends SourceManager {
 		
 		// ****** CEUS faults *****
 		
-		files.add(create("CEUS/faults/NMSZnocl.500.2014.in",   0.9));
-		files.add(create("CEUS/faults/NMSZnocl.1000.2014.in",  0.05));
-		files.add(create("CEUS/faults/NMSZnocl.50000.2014.in", 0.05));
+		files.add(create("CEUS/faults/NMSZnocl.500.2014.in",   0.09));     // 0.5 USGS * 0.2 nocl * 0.9 500yr
+		files.add(create("CEUS/faults/NMSZnocl.1000.2014.in",  0.005));    // 0.5 USGS * 0.2 nocl * 0.05 1000yr
+		files.add(create("CEUS/faults/NMSZnocl.50000.2014.in", 0.005));    // 0.5 USGS * 0.2 nocl * 0.05 50000yr
 		files.add(create("CEUS/faults/CEUScm2014.in",          0.5));
 		files.add(create("CEUS/faults/CEUScm-meers_2014.in",   0.5));
 		files.add(create("CEUS/faults/CEUScm-recur_2014.in",   0.25));
 		files.add(create("CEUS/faults/CEUScm-srchar_2014.in",  0.16675));
 		files.add(create("CEUS/faults/CEUScm-srgr_2014.in",    0.08325));
 		
-		files.add(create("CEUS/faults/NMFS_RFT.RLME.in",       0.025));
+		files.add(create("CEUS/faults/NMFS_RFT.RLME.in",       0.025));    
 
 		
 		// ******  CEUS cluster  ******
-		files.add(create("CEUS/faults/NMFS_RLME_clu.in", 0.45));
+		files.add(create("CEUS/faults/NMFS_RLME_clu.in", 0.45));           // 0.5 SSC * 0.9 clust
 
-		// collectively NMSZ gets 0.4 weight
+		// collectively USGS NMSZ clustered model gets 0.4 weight (0.5 USGS * 0.8 clust)
 		double nmClustWt = 0.4;
 		files.add(create("CEUS/faults/newmad2014.500.cluster.in", nmClustWt));
 		files.add(create("CEUS/faults/newmad2014.750.cluster.in", nmClustWt));

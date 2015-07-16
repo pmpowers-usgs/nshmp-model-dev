@@ -3,11 +3,13 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static gov.usgs.earthquake.nshm.convert.SystemFaultConverter.nameToDescription;
 import static org.opensha2.eq.fault.FocalMech.NORMAL;
 import static org.opensha2.eq.fault.FocalMech.REVERSE;
 import static org.opensha2.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha2.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
 import static org.opensha2.eq.model.SourceAttribute.FOCAL_MECH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.MAGS;
 import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
 import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
@@ -296,8 +298,10 @@ public class SystemGridConverter {
         docOut.appendChild(root);
         addAttribute(NAME, id, root);
         addAttribute(WEIGHT, weight, root);
+        addAttribute(ID, -1, root);
 		Converter.addDisclaimer(root);
 		addComment(" Original source file: " + id + " ", root);
+		addComment(" Description: " + nameToDescription(id), root);
 
         Element settings = addElement(SETTINGS, root);
 		addDefaultMfds(settings);
