@@ -53,13 +53,14 @@ class SourceManager_2014 extends SourceManager {
 		files.add(create("WUS/faults/2014WUSgeo.65.in",    0.8));     // 1.0
 		files.add(create("WUS/faults/2014WUSgeo.char.in",  0.5336));  // 0.667
 		files.add(create("WUS/faults/2014WUSgeo.gr.in",    0.2664));  // 0.333
+		
 		// Zeng gets 0.1 wt after combining
 		files.add(create("WUS/faults/2014WUSzeng.65.in",   0.1));     // 1.0
 		files.add(create("WUS/faults/2014WUSzeng.char.in", 0.0667));  // 0.667
 		files.add(create("WUS/faults/2014WUSzeng.gr.in",   0.0333));  // 0.333
 		
-		// Wasatch unclustered
-		files.add(create("WUS/faults/wasatch_slc.noclu.in", 0.24));
+		// Wasatch unclustered (part of geo model; scaled by 0.8
+		files.add(create("WUS/faults/wasatch_slc.noclu.in", 0.192));  // 0.24 * 0.8
 		
 		
 		// *******  WUS cluster  *******

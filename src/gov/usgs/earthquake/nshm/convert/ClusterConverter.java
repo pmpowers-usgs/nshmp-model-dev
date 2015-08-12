@@ -294,7 +294,7 @@ class ClusterConverter {
 			return "NMFS RLME " + grp;
 		} else if (name.equals("wasatch_slc.cluster.in")) {
 			return "Wasatch: " +
-				((grp == 1) ? "50 Dip" : (grp == 2) ? "35 Dip" : (grp == 5) ? "65 Dip" : "unknown") +
+				((grp == 1) ? "50 Dip" : (grp == 2) ? "35 Dip" : (grp == 3) ? "65 Dip" : "unknown") +
 				" Model";
 		} else {
 			throw new UnsupportedOperationException("Name not recognized: " + name);
