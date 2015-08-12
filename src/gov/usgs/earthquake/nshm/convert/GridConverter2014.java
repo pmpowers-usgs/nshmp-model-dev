@@ -275,7 +275,7 @@ class GridConverter2014 {
 			readRateInfo(lines.next(), srcDat);
 	
 			// read strike or rjb array
-			if (srcDat.fltCode == FIXED) {
+			if (srcDat.fltCode == FIXED || srcDat.fltCode == LONG_HEADER) {
 				double strike = Parsing.readDouble(lines.next(), 0);
 				if (strike < 0.0) strike += 360.0;
 				srcDat.strike = strike;

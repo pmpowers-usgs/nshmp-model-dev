@@ -17,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.apache.commons.math3.special.Erf;
 import org.opensha2.eq.Magnitudes;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.BorderType;
@@ -222,9 +221,9 @@ public class Utils {
 	 * @param value to exceed
 	 * @return the probability of exceeding the supplied value
 	 */
-	public static double gaussProbExceed(double mean, double std, double value) {
-		return (Erf.erf((mean - value) / (std * SQRT_2)) + 1.0) * 0.5;
-	}
+//	public static double gaussProbExceed(double mean, double std, double value) {
+//		return (Erf.erf((mean - value) / (std * SQRT_2)) + 1.0) * 0.5;
+//	}
 
 	public static final String NSHMP_DAT_PATH = "/resources/data/nshmp";
 
