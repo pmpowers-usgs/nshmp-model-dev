@@ -51,7 +51,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha2.data.DataUtils;
+import org.opensha2.data.Data;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.eq.fault.surface.RuptureScaling;
 import org.opensha2.eq.model.SourceType;
@@ -139,7 +139,7 @@ class GridSourceData2014 {
 		Element root = doc.createElement(GRID_SOURCE_SET.toString());
 		addAttribute(NAME, displayName, root);
 		addAttribute(ID, id, root);
-		addAttribute(WEIGHT,  DataUtils.clean(8, weight)[0], root);
+		addAttribute(WEIGHT,  weight, root);
 		Converter.addDisclaimer(root);
 		addComment(" Original source file: " + name + " ", root);
 		doc.appendChild(root);

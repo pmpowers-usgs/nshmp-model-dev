@@ -1,24 +1,41 @@
 package gov.usgs.earthquake.peer;
 
-import static org.opensha2.eq.Magnitudes.*;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C1;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C10;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C11;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C2;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C3;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C4;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C5;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C6;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C7;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C8A;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C8B;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C8C;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C1;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2B;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2C;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2D;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3B;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3C;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3D;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C4A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C4B;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C5A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C5B;
+import static org.opensha2.geo.GeoTools.TO_RAD;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import gov.usgs.earthquake.nshm.convert.CH_Data;
-import gov.usgs.earthquake.nshm.convert.GR_Data;
-
-import org.opensha2.data.XY_Sequence;
 import org.opensha2.eq.Magnitudes;
-
-import static org.opensha2.geo.GeoTools.TO_RAD;
-
 import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
 import org.opensha2.gmm.Gmm;
 import org.opensha2.mfd.GaussianMfd;
-import org.opensha2.mfd.GutenbergRichterMfd;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.Mfds;
 import org.opensha2.mfd.YC_1985_CharMfd;
@@ -28,44 +45,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
-/**
- * Add comments here
- * 
- * @author Peter Powers
- */
+@SuppressWarnings({"javadoc", "unchecked"})
 public class PeerTestData {
-
-	static final String S1_C1 = "Set1-Case1";
-	static final String S1_C2 = "Set1-Case2";
-	static final String S1_C3 = "Set1-Case3";
-	static final String S1_C4 = "Set1-Case4";
-	static final String S1_C5 = "Set1-Case5";
-	static final String S1_C6 = "Set1-Case6";
-	static final String S1_C7 = "Set1-Case7";
-	static final String S1_C8A = "Set1-Case8a";
-	static final String S1_C8B = "Set1-Case8b";
-	static final String S1_C8C = "Set1-Case8c";
-	static final String S1_C10 = "Set1-Case10";
-	static final String S1_C11 = "Set1-Case11";
-
-	static final String S2_C1 = "Set2-Case1";
-	static final String S2_C2A1 = "Set2-Case2a1";
-	static final String S2_C2A2 = "Set2-Case2a2";
-	static final String S2_C2B1 = "Set2-Case2b1";
-	static final String S2_C2B2 = "Set2-Case2b2";
-	static final String S2_C2C1 = "Set2-Case2c1";
-	static final String S2_C2C2 = "Set2-Case2c2";
-	static final String S2_C2D1 = "Set2-Case2d1";
-	static final String S2_C2D2 = "Set2-Case2d2";
-	static final String S2_C3A = "Set2-Case3a";
-	static final String S2_C3B = "Set2-Case3b";
-	static final String S2_C3C = "Set2-Case3c";
-	static final String S2_C3D = "Set2-Case3d";
-	static final String S2_C4A = "Set2-Case4a";
-	static final String S2_C4B = "Set2-Case4b";
-	static final String S2_C5A = "Set2-Case5a";
-	static final String S2_C5B = "Set2-Case5b";
-
 
 	// defined from north to south so that reverse representation
 	// is east-vergent
@@ -107,7 +88,8 @@ public class PeerTestData {
 		final double width;
 		final String name;
 
-		Fault(LocationList trace, double length, double dip, double rake, double zTop, double zBot, String id) {
+		Fault(LocationList trace, double length, double dip, double rake, double zTop, double zBot,
+				String id) {
 			this.trace = trace;
 			this.length = length;
 			this.dip = dip;
@@ -127,7 +109,6 @@ public class PeerTestData {
 	static final Fault F5 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_30, "5");
 	static final Fault F6 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "6");
 
-
 	static final String AREA_DEPTH_STR;
 	static final String AREA_DEPTH_VAR_STR;
 
@@ -141,7 +122,7 @@ public class PeerTestData {
 	static final double B_VAL = 0.9;
 	static final double SINGLE_6P0 = 6.0;
 	static final double SINGLE_6P5 = 6.5;
-	static final double SINGLE_7P0 = 6.5;
+	static final double SINGLE_7P0 = 7.0;
 	static final double GR_MIN = 5.0;
 	static final double GR_MAX = 6.5;
 	static final double NGA_GR_MAX = 7.0;
@@ -157,13 +138,9 @@ public class PeerTestData {
 	static final double SLIP_1MM = 1.0;
 	static final double AREA_EVENT_RATE = 0.0395;
 
-	// static final CH_Data F1_SINGLE_6P5_MFD;
-	// static final CH_Data F1_SINGLE_6P0_FLOAT_MFD;
-	// static final CH_Data F2_SINGLE_6P0_FLOAT_MFD;
-	// static final GR_Data F1_GR_FLOAT_MFD;
-
 	static final IncrementalMfd F1_SINGLE_6P5_MFD; // 1.1
-	static final IncrementalMfd F1_SINGLE_6P0_FLOAT_MFD; // 1.2, 1.3, 1.8a, 1.8b, 1.8c
+	static final IncrementalMfd F1_SINGLE_6P0_FLOAT_MFD; // 1.2, 1.3, 1.8a,
+															// 1.8b, 1.8c
 	static final IncrementalMfd F2_SINGLE_6P0_FLOAT_MFD; // 1.4
 	static final IncrementalMfd F1_GR_FLOAT_MFD; // 1.5
 	static final IncrementalMfd F1_GAUSS_FLOAT_MFD; // 1.6
@@ -175,9 +152,8 @@ public class PeerTestData {
 	static final IncrementalMfd F4_SINGLE_7P0_FLOAT_MFD; // 2.3
 	static final IncrementalMfd F5_SINGLE_6P0_FLOAT_MFD; // 2.4
 	static final IncrementalMfd F6_SINGLE_6P0_FLOAT_MFD; // 2.5
-	
 
-	static final List<Double> GMM_CUTOFFS = Lists.newArrayList(200.0);
+	static final List<Double> GMM_CUTOFFS = Lists.newArrayList(500.0);
 
 	private static final Map<Gmm, Double> SADIGH_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
 	private static final Map<Gmm, Double> ASK14_MAP = ImmutableMap.of(Gmm.ASK_14, 1.0);
@@ -193,19 +169,6 @@ public class PeerTestData {
 
 	static final Map<String, String> COMMENTS = Maps.newHashMap();
 
-	public static void main(String[] args) {
-		 System.out.println(F1_SINGLE_6P5_MFD);
-		// System.out.println(F1_SINGLE_6P0_FLOAT_MFD);
-		// System.out.println(F2_SINGLE_6P0_FLOAT_MFD);
-//		 System.out.println(F3_GR_FLOAT_MFD);
-//		System.out.println(F1_GAUSS_FLOAT_MFD);
-//		 System.out.println(FC_YC_CHAR_FLOAT_MFD);
-		// System.out.println(A1_GR_MFD);
-
-		// System.out.println(F2_TMR);
-//		 System.out.println(moRate(F1, SLIP_2MM));
-	}
-
 	/* Compute down dip width */
 	static double downDipWidth(double zTop, double zBot, double dip) {
 		return (zBot - zTop) / Math.sin(dip * TO_RAD);
@@ -215,7 +178,7 @@ public class PeerTestData {
 	static double area(Fault fault) {
 		return fault.length * 1000.0 * fault.width * 1000.0;
 	}
-	
+
 	/* Compute the moment rate for a fault and slip (in mm/yr) */
 	static double moRate(Fault fault, double slip) {
 		return Magnitudes.moment(area(fault), slip / 1000.0);
@@ -237,31 +200,36 @@ public class PeerTestData {
 		F1_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F1tmr, true);
 		F2_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F2tmr, true);
 
-		IncrementalMfd gmMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, F1tmr);
+		IncrementalMfd gmMfd = Mfds
+			.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, F1tmr);
 		F1_GR_FLOAT_MFD = trimToRange(gmMfd, GR_MIN, GR_MAX);
 
 		GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000);
 		gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, F1tmr, 1.19, 1);
 		F1_GAUSS_FLOAT_MFD = trimToRange(gaussMfd, GR_MIN, GR_MAX);
 
-		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX1_BIN, 0.49, 5.945, 1.0, B_VAL, F1tmr);
+		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX1_BIN, 0.49,
+			5.945, 1.0, B_VAL, F1tmr);
 		F1_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX1);
 
-		AREA_GR_MFD = Mfds.newGutenbergRichterMFD(5.05, 0.1, 15, B_VAL, AREA_EVENT_RATE);
-		
-		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX2_BIN, 0.49, 6.495, 1.0, B_VAL, FBtmr);
+		AREA_GR_MFD = Mfds.newGutenbergRichterMFD(5.005, 0.01, 150, B_VAL, AREA_EVENT_RATE);
+
+		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX2_BIN, 0.49, 6.495, 1.0, B_VAL,
+			FBtmr);
 		FB_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX2);
-		
-		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX3_BIN, 0.49, 6.245, 1.0, B_VAL, FCtmr);
+
+		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX3_BIN, 0.49, 6.245, 1.0, B_VAL,
+			FCtmr);
 		FC_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX3);
 
-		IncrementalMfd ngaMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 700, B_VAL, F3tmr);
+		IncrementalMfd ngaMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 700, B_VAL,
+			F3tmr);
 		F3_GR_FLOAT_MFD = trimToRange(ngaMfd, GR_MIN, NGA_GR_MAX);
-		
+
 		F4_SINGLE_7P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_7P0, F4tmr, true);
 		F5_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F5tmr, true);
 		F6_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F6tmr, true);
-		
+
 	}
 
 	private static IncrementalMfd trimToRange(IncrementalMfd mfd, double mMin, double mMax) {
@@ -283,7 +251,7 @@ public class PeerTestData {
 		
 		AREA_DEPTH_STR = "[10.0::[5.0:1.0]]";
 		
-		AREA_DEPTH_VAR_STR = "[10.0::[5.0:0.1667, 6.0:0.1666, 7.0:0.1667, 8.0:0.1667, 9.0:0.1666, 10.0:0.1667]";
+		AREA_DEPTH_VAR_STR = "[10.0::[5.0:0.1667, 6.0:0.1666, 7.0:0.1667, 8.0:0.1667, 9.0:0.1666, 10.0:0.1667]]";
 		
 		S1_AREA_SOURCE_BORDER = LocationList.create(
 			Location.create(38.901, -122.000),
@@ -494,14 +462,10 @@ public class PeerTestData {
 		
 		COMMENTS.put(S2_C1, "Multiple sources; Deaggregation");
 		String ngaw2 = "NGA West 2 Ground Motion Models";
-		COMMENTS.put(S2_C2A1, ngaw2 + "; ASK14; σ=0");
-		COMMENTS.put(S2_C2A2, ngaw2 + "; ASK14; no σ truncation");
-		COMMENTS.put(S2_C2B1, ngaw2 + "; BSSA14; σ=0");
-		COMMENTS.put(S2_C2B2, ngaw2 + "; BSSA14; no σ truncation");
-		COMMENTS.put(S2_C2C1, ngaw2 + "; CB14; σ=0");
-		COMMENTS.put(S2_C2C2, ngaw2 + "; CB14; no σ truncation");
-		COMMENTS.put(S2_C2D1, ngaw2 + "; CY14; σ=0");
-		COMMENTS.put(S2_C2D2, ngaw2 + "; CY14; no σ truncation");
+		COMMENTS.put(S2_C2A, ngaw2 + "; ASK14; no σ truncation");
+		COMMENTS.put(S2_C2B, ngaw2 + "; BSSA14; no σ truncation");
+		COMMENTS.put(S2_C2C, ngaw2 + "; CB14; no σ truncation");
+		COMMENTS.put(S2_C2D, ngaw2 + "; CY14; no σ truncation");
 		String hw = "Hanging wall effects";
 		COMMENTS.put(S2_C3A, hw + "; ASK14; σ=0");
 		COMMENTS.put(S2_C3B, hw + "; BSSA14; σ=0");

@@ -31,7 +31,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha2.data.DataUtils;
+import org.opensha2.data.Data;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.GriddedRegion;
 import org.opensha2.geo.Location;
@@ -136,7 +136,7 @@ class GridConverter2014 {
 		// weights sum to 1.0, matched to correct file weight (sum of original
 		// individual fortran input file weights)
 
-		double fileWeight = DataUtils.sum(FluentIterable.from(srcDat.chDats).transform(
+		double fileWeight = Data.sum(FluentIterable.from(srcDat.chDats).transform(
 			new Function<CH_Data, Double>() {
 				@Override public Double apply(CH_Data chData) {
 					return chData.weight;

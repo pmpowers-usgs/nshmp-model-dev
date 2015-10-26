@@ -54,7 +54,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha2.data.DataUtils;
+import org.opensha2.data.Data;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.GriddedRegion;
 import org.opensha2.mfd.GutenbergRichterMfd;
@@ -211,7 +211,7 @@ class GridSourceData {
 		addAttribute(TYPE, INCR, e);
 		// default mags go up to default grid mMax; mags will be overridden
 		// where node mMax is higher
-		double[] mags = DataUtils.buildSequence(grDat.mMin, grDat.mMax, 0.1, true);
+		double[] mags = Data.buildSequence(grDat.mMin, grDat.mMax, 0.1, true);
 		double[] rates = new double[mags.length];
 		addAttribute(MAGS, Parsing.toString(Doubles.asList(mags), "%.2f"), e);
 		addAttribute(RATES, Parsing.toString(Doubles.asList(rates), "%.1f"), e);
@@ -403,8 +403,8 @@ class GridSourceData {
 
 	private static double jMax = 7.15;
 	private static double abMax = 7.35;
-	private static double[] jMags = DataUtils.buildSequence(5.05, jMax, 0.1, true); //{5.05, 5.15, 5.25, 5.35, 5.45, 5.55, 5.65, 5.75, 5.85, 5.95, 6.05, 6.15, 6.25, 6.35, 6.45, 6.55, 6.65, 6.75, 6.85, 6.95, 7.05, 7.15 };
-	private static double[] abMags = DataUtils.buildSequence(5.05, abMax, 0.1, true); //{5.05, 5.15, 5.25, 5.35, 5.45, 5.55, 5.65, 5.75, 5.85, 5.95, 6.05, 6.15, 6.25, 6.35, 6.45, 6.55, 6.65, 6.75, 6.85, 6.95, 7.05, 7.15, 7.25, 7.35 };
+	private static double[] jMags = Data.buildSequence(5.05, jMax, 0.1, true); //{5.05, 5.15, 5.25, 5.35, 5.45, 5.55, 5.65, 5.75, 5.85, 5.95, 6.05, 6.15, 6.25, 6.35, 6.45, 6.55, 6.65, 6.75, 6.85, 6.95, 7.05, 7.15 };
+	private static double[] abMags = Data.buildSequence(5.05, abMax, 0.1, true); //{5.05, 5.15, 5.25, 5.35, 5.45, 5.55, 5.65, 5.75, 5.85, 5.95, 6.05, 6.15, 6.25, 6.35, 6.45, 6.55, 6.65, 6.75, 6.85, 6.95, 7.05, 7.15, 7.25, 7.35 };
 	// wtmj_cra: full weight up to 6.55; Mmax=6.85 @ 0.2 wt
 	// wtmj_ext: full weight up to 6.85; Mmax=7.15 @ 0.2 wt
 	// wtmab_cra: full weight up to 6.75; Mmax=7.05 @ 0.2 wt

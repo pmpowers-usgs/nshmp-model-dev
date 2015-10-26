@@ -62,7 +62,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha2.data.DataUtils;
+import org.opensha2.data.Data;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.BorderType;
 import org.opensha2.geo.GriddedRegion;
@@ -106,7 +106,7 @@ public class SystemGridConverter {
 	private static Map<FocalMech, Double> defaultMechMap;
 
 	static {
-		mags = DataUtils.buildSequence(5.05, 7.85, 0.1, true);
+		mags = Data.buildSequence(5.05, 7.85, 0.1, true);
 		magStrSet = ImmutableSet.copyOf(FluentIterable.from(Doubles.asList(mags))
 			.transform(Parsing.formatDoubleFunction("%.2f")).toList());
 		try {
@@ -382,7 +382,7 @@ public class SystemGridConverter {
 
 		if (unassocRates == null) return subSeisRates;
 		if (subSeisRates == null) return unassocRates;
-		return DataUtils.add(unassocRates, subSeisRates);
+		return Data.add(unassocRates, subSeisRates);
 	}
 
 	private static List<Double> mfdRates(Element e) {

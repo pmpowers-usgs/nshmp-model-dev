@@ -1,18 +1,52 @@
 package gov.usgs.earthquake.peer;
 
-import static gov.usgs.earthquake.peer.PeerTestData.*;
+import static gov.usgs.earthquake.peer.PeerTestData.AREA_DEPTH_STR;
+import static gov.usgs.earthquake.peer.PeerTestData.AREA_DEPTH_VAR_STR;
+import static gov.usgs.earthquake.peer.PeerTestData.AREA_GR_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.ASK14_GMM;
+import static gov.usgs.earthquake.peer.PeerTestData.BSSA14_GMM;
+import static gov.usgs.earthquake.peer.PeerTestData.CB14_GMM;
+import static gov.usgs.earthquake.peer.PeerTestData.COMMENTS;
+import static gov.usgs.earthquake.peer.PeerTestData.CY14_GMM;
+import static gov.usgs.earthquake.peer.PeerTestData.F1;
+import static gov.usgs.earthquake.peer.PeerTestData.F1_GAUSS_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F1_GR_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F1_SINGLE_6P0_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F1_SINGLE_6P5_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F1_YC_CHAR_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F2;
+import static gov.usgs.earthquake.peer.PeerTestData.F2_SINGLE_6P0_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F3;
+import static gov.usgs.earthquake.peer.PeerTestData.F3_GR_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F4;
+import static gov.usgs.earthquake.peer.PeerTestData.F4_SINGLE_7P0_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F5;
+import static gov.usgs.earthquake.peer.PeerTestData.F5_SINGLE_6P0_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.F6;
+import static gov.usgs.earthquake.peer.PeerTestData.F6_SINGLE_6P0_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.FB;
+import static gov.usgs.earthquake.peer.PeerTestData.FB_YC_CHAR_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.FC;
+import static gov.usgs.earthquake.peer.PeerTestData.FC_YC_CHAR_FLOAT_MFD;
+import static gov.usgs.earthquake.peer.PeerTestData.GMM_CUTOFFS;
+import static gov.usgs.earthquake.peer.PeerTestData.S1_AREA_SOURCE_BORDER;
+import static gov.usgs.earthquake.peer.PeerTestData.SADIGH_GMM;
 import static org.opensha2.eq.fault.surface.RuptureScaling.PEER;
-import static org.opensha2.eq.model.SourceAttribute.RATE;
 import static org.opensha2.eq.model.SourceAttribute.DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.DIP;
 import static org.opensha2.eq.model.SourceAttribute.FLOATS;
+import static org.opensha2.eq.model.SourceAttribute.FOCAL_MECH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.ID;
 import static org.opensha2.eq.model.SourceAttribute.M;
 import static org.opensha2.eq.model.SourceAttribute.MAGS;
 import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
+import static org.opensha2.eq.model.SourceAttribute.MAX_DEPTH;
 import static org.opensha2.eq.model.SourceAttribute.NAME;
 import static org.opensha2.eq.model.SourceAttribute.RAKE;
+import static org.opensha2.eq.model.SourceAttribute.RATE;
 import static org.opensha2.eq.model.SourceAttribute.RATES;
 import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
+import static org.opensha2.eq.model.SourceAttribute.STRIKE;
 import static org.opensha2.eq.model.SourceAttribute.TYPE;
 import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
 import static org.opensha2.eq.model.SourceAttribute.WIDTH;
@@ -27,6 +61,31 @@ import static org.opensha2.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha2.eq.model.SourceElement.TRACE;
 import static org.opensha2.eq.model.SourceType.AREA;
 import static org.opensha2.eq.model.SourceType.FAULT;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C1;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C10;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C11;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C2;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C3;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C4;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C5;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C6;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C7;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C8A;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C8B;
+import static org.opensha2.eq.model.peer.PeerTest.S1_C8C;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C1;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2B;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2C;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C2D;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3B;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3C;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C3D;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C4A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C4B;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C5A;
+import static org.opensha2.eq.model.peer.PeerTest.S2_C5B;
 import static org.opensha2.mfd.MfdType.INCR;
 import static org.opensha2.mfd.MfdType.SINGLE;
 import static org.opensha2.util.Parsing.addAttribute;
@@ -55,18 +114,10 @@ import org.opensha2.util.Parsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Add comments here
- *
- * @author Peter Powers
- */
+@SuppressWarnings("javadoc")
 public class PeerModelMaker {
 
-	static final String FAULT1_SOURCE = "PEER: Fault 1";
-	static final String FAULT2_SOURCE = "PEER: Fault 2";
-	static final String AREA1_SOURCE = "PEER: Area 1";
-
-	static final String MODEL_DIR = "models/PEER";
+	static final String MODEL_DIR = "models/PEER/models";
 	static final String SOURCE_FILE = "source.xml";
 	static final String GMM_FILE = "gmm.xml";
 
@@ -94,7 +145,6 @@ public class PeerModelMaker {
 		write(path.resolve(SOURCE_FILE), createFault(S1_C2, F1, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
 
-		// TODO needs to be able to handle ruptureScaling sigma
 		path = Paths.get(MODEL_DIR, S1_C3, FAULT.toString());
 		write(path.resolve(SOURCE_FILE), createFault(S1_C3, F1, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
@@ -115,9 +165,6 @@ public class PeerModelMaker {
 		write(path.resolve(SOURCE_FILE), createFault(S1_C7, F1, F1_YC_CHAR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
 
-		// TODO how to handle gmm sigma overrides; all cases above should be
-		// zero
-		// cases below are sigma with various truncations
 		path = Paths.get(MODEL_DIR, S1_C8A, FAULT.toString());
 		write(path.resolve(SOURCE_FILE), createFault(S1_C8A, F1, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
@@ -130,9 +177,6 @@ public class PeerModelMaker {
 		write(path.resolve(SOURCE_FILE), createFault(S1_C8C, F1, F1_SINGLE_6P0_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
 
-		// TODO need to be able to specify point source model; check that for
-		// actual point source
-		// ruptureScaling is ignored
 		path = Paths.get(MODEL_DIR, S1_C10, AREA.toString());
 		write(path.resolve(SOURCE_FILE), createArea(S1_C10, AREA_GR_MFD, AREA_DEPTH_STR, 1));
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
@@ -153,32 +197,20 @@ public class PeerModelMaker {
 		GmmCreator.write(path.resolve(GMM_FILE), SADIGH_GMM, GMM_CUTOFFS, null, null);
 
 		// NGAW2
-		path = Paths.get(MODEL_DIR, S2_C2A1, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2A1, F3, F3_GR_FLOAT_MFD));
-		GmmCreator.write(path.resolve(GMM_FILE), ASK14_GMM, GMM_CUTOFFS, null, null);
-		path = Paths.get(MODEL_DIR, S2_C2A2, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2A2, F3, F3_GR_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S2_C2A, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault(S2_C2A, F3, F3_GR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), ASK14_GMM, GMM_CUTOFFS, null, null);
 
-		path = Paths.get(MODEL_DIR, S2_C2B1, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2B1, F3, F3_GR_FLOAT_MFD));
-		GmmCreator.write(path.resolve(GMM_FILE), BSSA14_GMM, GMM_CUTOFFS, null, null);
-		path = Paths.get(MODEL_DIR, S2_C2B2, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2B2, F3, F3_GR_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S2_C2B, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault(S2_C2B, F3, F3_GR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), BSSA14_GMM, GMM_CUTOFFS, null, null);
 		
-		path = Paths.get(MODEL_DIR, S2_C2C1, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2C1, F3, F3_GR_FLOAT_MFD));
-		GmmCreator.write(path.resolve(GMM_FILE), CB14_GMM, GMM_CUTOFFS, null, null);
-		path = Paths.get(MODEL_DIR, S2_C2C2, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2C2, F3, F3_GR_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S2_C2C, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault(S2_C2C, F3, F3_GR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), CB14_GMM, GMM_CUTOFFS, null, null);
 		
-		path = Paths.get(MODEL_DIR, S2_C2D1, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2D1, F3, F3_GR_FLOAT_MFD));
-		GmmCreator.write(path.resolve(GMM_FILE), CY14_GMM, GMM_CUTOFFS, null, null);
-		path = Paths.get(MODEL_DIR, S2_C2D2, FAULT.toString());
-		write(path.resolve(SOURCE_FILE), createFault(S2_C2D2, F3, F3_GR_FLOAT_MFD));
+		path = Paths.get(MODEL_DIR, S2_C2D, FAULT.toString());
+		write(path.resolve(SOURCE_FILE), createFault(S2_C2D, F3, F3_GR_FLOAT_MFD));
 		GmmCreator.write(path.resolve(GMM_FILE), CY14_GMM, GMM_CUTOFFS, null, null);
 
 		// hanging wall
@@ -225,6 +257,7 @@ public class PeerModelMaker {
 		Element root = doc.createElement(FAULT_SOURCE_SET.toString());
 		addAttribute(NAME, testName, root);
 		addAttribute(WEIGHT, 1.0, root);
+		addAttribute(ID, -1, root);
 		doc.appendChild(root);
 
 		addComment(COMMENTS.get(testName), root);
@@ -236,6 +269,7 @@ public class PeerModelMaker {
 
 		Element srcElem = addElement(SOURCE, root);
 		addAttribute(NAME, fault.name, srcElem);
+		addAttribute(ID, -1, srcElem);
 		addMfd(mfd, srcElem);
 
 		Element geom = addElement(GEOMETRY, srcElem);
@@ -256,16 +290,21 @@ public class PeerModelMaker {
 		Element root = doc.createElement(AREA_SOURCE_SET.toString());
 		addAttribute(NAME, testName, root);
 		addAttribute(WEIGHT, 1.0, root);
+		addAttribute(ID, -1, root);
 		doc.appendChild(root);
 
 		addComment(COMMENTS.get(testName), root);
 
 		Element srcElem = addElement(SOURCE, root);
 		addAttribute(NAME, "Area Source " + id, srcElem);
+		addAttribute(ID, -1, srcElem);
 		addMfd(mfd, srcElem);
 		Element propsElem = addElement(SOURCE_PROPERTIES, srcElem);
 		addAttribute(MAG_DEPTH_MAP, magDepthMap, propsElem);
 		addAttribute(RUPTURE_SCALING, PEER, propsElem);
+		addAttribute(MAX_DEPTH, 30.0, propsElem);
+		addAttribute(FOCAL_MECH_MAP, "[STRIKE_SLIP:1.0,NORMAL:0.0,REVERSE:0.0]", propsElem);
+		addAttribute(STRIKE, Double.NaN, propsElem);
 		Element border = addElement(BORDER, srcElem);
 		border.setTextContent(S1_AREA_SOURCE_BORDER.toString());
 
@@ -273,7 +312,6 @@ public class PeerModelMaker {
 	}
 
 	private static void write(Path dest, Document doc) throws IOException, TransformerException {
-		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer trans = transformerFactory.newTransformer();
 		trans.setOutputProperty(OutputKeys.INDENT, "yes");

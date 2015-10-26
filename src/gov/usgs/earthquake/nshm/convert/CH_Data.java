@@ -10,7 +10,7 @@ import static org.opensha2.mfd.MfdType.SINGLE;
 import static org.opensha2.util.Parsing.addAttribute;
 import static org.opensha2.util.Parsing.addElement;
 
-import org.opensha2.data.DataUtils;
+import org.opensha2.data.Data;
 import org.w3c.dom.Element;
 
 /*
@@ -51,7 +51,6 @@ public class CH_Data implements MFD_Data {
 			addAttribute(M, mag, "%.3f", e);
 			addAttribute(FLOATS, floats, e);
 			addAttribute(WEIGHT, weight, e);
-			addAttribute(WEIGHT, DataUtils.clean(8, weight)[0], e);
 		}
 		return e;
 	}
