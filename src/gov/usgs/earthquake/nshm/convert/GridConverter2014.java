@@ -38,6 +38,7 @@ import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
 import org.opensha2.geo.Region;
 import org.opensha2.geo.Regions;
+import org.opensha2.util.MathUtils;
 import org.opensha2.util.Parsing;
 import org.opensha2.util.Parsing.Delimiter;
 
@@ -142,9 +143,12 @@ class GridConverter2014 {
 					return chData.weight;
 				}
 			}).toList());
+		// summing (above) induces rounding errors
+		fileWeight = MathUtils.round(fileWeight, 8);
 		srcDat.weight = fileWeight;
 		for (CH_Data chDat : srcDat.chDats) {
 			chDat.weight /= fileWeight;
+			chDat.weight = MathUtils.round(chDat.weight, 8);
 		}
 		
 		try {

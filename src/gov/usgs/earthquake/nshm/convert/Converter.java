@@ -103,13 +103,13 @@ class Converter {
 //		convertInterface(files, "2014", log);
 //		files = MGR_2014.get(WUS, SLAB);
 //		convertSlab2014(files, "2014", log);
-		files = MGR_2014.get(WUS, CLUSTER);
-		convertCluster(files, "2014", log);
+//		files = MGR_2014.get(WUS, CLUSTER);
+//		convertCluster(files, "2014", log);
 		
 //		files = MGR_2014.get(CEUS, FAULT);
 //		convertFault(files, "2014", log);
-//		files = MGR_2014.get(CEUS, GRID);
-//		convertGrid(files, "2014", log);
+		files = MGR_2014.get(CEUS, GRID);
+		convertGrid(files, "2014", log);
 //		files = MGR_2014.get(CEUS, CLUSTER);
 //		convertCluster(files, "2014", log);
 	}
