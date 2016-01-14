@@ -82,7 +82,7 @@ class SourceManager_2014 extends SourceManager {
 		//		0.06 fixed truncatedM8
 		//		0.04 adapt truncatedM8
 		//
-		// ss:n and ss:r is 1/3:2/3 of 0.333:0.667 due to implementation difficulties
+		// ss:n and ss:r is 1/3:2/3 or 0.333:0.667 due to implementation difficulties
 		// wrt hangin wall terms, input files were further decomposed on the basis of
 		// focal mechanism.
 		//

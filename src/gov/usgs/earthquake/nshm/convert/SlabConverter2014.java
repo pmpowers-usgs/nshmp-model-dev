@@ -50,10 +50,6 @@ import com.google.common.math.DoubleMath;
  */
 class SlabConverter2014 {
 
-	// TODO clean up after dealing with CEUS
-	// there are craton notes and things like 'ceusScaleRates' that need
-	// consideration
-
 	private Logger log;
 
 	private SlabConverter2014() {}
