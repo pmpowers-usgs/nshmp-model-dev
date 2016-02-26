@@ -370,7 +370,7 @@ class NewZealandParser {
 		double angle = Math.acos(Math.sin(traceDipDir) * Math.sin(inputDipDir) +
 			Math.cos(traceDipDir) * Math.cos(inputDipDir)) *
 			GeoTools.TO_DEG;
-		return (angle > 90.0) ? LocationList.reverseOf(trace) : trace;
+		return (angle > 90.0) ? trace.reverse() : trace;
 	}
 
 	public static void main(String[] args) throws IOException {

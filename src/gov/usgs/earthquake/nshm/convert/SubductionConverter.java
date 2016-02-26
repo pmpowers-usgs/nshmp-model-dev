@@ -191,7 +191,7 @@ class SubductionConverter {
 			builder.add(Location.create(latlon.get(0), latlon.get(1), latlon.get(2)));
 		}
 		LocationList locs = builder.build();
-		return reverse ? LocationList.reverseOf(locs) : locs;
+		return reverse ? locs.reverse() : locs;
 	}
 	
 	private static void skipSiteData(Iterator<String> it) {

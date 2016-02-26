@@ -173,10 +173,10 @@ class SystemFaultSurface {
 		LocationList.Builder traceBuilder = LocationList.builder();
 		for (int s = 0; s < surfaces.size(); s++) {
 			LocationList trace = surfaces.get(s).getUpperEdge();
-			traceBuilder.add(reverseSurfTrace[s] ? LocationList.reverseOf(trace) : trace);
+			traceBuilder.addAll(reverseSurfTrace[s] ? trace.reverse() : trace);
 		}
 		LocationList trace = traceBuilder.build();
-		return reverseOrderOfSurfaces ? LocationList.reverseOf(trace) : trace;		
+		return reverseOrderOfSurfaces ? trace.reverse() : trace;		
 	}
 	
 ////		if(upperEdge == null) {

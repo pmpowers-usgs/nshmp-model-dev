@@ -398,7 +398,7 @@ class FaultConverter {
 		// used instead of reversing trace
 		if (fd.dip < 0) {
 			fd.dip = -fd.dip;
-			fd.locs = LocationList.reverseOf(fd.locs);
+			fd.locs = fd.locs.reverse();
 		}
 	}
 

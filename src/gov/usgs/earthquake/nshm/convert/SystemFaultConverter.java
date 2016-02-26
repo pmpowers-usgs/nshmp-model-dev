@@ -273,11 +273,11 @@ class SystemFaultConverter {
 			data.dipDirs.add(dipDir);
 
 			double depth = Double.valueOf(sectIn.getAttribute("aveUpperDepth"));
-			addAttribute(DEPTH, depth, Location.FORMAT, geomOut);
+			addAttribute(DEPTH, depth, "%.5f", geomOut);
 			data.depths.add(depth);
 
 			double lowerDepth = Double.valueOf(sectIn.getAttribute("aveLowerDepth"));
-			addAttribute(LOWER_DEPTH, lowerDepth, Location.FORMAT, geomOut);
+			addAttribute(LOWER_DEPTH, lowerDepth, "%.5f", geomOut);
 			data.lowerDepths.add(lowerDepth);
 
 			double aseis = Double.valueOf(sectIn.getAttribute("aseismicSlipFactor"));
