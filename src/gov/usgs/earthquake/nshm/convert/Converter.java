@@ -30,39 +30,39 @@ class Converter {
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
 	private static final SourceManager MGR_2008 = SourceManager_2008.instance();
 	private static final SourceManager MGR_2014 = SourceManager_2014.instance();
-	private static final String FCAST_DIR = ".." + S + "hazard-models" + S+ "US" + S;
-	
+	private static final String FCAST_DIR = ".." + S + "hazard-models" + S + "US" + S;
+
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("[yy-MM-dd-HH-mm]");
 	private static final String LOG_DIR = FCAST_DIR + "logs" + S;
 	private static final Level LEVEL = Level.INFO;
-	
+
 	static FaultNames faultNames;
-	
+
 	public static void main(String[] args) {
-//		convert2008();
+		// convert2008();
 		convert2014();
-		
-//		for (SourceFile sf : MGR_2014.getAll()) {
-//			System.out.println(sf);
-//		}
+
+		// for (SourceFile sf : MGR_2014.getAll()) {
+		// System.out.println(sf);
+		// }
 	}
-	
+
 	static void convert2008() {
 		faultNames = FaultNames.create(2008);
-		
+
 		List<SourceFile> files;
 		String logID = Converter.class.getName() + "-2008-" + sdf.format(new Date());
 		String logPath = LOG_DIR + logID + ".log";
 		Logger log = Utils.logger(logID, logPath, LEVEL);
-		
+
 		// there are some mildly confusing things that happen here, both in the
 		// SourceManager class and the export process...
-		//		-- anything with 'deep' in the name is converted to a 'SLAB' type
-		//		-- sources in CA and CASC are moved into their respective correct
-		//		   folder in WUS
-		//		-- the mb CEUS grids are moved into their own folders with
-		//		   custom mag-converting GMMs
-		
+		// -- anything with 'deep' in the name is converted to a 'SLAB' type
+		// -- sources in CA and CASC are moved into their respective correct
+		// folder in WUS
+		// -- the mb CEUS grids are moved into their own folders with
+		// custom mag-converting GMMs
+
 		files = MGR_2008.get(WUS, FAULT);
 		convertFault(files, "2008", log);
 		files = MGR_2008.get(WUS, GRID);
@@ -86,15 +86,15 @@ class Converter {
 		files = MGR_2008.get(CEUS, CLUSTER);
 		convertCluster(files, "2008", log);
 	}
-	
+
 	static void convert2014() {
 		faultNames = FaultNames.create(2014);
-		
+
 		List<SourceFile> files;
 		String logID = Converter.class.getName() + "-2014-" + sdf.format(new Date());
 		String logPath = LOG_DIR + logID + ".log";
 		Logger log = Utils.logger(logID, logPath, LEVEL);
-		
+
 		files = MGR_2014.get(WUS, FAULT);
 		convertFault(files, "2014", log);
 		files = MGR_2014.get(WUS, GRID);
@@ -103,9 +103,14 @@ class Converter {
 		convertInterface(files, "2014", log);
 		files = MGR_2014.get(WUS, SLAB);
 		convertSlab2014(files, "2014", log);
-		files = MGR_2014.get(WUS, CLUSTER);
-		convertCluster(files, "2014", log);
-		
+
+		// NOTE DO NOT UNCOMMENT; Wasatch cluster dip variant, magnitude, and cluster
+		// weights were encoded in such a way that requires too much refactoring
+		// of the cluster converter to be worth it. The Wasatch cluster source file
+		// has been manually updated.
+		// files = MGR_2014.get(WUS, CLUSTER);
+		// convertCluster(files, "2014", log);
+
 		files = MGR_2014.get(CEUS, FAULT);
 		convertFault(files, "2014", log);
 		files = MGR_2014.get(CEUS, GRID);
@@ -147,7 +152,7 @@ class Converter {
 			converter.convert(file, out);
 		}
 	}
-	
+
 	static void convertInterface(List<SourceFile> files, String yr, Logger log) {
 		String out = FCAST_DIR + yr + S;
 		SubductionConverter converter = SubductionConverter.create(log);
@@ -156,7 +161,7 @@ class Converter {
 			converter.convert(file, out);
 		}
 	}
-	
+
 	static void convertCluster(List<SourceFile> files, String yr, Logger log) {
 		String out = FCAST_DIR + yr + S;
 		ClusterConverter converter = ClusterConverter.create(log);
@@ -165,14 +170,14 @@ class Converter {
 			converter.convert(file, out, yr.equals("2014") ? MGR_2014 : MGR_2008);
 		}
 	}
-	
+
 	static Logger createLogger(Class<?> clazz, String name, SourceRegion region, String yr) {
 		String time = sdf.format(new Date());
 		String loggerID = clazz.getName() + "-" + region.name() + "-" + yr;
 		String logName = LOG_DIR + name + "-" + yr + "-" + region.name() + "-" + time + ".log";
 		return Utils.logger(loggerID, logName, LEVEL);
 	}
-	
+
 	static final String DISCLAIMER = " This model is an example and for review purposes only ";
 
 	static void addDisclaimer(Element e) {
