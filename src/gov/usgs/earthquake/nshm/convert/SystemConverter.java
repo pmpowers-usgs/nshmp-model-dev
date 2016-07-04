@@ -2,19 +2,13 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static gov.usgs.earthquake.nshm.convert.SystemFaultConverter.SECTION_XML_IN;
 import static gov.usgs.earthquake.nshm.convert.SystemFaultConverter.cleanName;
-import gov.usgs.earthquake.nshm.convert.SystemFaultConverter.UC3_Filter;
-import gov.usgs.earthquake.nshm.util.Utils;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -28,10 +22,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+
+import gov.usgs.earthquake.nshm.convert.SystemFaultConverter.UC3_Filter;
 
 /**
  * Starting point for converting UCERF3 fault system solutions to indexed source
