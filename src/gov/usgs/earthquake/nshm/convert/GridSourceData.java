@@ -57,7 +57,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.opensha2.data.Data;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.GriddedRegion;
-import org.opensha2.mfd.GutenbergRichterMfd;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.MfdType;
 import org.opensha2.mfd.Mfds;
@@ -357,7 +356,7 @@ class GridSourceData {
 		// mfdMax is either gridMax or some higher value
 		double bVal = bGrid ? bDat[i] : grDat.bVal;
 		GR_Data grNode = GR_Data.create(aDat[i], bVal, grDat.mMin, mfdMax, grDat.dMag, 1.0);
-		GutenbergRichterMfd mfd = Mfds.newGutenbergRichterMoBalancedMFD(
+		IncrementalMfd mfd = Mfds.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
 		mfd.scaleToIncrRate(grNode.mMin, Mfds.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
 		if (cutoffMax <= mfdMax) mfd.zeroAboveMag2(cutoffMax);
@@ -392,7 +391,7 @@ class GridSourceData {
 		double mfdMax = name.contains(".AB.") ? abMax : jMax;
 		
 		GR_Data grNode = GR_Data.create(aDat[i], bDat[i], grDat.mMin, mfdMax, grDat.dMag, 1.0);
-		GutenbergRichterMfd mfd = Mfds.newGutenbergRichterMoBalancedMFD(
+		IncrementalMfd mfd = Mfds.newGutenbergRichterMoBalancedMFD(
 			grNode.mMin, grNode.dMag, grNode.nMag, grNode.bVal, 1.0);
 		// a-value is stored as log10(a)
 		mfd.scaleToIncrRate(grNode.mMin, Mfds.incrRate(grNode.aVal, grNode.bVal, grNode.mMin));
