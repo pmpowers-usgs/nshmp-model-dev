@@ -1,19 +1,20 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha2.eq.model.SourceAttribute.A;
-import static org.opensha2.eq.model.SourceAttribute.B;
-import static org.opensha2.eq.model.SourceAttribute.C_MAG;
-import static org.opensha2.eq.model.SourceAttribute.D_MAG;
-import static org.opensha2.eq.model.SourceAttribute.M_MAX;
-import static org.opensha2.eq.model.SourceAttribute.M_MIN;
-import static org.opensha2.eq.model.SourceAttribute.TYPE;
-import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
-import static org.opensha2.eq.model.SourceElement.INCREMENTAL_MFD;
 import static org.opensha2.mfd.MfdType.GR;
 import static org.opensha2.mfd.MfdType.GR_TAPER;
 import static org.opensha2.mfd.Mfds.magCount;
 import static org.opensha2.util.Parsing.addAttribute;
 import static org.opensha2.util.Parsing.addElement;
+import static org.opensha2.util.SourceAttribute.A;
+import static org.opensha2.util.SourceAttribute.B;
+import static org.opensha2.util.SourceAttribute.C_MAG;
+import static org.opensha2.util.SourceAttribute.D_MAG;
+import static org.opensha2.util.SourceAttribute.M_MAX;
+import static org.opensha2.util.SourceAttribute.M_MIN;
+import static org.opensha2.util.SourceAttribute.TYPE;
+import static org.opensha2.util.SourceAttribute.WEIGHT;
+import static org.opensha2.util.SourceElement.INCREMENTAL_MFD;
+
 import gov.usgs.earthquake.nshm.convert.FaultConverter.SourceData;
 import gov.usgs.earthquake.nshm.util.Utils;
 

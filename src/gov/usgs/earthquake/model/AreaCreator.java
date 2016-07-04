@@ -1,25 +1,26 @@
 package gov.usgs.earthquake.model;
 
 import static org.opensha2.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
-import static org.opensha2.eq.model.SourceAttribute.DEPTH;
-import static org.opensha2.eq.model.SourceAttribute.DIP;
-import static org.opensha2.eq.model.SourceAttribute.FOCAL_MECH_MAP;
-import static org.opensha2.eq.model.SourceAttribute.MAG_DEPTH_MAP;
-import static org.opensha2.eq.model.SourceAttribute.RUPTURE_SCALING;
-import static org.opensha2.eq.model.SourceAttribute.NAME;
-import static org.opensha2.eq.model.SourceAttribute.RAKE;
-import static org.opensha2.eq.model.SourceAttribute.STRIKE;
-import static org.opensha2.eq.model.SourceAttribute.WEIGHT;
-import static org.opensha2.eq.model.SourceAttribute.WIDTH;
-import static org.opensha2.eq.model.SourceElement.AREA_SOURCE_SET;
-import static org.opensha2.eq.model.SourceElement.DEFAULT_MFDS;
-import static org.opensha2.eq.model.SourceElement.BORDER;
-import static org.opensha2.eq.model.SourceElement.SETTINGS;
-import static org.opensha2.eq.model.SourceElement.SOURCE;
-import static org.opensha2.eq.model.SourceElement.SOURCE_PROPERTIES;
 import static org.opensha2.util.Parsing.addAttribute;
 import static org.opensha2.util.Parsing.addElement;
 import static org.opensha2.util.Parsing.enumValueMapToString;
+import static org.opensha2.util.SourceAttribute.DEPTH;
+import static org.opensha2.util.SourceAttribute.DIP;
+import static org.opensha2.util.SourceAttribute.FOCAL_MECH_MAP;
+import static org.opensha2.util.SourceAttribute.MAG_DEPTH_MAP;
+import static org.opensha2.util.SourceAttribute.NAME;
+import static org.opensha2.util.SourceAttribute.RAKE;
+import static org.opensha2.util.SourceAttribute.RUPTURE_SCALING;
+import static org.opensha2.util.SourceAttribute.STRIKE;
+import static org.opensha2.util.SourceAttribute.WEIGHT;
+import static org.opensha2.util.SourceAttribute.WIDTH;
+import static org.opensha2.util.SourceElement.AREA_SOURCE_SET;
+import static org.opensha2.util.SourceElement.BORDER;
+import static org.opensha2.util.SourceElement.DEFAULT_MFDS;
+import static org.opensha2.util.SourceElement.SETTINGS;
+import static org.opensha2.util.SourceElement.SOURCE;
+import static org.opensha2.util.SourceElement.SOURCE_PROPERTIES;
+
 import gov.usgs.earthquake.nshm.convert.MFD_Data;
 
 import java.io.IOException;
