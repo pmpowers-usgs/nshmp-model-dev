@@ -54,8 +54,9 @@ import static org.opensha2.gmm.GmmElement.GROUND_MOTION_MODELS;
 import static org.opensha2.gmm.GmmElement.MODEL;
 import static org.opensha2.gmm.GmmElement.MODEL_SET;
 import static org.opensha2.gmm.GmmElement.UNCERTAINTY;
-import static org.opensha2.util.Parsing.addAttribute;
-import static org.opensha2.util.Parsing.addElement;
+import static org.opensha2.internal.Parsing.addAttribute;
+import static org.opensha2.internal.Parsing.addElement;
+
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 
 import java.io.IOException;

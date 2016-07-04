@@ -10,8 +10,9 @@ import static org.opensha2.eq.fault.FocalMech.NORMAL;
 import static org.opensha2.eq.fault.FocalMech.REVERSE;
 import static org.opensha2.eq.fault.FocalMech.STRIKE_SLIP;
 import static org.opensha2.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
-import static org.opensha2.util.Parsing.splitToDoubleList;
-import static org.opensha2.util.Parsing.Delimiter.SPACE;
+import static org.opensha2.internal.Parsing.splitToDoubleList;
+import static org.opensha2.internal.Parsing.Delimiter.SPACE;
+
 import gov.usgs.earthquake.nshm.util.FaultCode;
 
 import java.io.File;
@@ -29,7 +30,7 @@ import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.GriddedRegion;
 import org.opensha2.geo.Location;
 import org.opensha2.geo.Regions;
-import org.opensha2.util.Parsing;
+import org.opensha2.internal.Parsing;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;

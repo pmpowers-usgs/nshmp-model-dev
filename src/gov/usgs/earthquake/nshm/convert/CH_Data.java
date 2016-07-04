@@ -1,14 +1,14 @@
 package gov.usgs.earthquake.nshm.convert;
 
+import static org.opensha2.internal.Parsing.addAttribute;
+import static org.opensha2.internal.Parsing.addElement;
+import static org.opensha2.internal.SourceAttribute.FLOATS;
+import static org.opensha2.internal.SourceAttribute.M;
+import static org.opensha2.internal.SourceAttribute.RATE;
+import static org.opensha2.internal.SourceAttribute.TYPE;
+import static org.opensha2.internal.SourceAttribute.WEIGHT;
+import static org.opensha2.internal.SourceElement.INCREMENTAL_MFD;
 import static org.opensha2.mfd.MfdType.SINGLE;
-import static org.opensha2.util.Parsing.addAttribute;
-import static org.opensha2.util.Parsing.addElement;
-import static org.opensha2.util.SourceAttribute.FLOATS;
-import static org.opensha2.util.SourceAttribute.M;
-import static org.opensha2.util.SourceAttribute.RATE;
-import static org.opensha2.util.SourceAttribute.TYPE;
-import static org.opensha2.util.SourceAttribute.WEIGHT;
-import static org.opensha2.util.SourceElement.INCREMENTAL_MFD;
 
 import org.opensha2.data.Data;
 import org.w3c.dom.Element;

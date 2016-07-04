@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.opensha2.util.Parsing;
-import org.opensha2.util.Parsing.Delimiter;
+import org.opensha2.internal.Parsing;
+import org.opensha2.internal.Parsing.Delimiter;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;

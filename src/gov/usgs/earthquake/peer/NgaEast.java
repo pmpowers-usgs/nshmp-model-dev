@@ -9,10 +9,10 @@ import static org.opensha2.gmm.Imt.SA0P75;
 import static org.opensha2.gmm.Imt.SA1P5;
 import static org.opensha2.gmm.Imt.SA3P0;
 import static org.opensha2.gmm.Imt.SA7P5;
-import static org.opensha2.util.Parsing.Delimiter.COMMA;
+import static org.opensha2.internal.Parsing.Delimiter.COMMA;
 
 import org.opensha2.gmm.Imt;
-import org.opensha2.util.Parsing;
+import org.opensha2.internal.Parsing;
 
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.Iterables;

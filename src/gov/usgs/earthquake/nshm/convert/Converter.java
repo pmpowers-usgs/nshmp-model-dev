@@ -3,7 +3,10 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkArgument;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
 import static org.opensha2.eq.model.SourceType.*;
-import static org.opensha2.util.Parsing.addComment;
+import static org.opensha2.internal.Parsing.addComment;
+
+import org.opensha2.internal.Parsing;
+
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;
 
@@ -13,7 +16,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha2.util.Parsing;
 import org.w3c.dom.Element;
 
 import com.google.common.base.StandardSystemProperty;

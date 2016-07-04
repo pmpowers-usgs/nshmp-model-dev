@@ -2,6 +2,9 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import org.opensha2.internal.Parsing;
+import org.opensha2.internal.Parsing.Delimiter;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,9 +13,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.opensha2.util.Parsing;
-import org.opensha2.util.Parsing.Delimiter;
 
 import com.google.common.collect.Iterables;
 
