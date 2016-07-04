@@ -3,7 +3,8 @@ package gov.usgs.earthquake.nshm.convert;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.opensha2.function.EvenlyDiscretizedFunc;
-import org.opensha2.mfd.GutenbergRichterMfd;
+
+import gov.usgs.earthquake.mfd.GutenbergRichterMfd;
 
 /*
  * Adapted from UCERF3 GardnerKnopoffAftershockFilter to scale rates

@@ -35,10 +35,10 @@ import org.opensha2.eq.Magnitudes;
 import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
 import org.opensha2.gmm.Gmm;
-import org.opensha2.mfd.GaussianMfd;
+import gov.usgs.earthquake.mfd.GaussianMfd;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.Mfds;
-import org.opensha2.mfd.YC_1985_CharMfd;
+import gov.usgs.earthquake.mfd.YC_1985_CharMfd;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -204,7 +204,7 @@ public class PeerTestData {
 			.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, F1tmr);
 		F1_GR_FLOAT_MFD = trimToRange(gmMfd, GR_MIN, GR_MAX);
 
-		GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000);
+		GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000, false);
 		gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, F1tmr, 1.19, 1);
 		F1_GAUSS_FLOAT_MFD = trimToRange(gaussMfd, GR_MIN, GR_MAX);
 

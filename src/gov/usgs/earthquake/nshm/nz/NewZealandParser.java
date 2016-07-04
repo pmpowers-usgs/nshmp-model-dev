@@ -19,7 +19,6 @@ import org.opensha2.eq.fault.Faults;
 import org.opensha2.geo.GeoTools;
 import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
-import org.opensha2.mfd.GutenbergRichterMfd;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.Mfds;
 
