@@ -98,7 +98,7 @@ class NewZealandParser {
 		try {
 			lines = Resources.readLines(faultPath.toUri().toURL(), StandardCharsets.US_ASCII);
 		} catch (IOException ioe) {
-			Throwables.propagate(ioe);
+		  throw new RuntimeException(ioe);
 		}
 		Iterator<String> lineIterator = Iterables.skip(lines, 3).iterator(); // skip a and b data
 
@@ -264,7 +264,7 @@ class NewZealandParser {
 		try {
 			lines = Resources.readLines(gridPath.toUri().toURL(), StandardCharsets.US_ASCII);
 		} catch (IOException ioe) {
-			Throwables.propagate(ioe);
+      throw new RuntimeException(ioe);
 		}
 
 		for (String line : lines) {

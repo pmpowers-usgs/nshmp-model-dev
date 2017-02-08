@@ -38,148 +38,150 @@ import gov.usgs.earthquake.nshm.convert.SystemFaultConverter.UC3_Filter;
  */
 public class SystemConverter {
 
-	private static final Path SRC_DIR = Paths.get("../../svn/OpenSHA/tmp/UC33/src/bravg");
-	private static final Path OUT_DIR = Paths.get("models/UCERF3/");
+  private static final Path SRC_DIR = Paths.get("../../svn/OpenSHA/tmp/UC33/src/bravg");
+  private static final Path OUT_DIR = Paths.get("models/UCERF3/");
 
-	public static void main(String[] args) throws Exception {
-		Path solDir = SRC_DIR.resolve("FM");
-		// Path solDir = SRC_DIR.resolve("FM-DM");
-		// Path solDir = SRC_DIR.resolve("FM-DM-MS");
-		// Path solDir = SRC_DIR.resolve("FM-DM-MS-SS");
-		convertUC3(solDir);
+  public static void main(String[] args) throws Exception {
+    Path solDir = SRC_DIR.resolve("FM");
+    // Path solDir = SRC_DIR.resolve("FM-DM");
+    // Path solDir = SRC_DIR.resolve("FM-DM-MS");
+    // Path solDir = SRC_DIR.resolve("FM-DM-MS-SS");
+    convertUC3(solDir);
 
-		// compareFaultModelIndices();
-		// TODO can slip scaling 
-	}
+    // compareFaultModelIndices();
+    // TODO can slip scaling
+  }
 
-	static void convertUC3(Path solDir) throws Exception {
+  static void convertUC3(Path solDir) throws Exception {
 
-		SystemFaultConverter faultConverter = SystemFaultConverter.create();
-		SystemGridConverter gridConverter = SystemGridConverter.create();
+    SystemFaultConverter faultConverter = SystemFaultConverter.create();
+    SystemGridConverter gridConverter = SystemGridConverter.create();
 
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(solDir, "*.zip")) {
-			for (Path path : stream) {
-				faultConverter.process(path, OUT_DIR, UC3_Filter.FM31);
-				gridConverter.process(path, OUT_DIR);
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(solDir, "*.zip")) {
+      for (Path path : stream) {
+        String fName = path.getFileName().toString();
+        UC3_Filter filter = fName.contains("FM31") ? UC3_Filter.FM31 : UC3_Filter.FM32;
+        faultConverter.process(path, OUT_DIR, filter);
+        gridConverter.process(path, OUT_DIR);
 
-				System.out.println("Conversion complete");
-				System.out.println("");
-			}
-		}
-	}
+        System.out.println("Conversion complete");
+        System.out.println("");
+      }
+    }
+  }
 
-	static double computeWeight(String name) {
-		double w = 1.0;
-		
-		if (name.contains("FM31")) w *= 0.5;
-		if (name.contains("FM32"))  w *= 0.5;
-		
-		if (name.contains("ABM")) w *= 0.1;
-		if (name.contains("GEOL")) w *= 0.3;
-		if (name.contains("NEOK")) w *= 0.3;
-		if (name.contains("ZENGBB"))  w *= 0.3;
-		
-		if (name.contains("ELLB"))  w *= 0.2;
-		if (name.contains("ELLBSL"))  w *= 0.2;
-		if (name.contains("HB08"))  w *= 0.2;
-		if (name.contains("SH09M"))  w *= 0.2;
-		if (name.contains("SHCSD"))  w *= 0.2;
-		
-		if (name.contains("U2"))  w *= 0.5;
-		if (name.contains("U3"))  w *= 0.5;
-		
-		return w;
-	}
-	
-	/*
-	 * Combining UC3 fault model branch averaged solutions:
-	 * 
-	 * Any FaultModel 3.1 solution will map to its original indices.
-	 * 
-	 * Those sections in FaultModel 3.2 that are replicated in 3.1 will be
-	 * mapped to their 3.1 counterpart index.
-	 * 
-	 * Those sections in FaultModel 3.2 but not in 3.1 will be appended to the
-	 * FaultModel 3.1 section list and their indices mapped to their new indices
-	 * in the master list.
-	 * 
-	 * NOTE becasue inversions were run separately for each fualt model, need to
-	 * consider that even though section participation may be same for two
-	 * ruptures, mags, rates and other properties etc. may not be
-	 */
+  static double computeWeight(String name) {
+    double w = 1.0;
 
-	static void compareFaultModelIndices() throws Exception {
+    if (name.contains("FM31")) w *= 0.5;
+    if (name.contains("FM32")) w *= 0.5;
 
-		BiMap<Integer, String> fm31map = null; // readSections(SOL_DIR,
-												// FM31_SOL);
-		BiMap<Integer, String> fm32map = null; // readSections(SOL_DIR,
-												// FM32_SOL);
+    if (name.contains("ABM")) w *= 0.1;
+    if (name.contains("GEOL")) w *= 0.3;
+    if (name.contains("NEOK")) w *= 0.3;
+    if (name.contains("ZENGBB")) w *= 0.3;
 
-		int count = 0;
+    if (name.contains("ELLB")) w *= 0.2;
+    if (name.contains("ELLBSL")) w *= 0.2;
+    if (name.contains("HB08")) w *= 0.2;
+    if (name.contains("SH09M")) w *= 0.2;
+    if (name.contains("SHCSD")) w *= 0.2;
 
-		// list FM31 entires with FM32 indices, or lack thereof
-		for (Entry<Integer, String> entry : fm31map.entrySet()) {
-			String masterIdxStr = toString(count);
-			String flag31 = "FM31  ";
-			String idx31str = toString(entry.getKey());
-			Integer idx32 = fm32map.inverse().get(entry.getValue());
-			String flag32 = (idx32 != null) ? "FM32  " : "--    ";
-			String idx32str = (idx32 != null) ? toString(idx32) : "--    ";
-			System.out.println(masterIdxStr + flag31 + idx31str + flag32 + idx32str +
-				entry.getValue());
-			count++;
-		}
+    if (name.contains("U2")) w *= 0.5;
+    if (name.contains("U3")) w *= 0.5;
 
-		// append FM32 entries missing from FM31
-		for (Entry<Integer, String> entry : fm32map.entrySet()) {
-			if (fm31map.containsValue(entry.getValue())) continue;
-			String masterIdxStr = toString(count);
-			String flag31 = "--    ";
-			String idx31str = "--    ";
-			String flag32 = "FM32  ";
-			String idx32str = toString(entry.getKey());
-			System.out.println(masterIdxStr + flag31 + idx31str + flag32 + idx32str +
-				entry.getValue());
-			count++;
-		}
+    return w;
+  }
 
-	}
+  /*
+   * Combining UC3 fault model branch averaged solutions:
+   * 
+   * Any FaultModel 3.1 solution will map to its original indices.
+   * 
+   * Those sections in FaultModel 3.2 that are replicated in 3.1 will be mapped
+   * to their 3.1 counterpart index.
+   * 
+   * Those sections in FaultModel 3.2 but not in 3.1 will be appended to the
+   * FaultModel 3.1 section list and their indices mapped to their new indices
+   * in the master list.
+   * 
+   * NOTE becasue inversions were run separately for each fualt model, need to
+   * consider that even though section participation may be same for two
+   * ruptures, mags, rates and other properties etc. may not be
+   */
 
-	private static String toString(int idx) {
-		return Strings.padEnd(Integer.toString(idx), 6, ' ');
-	}
+  static void compareFaultModelIndices() throws Exception {
 
-	private static BiMap<Integer, String> readSections(String solDirPath, String sol)
-			throws ParserConfigurationException, SAXException, IOException {
+    BiMap<Integer, String> fm31map = null; // readSections(SOL_DIR,
+    // FM31_SOL);
+    BiMap<Integer, String> fm32map = null; // readSections(SOL_DIR,
+    // FM32_SOL);
 
-		ZipFile zip = new ZipFile(solDirPath + sol + ".zip");
-		ZipEntry sectionsEntry = zip.getEntry(SECTION_XML_IN);
+    int count = 0;
 
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document docIn = dBuilder.parse(zip.getInputStream(sectionsEntry));
-		docIn.getDocumentElement().normalize();
+    // list FM31 entires with FM32 indices, or lack thereof
+    for (Entry<Integer, String> entry : fm31map.entrySet()) {
+      String masterIdxStr = toString(count);
+      String flag31 = "FM31  ";
+      String idx31str = toString(entry.getKey());
+      Integer idx32 = fm32map.inverse().get(entry.getValue());
+      String flag32 = (idx32 != null) ? "FM32  " : "--    ";
+      String idx32str = (idx32 != null) ? toString(idx32) : "--    ";
+      System.out.println(masterIdxStr + flag31 + idx31str + flag32 + idx32str +
+          entry.getValue());
+      count++;
+    }
 
-		zip.close();
+    // append FM32 entries missing from FM31
+    for (Entry<Integer, String> entry : fm32map.entrySet()) {
+      if (fm31map.containsValue(entry.getValue())) continue;
+      String masterIdxStr = toString(count);
+      String flag31 = "--    ";
+      String idx31str = "--    ";
+      String flag32 = "FM32  ";
+      String idx32str = toString(entry.getKey());
+      System.out.println(masterIdxStr + flag31 + idx31str + flag32 + idx32str +
+          entry.getValue());
+      count++;
+    }
 
-		// file in
-		Element rootIn = docIn.getDocumentElement();
-		NodeList sectsIn = ((Element) rootIn.getElementsByTagName("FaultSectionPrefDataList").item(
-			0)).getChildNodes();
+  }
 
-		ImmutableBiMap.Builder<Integer, String> builder = ImmutableBiMap.builder();
-		for (int i = 0; i < sectsIn.getLength(); i++) {
-			Node node = sectsIn.item(i);
-			if (!(node instanceof Element)) continue;
-			Element sectIn = (Element) node;
+  private static String toString(int idx) {
+    return Strings.padEnd(Integer.toString(idx), 6, ' ');
+  }
 
-			String name = cleanName(sectIn.getAttribute("sectionName"));
-			String indexStr = sectIn.getAttribute("sectionId");
-			int index = Integer.valueOf(indexStr);
+  private static BiMap<Integer, String> readSections(String solDirPath, String sol)
+      throws ParserConfigurationException, SAXException, IOException {
 
-			builder.put(index, name);
-		}
-		return builder.build();
-	}
+    ZipFile zip = new ZipFile(solDirPath + sol + ".zip");
+    ZipEntry sectionsEntry = zip.getEntry(SECTION_XML_IN);
+
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    Document docIn = dBuilder.parse(zip.getInputStream(sectionsEntry));
+    docIn.getDocumentElement().normalize();
+
+    zip.close();
+
+    // file in
+    Element rootIn = docIn.getDocumentElement();
+    NodeList sectsIn = ((Element) rootIn.getElementsByTagName("FaultSectionPrefDataList").item(
+        0)).getChildNodes();
+
+    ImmutableBiMap.Builder<Integer, String> builder = ImmutableBiMap.builder();
+    for (int i = 0; i < sectsIn.getLength(); i++) {
+      Node node = sectsIn.item(i);
+      if (!(node instanceof Element)) continue;
+      Element sectIn = (Element) node;
+
+      String name = cleanName(sectIn.getAttribute("sectionName"));
+      String indexStr = sectIn.getAttribute("sectionId");
+      int index = Integer.valueOf(indexStr);
+
+      builder.put(index, name);
+    }
+    return builder.build();
+  }
 
 }

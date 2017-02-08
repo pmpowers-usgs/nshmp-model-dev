@@ -101,6 +101,7 @@ class SystemFaultConverter {
 		
 		System.out.println("");
 		System.out.println("  Solution file: " + zip.getName());
+    System.out.println("         Filter: " + filter);
 		System.out.println("         Weight: " + weight);
 		
 		// section XML
