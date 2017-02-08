@@ -54,102 +54,102 @@ import org.w3c.dom.Element;
  */
 public class AreaCreator {
 
-	private List<SourceData> sourceData;
-	private String name;
-	private double weight;
-	private String depthStr;
+  private List<SourceData> sourceData;
+  private String name;
+  private double weight;
+  private String depthStr;
 
-	public AreaCreator(String name, double weight, String depthStr) {
-		this.name = name;
-		this.weight = weight;
-		this.depthStr = depthStr;
-		sourceData = new ArrayList<>();
-	}
+  public AreaCreator(String name, double weight, String depthStr) {
+    this.name = name;
+    this.weight = weight;
+    this.depthStr = depthStr;
+    sourceData = new ArrayList<>();
+  }
 
-	public static SourceData createSource(String name, LocationList border, MFD_Data mfdData,
-			String mechStr, RuptureScaling rupScaling, GridScaling gridScaling, double strike) {
-		return new SourceData(name, border, mfdData, mechStr, rupScaling, gridScaling, strike);
-	}
+  public static SourceData createSource(String name, LocationList border, MFD_Data mfdData,
+      String mechStr, RuptureScaling rupScaling, GridScaling gridScaling, double strike) {
+    return new SourceData(name, border, mfdData, mechStr, rupScaling, gridScaling, strike);
+  }
 
-	public static class SourceData {
-		private String name;
-		private LocationList border;
-		private MFD_Data mfdData;
-		private Double strike;
-		private String mechStr;
-		private RuptureScaling rupScaling;
-		private GridScaling gridScaling;
+  public static class SourceData {
+    private String name;
+    private LocationList border;
+    private MFD_Data mfdData;
+    private Double strike;
+    private String mechStr;
+    private RuptureScaling rupScaling;
+    private GridScaling gridScaling;
 
-		SourceData(String name, LocationList border, MFD_Data mfdData, String mechStr,
-			RuptureScaling rupScaling, GridScaling gridScaling, Double strike) {
-			this.name = name;
-			this.border = border;
-			this.mfdData = mfdData;
-			this.mechStr = mechStr;
-			this.rupScaling = rupScaling;
-			this.gridScaling = gridScaling;
-			this.strike = strike;
-		}
-	}
+    SourceData(String name, LocationList border, MFD_Data mfdData, String mechStr,
+        RuptureScaling rupScaling, GridScaling gridScaling, Double strike) {
+      this.name = name;
+      this.border = border;
+      this.mfdData = mfdData;
+      this.mechStr = mechStr;
+      this.rupScaling = rupScaling;
+      this.gridScaling = gridScaling;
+      this.strike = strike;
+    }
+  }
 
-	public void addSource(SourceData source) {
-		sourceData.add(source);
-	}
+  public void addSource(SourceData source) {
+    sourceData.add(source);
+  }
 
-	/*
-	 * An AreaSourceSet can have default mfds - one shared depthModel; don't
-	 * actually know if this is consistent with what users of area sources do -
-	 * one mechMap per source
-	 */
+  /*
+   * An AreaSourceSet can have default mfds - one shared depthModel; don't
+   * actually know if this is consistent with what users of area sources do -
+   * one mechMap per source
+   */
 
-	public void export(Path dest) throws ParserConfigurationException, IOException,
-			TransformerException {
+  public void export(Path dest) throws ParserConfigurationException, IOException,
+      TransformerException {
 
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
-		// root elements
-		Document doc = docBuilder.newDocument();
-		doc.setXmlStandalone(true);
-		Element root = doc.createElement(AREA_SOURCE_SET.toString());
-		addAttribute(NAME, name, root);
-		addAttribute(WEIGHT, weight, root);
-		doc.appendChild(root);
+    // root elements
+    Document doc = docBuilder.newDocument();
+    doc.setXmlStandalone(true);
+    Element root = doc.createElement(AREA_SOURCE_SET.toString());
+    addAttribute(NAME, name, root);
+    addAttribute(WEIGHT, weight, root);
+    doc.appendChild(root);
 
-		Element settings = addElement(SETTINGS, root);
+    Element settings = addElement(SETTINGS, root);
 
-		// no default MFDs for now
-		// Element mfdRef = addElement(DEFAULT_MFDS, settings);
-		// grDat.appendTo(mfdRef, null);
+    // no default MFDs for now
+    // Element mfdRef = addElement(DEFAULT_MFDS, settings);
+    // grDat.appendTo(mfdRef, null);
 
-		addSourceProperties(settings);
+    addSourceProperties(settings);
 
-		for (SourceData source : sourceData) {
-			Element srcElem = addElement(SOURCE, root);
-			addAttribute(NAME, name, srcElem);
-			source.mfdData.appendTo(srcElem, null);
-			Element border = addElement(BORDER, srcElem);
-			border.setTextContent(source.border.toString());
-		}
+    for (SourceData source : sourceData) {
+      Element srcElem = addElement(SOURCE, root);
+      addAttribute(NAME, name, srcElem);
+      source.mfdData.appendTo(srcElem, null);
+      Element border = addElement(BORDER, srcElem);
+      border.setTextContent(source.border.toString());
+    }
 
-		// write the content into xml file
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer trans = transformerFactory.newTransformer();
-		trans.setOutputProperty(OutputKeys.INDENT, "yes");
-		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
+    // write the content into xml file
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    Transformer trans = transformerFactory.newTransformer();
+    trans.setOutputProperty(OutputKeys.INDENT, "yes");
+    trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
 
-		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(Files.newOutputStream(dest));
+    DOMSource source = new DOMSource(doc);
+    StreamResult result = new StreamResult(Files.newOutputStream(dest));
 
-		trans.transform(source, result);
-	}
+    trans.transform(source, result);
+  }
 
-	// source attribute settings
-	private void addSourceProperties(Element settings) {
-		Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-		addAttribute(MAG_DEPTH_MAP, depthStr, propsElem);
-		addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
-	}
+  // source attribute settings
+  private void addSourceProperties(Element settings) {
+    Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+    addAttribute(MAG_DEPTH_MAP, depthStr, propsElem);
+    addAttribute(RUPTURE_SCALING, NSHM_POINT_WC94_LENGTH, propsElem);
+  }
 
 }

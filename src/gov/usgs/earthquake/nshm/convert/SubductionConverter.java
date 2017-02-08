@@ -63,230 +63,230 @@ import com.google.common.io.Files;
 
 /*
  * Convert NSHMP subduction interface files to XML.
+ * 
  * @author Peter Powers
  */
 class SubductionConverter {
 
-	private Logger log;
-	private SubductionConverter() {}
-	
-	static SubductionConverter create(Logger log) {
-		SubductionConverter sc = new SubductionConverter();
-		sc.log = checkNotNull(log);
-		return sc;
-	}
-	
-	void convert(SourceFile sf, String dir) {
-		
-		try {
-			log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
-			Exporter export = new Exporter();
-			export.file = sf.name;	
-			export.weight = sf.weight;
-	
-			Iterator<String> lines = sf.lineIterator();
-	
-			// skip irrelevant header data
-			skipSiteData(lines);
-			skipGMMs(lines);
-			lines.next(); // distance sampling on fault and dMove
-			lines.next(); // rMax and discretization
-			
-			while (lines.hasNext()) {
-				
-				// collect data on source name line
-				SourceData fDat = new SourceData();
-				List<String> srcInfo = splitToList(lines.next(), SPACE);
-				MFD_Type mfdType = MFD_Type.typeForID(Integer.valueOf(srcInfo.get(0)));
-				fDat.file = sf;
-				fDat.focalMech = Utils.typeForID(Integer.valueOf(srcInfo.get(1)));
+  private Logger log;
 
-				try {
-					// hazSUBXngatest: read a 3rd value for mfd count
-					fDat.nMag = Integer.valueOf(srcInfo.get(2));
-					fDat.name = Joiner.on(' ').join(Iterables.skip(srcInfo, 3));
-				} catch (NumberFormatException nfe) {
-					// hazSUBXnga: if can't read 3rd int, set name and nMag to 1
-					fDat.nMag = 1;
-					fDat.name = Joiner.on(' ').join(Iterables.skip(srcInfo, 2));
-				}
-				fDat.id = -1;
-	
-				List<String> mfdSrcDat =  Parsing.toLineList(lines, fDat.nMag);
-				generateMFDs(fDat, mfdType, mfdSrcDat);
-				
-				generateTraces(lines, fDat);
-				
-				if (fDat.mfds.size() == 0) {
-					log.severe("Source with no mfds");
-					System.exit(1);
-				}
-				export.srcMap.put(fDat.name, fDat);
-			}
-			
-			String S = File.separator;
-			String outPath = dir + S + sf.region + S + sf.type + S + 
-					sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
-			File outFile = new File(outPath);
-			Files.createParentDirs(outFile);
-			export.writeXML(new File(outPath));
-			
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "Fault parse error: exiting", e);
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-	
-	
-	private void generateMFDs(SourceData ss, MFD_Type type, List<String> lines) {
-		// for 2008 NSHMP all sub sources are entered as floating GR, however
-		// any M8.8 or greater events are rupture filling, pseudo-char; 2014
-		// makes distinction between GR and CH
-		for (String line : lines) {
-			if (type == GR) {
-				GR_Data gr = GR_Data.createForSubduction(line);
-				if (gr.nMag > 1) {
-					ss.mfds.add(gr);
-					log(ss, GR, true);
-				} else {
-					// in 2008 CH ruptures were defined with GR trickery
-					CH_Data ch = CH_Data.create(
-						gr.mMin,
-						Mfds.grRate(gr.aVal, gr.bVal, gr.mMin),
-						gr.weight,
-						false);
-					ss.mfds.add(ch);
-					log(ss, MFD_Type.CH, ch.floats);
-				}
-			} else if (type == MFD_Type.CH) {
-				CH_Data ch = CH_Data.create(
-					Parsing.readDouble(line, 0),
-					Parsing.readDouble(line, 1),
-					Parsing.readDouble(line, 2),
-					false);
-				ss.mfds.add(ch);
-				log(ss, MFD_Type.CH, ch.floats);
-			} else {
-				throw new IllegalArgumentException("MFD_Type not supported");
-			}
-		}
-	}
+  private SubductionConverter() {}
 
-	private void log(SourceData fd, MFD_Type mfdType, boolean floats) {
-		String mfdStr = Strings.padEnd(mfdType.name(), 5, ' ') +
-			(floats ? "f " : "  ");
-		log.info(mfdStr + fd.name);
-	}
-	
-	private static void generateTraces(Iterator<String> it, SourceData ss) {
-		boolean reverse = ss.file.name.startsWith("sub");
-		ss.upperTrace = generateTrace(it, readInt(it.next(), 0), reverse);
-		ss.lowerTrace = generateTrace(it, readInt(it.next(), 0), reverse);
-	}
-	
-	private static LocationList generateTrace(Iterator<String> it, int size, boolean reverse) {
-		List<String> traceDat = Parsing.toLineList(it, size);
-		LocationList.Builder builder = LocationList.builder();
-		for (String ptDat : traceDat) {
-			List<Double> latlon = splitToDoubleList(ptDat, SPACE);
-			builder.add(Location.create(latlon.get(0), latlon.get(1), latlon.get(2)));
-		}
-		LocationList locs = builder.build();
-		return reverse ? locs.reverse() : locs;
-	}
-	
-	private static void skipSiteData(Iterator<String> it) {
-		int numSta = Parsing.readInt(it.next(), 0); // grid of sites or station list
-		// skip num station lines or lat lon bounds (2 lines)
-		Iterators.advance(it, (numSta > 0) ? numSta : 2);
-		it.next(); // site data (Vs30) and Campbell basin depth
-	}
+  static SubductionConverter create(Logger log) {
+    SubductionConverter sc = new SubductionConverter();
+    sc.log = checkNotNull(log);
+    return sc;
+  }
 
-	// GMM data order in subduction is different than for faults
-	private static void skipGMMs(Iterator<String> it) {
-		int nP = Parsing.readInt(it.next(), 0); // num periods
-		for (int i = 0; i < nP; i++) {
-			it.next(); // period
-			it.next(); // out file
-			int nAR = readInt(it.next(), 0); // num atten. rel.
-			Iterators.advance(it, nAR); // atten rel
-			it.next(); // num ground motion values
-			it.next(); // ground motion values
-		}
-	}
-	
-	/* Wrapper class for individual sources */
-	static class SourceData {
-		SourceFile file;
-		List<MFD_Data> mfds = Lists.newArrayList();
-		FocalMech focalMech;
-		int nMag;
-		String name;
-		int id;
-		LocationList upperTrace;
-		LocationList lowerTrace;
-	}
-	
-	static class Exporter {
-		
-		String file = null;
-		double weight = 1.0;
-		Map<String, SourceData> srcMap = Maps.newLinkedHashMap();
-		
-		public void writeXML(File out) throws 
-				ParserConfigurationException,
-				TransformerException {
+  void convert(SourceFile sf, String dir) {
 
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    try {
+      log.info("Source file: " + sf.name + " " + sf.region + " " + sf.weight);
+      Exporter export = new Exporter();
+      export.file = sf.name;
+      export.weight = sf.weight;
 
-			// root elements
-			Document doc = docBuilder.newDocument();
-			Element root = doc.createElement(SUBDUCTION_SOURCE_SET.toString());
-			doc.appendChild(root);
-			addAttribute(NAME, file, root);
-			addAttribute(ID, -1, root);
-			addAttribute(WEIGHT, weight, root);
-			Converter.addDisclaimer(root);
-			addComment(" Original source file: " + file + " ", root);
+      Iterator<String> lines = sf.lineIterator();
 
-			// source properties
-			Element settings = addElement(SETTINGS, root);
-			Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-			addAttribute(RUPTURE_SCALING, NSHM_SUB_GEOMAT_LENGTH, propsElem);
+      // skip irrelevant header data
+      skipSiteData(lines);
+      skipGMMs(lines);
+      lines.next(); // distance sampling on fault and dMove
+      lines.next(); // rMax and discretization
 
-			for (Entry<String , SourceData> entry : srcMap.entrySet()) {
-				Element src = addElement(SOURCE, root);
-				addAttribute(NAME, entry.getKey(), src);
+      while (lines.hasNext()) {
 
-				SourceData sDat = entry.getValue();
-				addAttribute(ID, sDat.id, src);
+        // collect data on source name line
+        SourceData fDat = new SourceData();
+        List<String> srcInfo = splitToList(lines.next(), SPACE);
+        MFD_Type mfdType = MFD_Type.typeForID(Integer.valueOf(srcInfo.get(0)));
+        fDat.file = sf;
+        fDat.focalMech = Utils.typeForID(Integer.valueOf(srcInfo.get(1)));
 
-				// MFDs
-				for (MFD_Data mfdDat : sDat.mfds) {
-					mfdDat.appendTo(src, null);
-				}
+        try {
+          // hazSUBXngatest: read a 3rd value for mfd count
+          fDat.nMag = Integer.valueOf(srcInfo.get(2));
+          fDat.name = Joiner.on(' ').join(Iterables.skip(srcInfo, 3));
+        } catch (NumberFormatException nfe) {
+          // hazSUBXnga: if can't read 3rd int, set name and nMag to 1
+          fDat.nMag = 1;
+          fDat.name = Joiner.on(' ').join(Iterables.skip(srcInfo, 2));
+        }
+        fDat.id = -1;
 
-				// append geometry from first entry
-				Element geom = addElement(GEOMETRY, src);
-				addAttribute(RAKE, sDat.focalMech.rake(), geom);
-				Element trace = addElement(TRACE, geom);
-				trace.setTextContent(sDat.upperTrace.toString());
-				Element lowerTrace = addElement(LOWER_TRACE, geom);
-				lowerTrace.setTextContent(sDat.lowerTrace.toString());
-			}
+        List<String> mfdSrcDat = Parsing.toLineList(lines, fDat.nMag);
+        generateMFDs(fDat, mfdType, mfdSrcDat);
 
-			// write the content into xml file
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer trans = transformerFactory.newTransformer();
-			trans.setOutputProperty(OutputKeys.INDENT, "yes");
-			trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(out);
-			trans.transform(source, result);
-		}
-		
-	}
+        generateTraces(lines, fDat);
+
+        if (fDat.mfds.size() == 0) {
+          log.severe("Source with no mfds");
+          System.exit(1);
+        }
+        export.srcMap.put(fDat.name, fDat);
+      }
+
+      String S = File.separator;
+      String outPath = dir + S + sf.region + S + sf.type + S +
+          sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
+      File outFile = new File(outPath);
+      Files.createParentDirs(outFile);
+      export.writeXML(new File(outPath));
+
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "Fault parse error: exiting", e);
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  private void generateMFDs(SourceData ss, MFD_Type type, List<String> lines) {
+    // for 2008 NSHMP all sub sources are entered as floating GR, however
+    // any M8.8 or greater events are rupture filling, pseudo-char; 2014
+    // makes distinction between GR and CH
+    for (String line : lines) {
+      if (type == GR) {
+        GR_Data gr = GR_Data.createForSubduction(line);
+        if (gr.nMag > 1) {
+          ss.mfds.add(gr);
+          log(ss, GR, true);
+        } else {
+          // in 2008 CH ruptures were defined with GR trickery
+          CH_Data ch = CH_Data.create(
+              gr.mMin,
+              Mfds.grRate(gr.aVal, gr.bVal, gr.mMin),
+              gr.weight,
+              false);
+          ss.mfds.add(ch);
+          log(ss, MFD_Type.CH, ch.floats);
+        }
+      } else if (type == MFD_Type.CH) {
+        CH_Data ch = CH_Data.create(
+            Parsing.readDouble(line, 0),
+            Parsing.readDouble(line, 1),
+            Parsing.readDouble(line, 2),
+            false);
+        ss.mfds.add(ch);
+        log(ss, MFD_Type.CH, ch.floats);
+      } else {
+        throw new IllegalArgumentException("MFD_Type not supported");
+      }
+    }
+  }
+
+  private void log(SourceData fd, MFD_Type mfdType, boolean floats) {
+    String mfdStr = Strings.padEnd(mfdType.name(), 5, ' ') +
+        (floats ? "f " : "  ");
+    log.info(mfdStr + fd.name);
+  }
+
+  private static void generateTraces(Iterator<String> it, SourceData ss) {
+    boolean reverse = ss.file.name.startsWith("sub");
+    ss.upperTrace = generateTrace(it, readInt(it.next(), 0), reverse);
+    ss.lowerTrace = generateTrace(it, readInt(it.next(), 0), reverse);
+  }
+
+  private static LocationList generateTrace(Iterator<String> it, int size, boolean reverse) {
+    List<String> traceDat = Parsing.toLineList(it, size);
+    LocationList.Builder builder = LocationList.builder();
+    for (String ptDat : traceDat) {
+      List<Double> latlon = splitToDoubleList(ptDat, SPACE);
+      builder.add(Location.create(latlon.get(0), latlon.get(1), latlon.get(2)));
+    }
+    LocationList locs = builder.build();
+    return reverse ? locs.reverse() : locs;
+  }
+
+  private static void skipSiteData(Iterator<String> it) {
+    int numSta = Parsing.readInt(it.next(), 0); // grid of sites or station list
+    // skip num station lines or lat lon bounds (2 lines)
+    Iterators.advance(it, (numSta > 0) ? numSta : 2);
+    it.next(); // site data (Vs30) and Campbell basin depth
+  }
+
+  // GMM data order in subduction is different than for faults
+  private static void skipGMMs(Iterator<String> it) {
+    int nP = Parsing.readInt(it.next(), 0); // num periods
+    for (int i = 0; i < nP; i++) {
+      it.next(); // period
+      it.next(); // out file
+      int nAR = readInt(it.next(), 0); // num atten. rel.
+      Iterators.advance(it, nAR); // atten rel
+      it.next(); // num ground motion values
+      it.next(); // ground motion values
+    }
+  }
+
+  /* Wrapper class for individual sources */
+  static class SourceData {
+    SourceFile file;
+    List<MFD_Data> mfds = Lists.newArrayList();
+    FocalMech focalMech;
+    int nMag;
+    String name;
+    int id;
+    LocationList upperTrace;
+    LocationList lowerTrace;
+  }
+
+  static class Exporter {
+
+    String file = null;
+    double weight = 1.0;
+    Map<String, SourceData> srcMap = Maps.newLinkedHashMap();
+
+    public void writeXML(File out) throws ParserConfigurationException,
+        TransformerException {
+
+      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+      // root elements
+      Document doc = docBuilder.newDocument();
+      Element root = doc.createElement(SUBDUCTION_SOURCE_SET.toString());
+      doc.appendChild(root);
+      addAttribute(NAME, file, root);
+      addAttribute(ID, -1, root);
+      addAttribute(WEIGHT, weight, root);
+      Converter.addDisclaimer(root);
+      addComment(" Original source file: " + file + " ", root);
+
+      // source properties
+      Element settings = addElement(SETTINGS, root);
+      Element propsElem = addElement(SOURCE_PROPERTIES, settings);
+      addAttribute(RUPTURE_SCALING, NSHM_SUB_GEOMAT_LENGTH, propsElem);
+
+      for (Entry<String, SourceData> entry : srcMap.entrySet()) {
+        Element src = addElement(SOURCE, root);
+        addAttribute(NAME, entry.getKey(), src);
+
+        SourceData sDat = entry.getValue();
+        addAttribute(ID, sDat.id, src);
+
+        // MFDs
+        for (MFD_Data mfdDat : sDat.mfds) {
+          mfdDat.appendTo(src, null);
+        }
+
+        // append geometry from first entry
+        Element geom = addElement(GEOMETRY, src);
+        addAttribute(RAKE, sDat.focalMech.rake(), geom);
+        Element trace = addElement(TRACE, geom);
+        trace.setTextContent(sDat.upperTrace.toString());
+        Element lowerTrace = addElement(LOWER_TRACE, geom);
+        lowerTrace.setTextContent(sDat.lowerTrace.toString());
+      }
+
+      // write the content into xml file
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer trans = transformerFactory.newTransformer();
+      trans.setOutputProperty(OutputKeys.INDENT, "yes");
+      trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(out);
+      trans.transform(source, result);
+    }
+
+  }
 
 }

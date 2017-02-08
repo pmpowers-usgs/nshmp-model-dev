@@ -41,50 +41,50 @@ import org.w3c.dom.Element;
  */
 public class GmmCreator {
 
-	public static void write(Path dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
-			double[] uncValues, double[] uncWeights) throws ParserConfigurationException,
-			TransformerException, IOException {
+  public static void write(Path dest, List<Map<Gmm, Double>> gmmMapList, List<Double> cutoffList,
+      double[] uncValues, double[] uncWeights) throws ParserConfigurationException,
+      TransformerException, IOException {
 
-		// uncValues and uncWeights may be null
-		
-		checkArgument(gmmMapList.size() == cutoffList.size());
-		
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    // uncValues and uncWeights may be null
 
-		// root element
-		Document doc = docBuilder.newDocument();
-		doc.setXmlStandalone(true);
-		Element root = doc.createElement(GROUND_MOTION_MODELS.toString());
-		doc.appendChild(root);
-		
-		if (uncValues != null) {
-			Element unc = addElement(UNCERTAINTY, root);
-			addAttribute(VALUES, uncValues, unc);
-			addAttribute(WEIGHTS, uncWeights, unc);
-		}
+    checkArgument(gmmMapList.size() == cutoffList.size());
 
-		int count = 0;
-		for (Map<Gmm, Double> gmmMap : gmmMapList) {
-			Element gmmSetElem = addElement(MODEL_SET, root);
-			addAttribute(MAX_DISTANCE, cutoffList.get(count++), gmmSetElem);
-			for (Entry<Gmm, Double> entry : gmmMap.entrySet()) {
-				Element gmmElem = addElement(MODEL, gmmSetElem);
-				addAttribute(ID, entry.getKey().name(), gmmElem);
-				addAttribute(WEIGHT, entry.getValue(), gmmElem);
-			}
-		}
+    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
-		// write the content to xml file
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer trans = transformerFactory.newTransformer();
-		trans.setOutputProperty(OutputKeys.INDENT, "yes");
-		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
-		DOMSource source = new DOMSource(doc);
-		Files.createDirectories(dest.getParent());
-		StreamResult result = new StreamResult(Files.newOutputStream(dest));
-		trans.transform(source, result);
-	}
+    // root element
+    Document doc = docBuilder.newDocument();
+    doc.setXmlStandalone(true);
+    Element root = doc.createElement(GROUND_MOTION_MODELS.toString());
+    doc.appendChild(root);
+
+    if (uncValues != null) {
+      Element unc = addElement(UNCERTAINTY, root);
+      addAttribute(VALUES, uncValues, unc);
+      addAttribute(WEIGHTS, uncWeights, unc);
+    }
+
+    int count = 0;
+    for (Map<Gmm, Double> gmmMap : gmmMapList) {
+      Element gmmSetElem = addElement(MODEL_SET, root);
+      addAttribute(MAX_DISTANCE, cutoffList.get(count++), gmmSetElem);
+      for (Entry<Gmm, Double> entry : gmmMap.entrySet()) {
+        Element gmmElem = addElement(MODEL, gmmSetElem);
+        addAttribute(ID, entry.getKey().name(), gmmElem);
+        addAttribute(WEIGHT, entry.getValue(), gmmElem);
+      }
+    }
+
+    // write the content to xml file
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    Transformer trans = transformerFactory.newTransformer();
+    trans.setOutputProperty(OutputKeys.INDENT, "yes");
+    trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    trans.setOutputProperty(OutputKeys.STANDALONE, "yes");
+    DOMSource source = new DOMSource(doc);
+    Files.createDirectories(dest.getParent());
+    StreamResult result = new StreamResult(Files.newOutputStream(dest));
+    trans.transform(source, result);
+  }
 
 }

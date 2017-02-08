@@ -20,45 +20,45 @@ import com.google.common.io.Resources;
  */
 class SourceFile {
 
-	SourceRegion region;
-	SourceType type;
-	URL url;
-	double weight;
-	String name;
+  SourceRegion region;
+  SourceType type;
+  URL url;
+  double weight;
+  String name;
 
-	SourceFile(URL url, SourceRegion region, SourceType type, double weight) {
-		this.url = url;
-		this.region = region;
-		this.type = type;
-		this.weight = weight;
-		String urlStr = url.toString();
-		name = urlStr.substring(urlStr.lastIndexOf('/') + 1);
-	}
+  SourceFile(URL url, SourceRegion region, SourceType type, double weight) {
+    this.url = url;
+    this.region = region;
+    this.type = type;
+    this.weight = weight;
+    String urlStr = url.toString();
+    name = urlStr.substring(urlStr.lastIndexOf('/') + 1);
+  }
 
-	@Override
-	public String toString() {
-		return new StringBuffer(Strings.padEnd(region.toString(), 24, ' '))
-			.append(Strings.padEnd(type.toString(), 12, ' '))
-			.append(Strings.padEnd(String.format("%.7f", weight), 11, ' '))
-			.append(name).toString();
-	}
-	
-	/*
-	 * Returns a line Iterable that ignores trailing comments
-	 * that start with '!'.
-	 */
-	Iterator<String> lineIterator() throws IOException {
-		return Iterables.transform(
-			Resources.readLines(url, StandardCharsets.US_ASCII),
-			CommentStripper.INSTANCE).iterator();
-	}
-	
-	private enum CommentStripper implements Function<String, String> {
-		INSTANCE;
-		@Override public String apply(String s) {
-			int idx = s.indexOf('!');
-			return idx != -1 ? s.substring(0, idx) : s;
-		}
-	}
+  @Override
+  public String toString() {
+    return new StringBuffer(Strings.padEnd(region.toString(), 24, ' '))
+        .append(Strings.padEnd(type.toString(), 12, ' '))
+        .append(Strings.padEnd(String.format("%.7f", weight), 11, ' '))
+        .append(name).toString();
+  }
+
+  /*
+   * Returns a line Iterable that ignores trailing comments that start with '!'.
+   */
+  Iterator<String> lineIterator() throws IOException {
+    return Iterables.transform(
+        Resources.readLines(url, StandardCharsets.US_ASCII),
+        CommentStripper.INSTANCE).iterator();
+  }
+
+  private enum CommentStripper implements Function<String, String> {
+    INSTANCE;
+    @Override
+    public String apply(String s) {
+      int idx = s.indexOf('!');
+      return idx != -1 ? s.substring(0, idx) : s;
+    }
+  }
 
 }

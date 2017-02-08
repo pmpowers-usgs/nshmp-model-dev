@@ -52,10 +52,10 @@ class SystemCreator {
   static final Path OUT_DIR = Paths.get("models/AK2007/System/");
   static final String SECTION_XML_OUT = "fault_sections.xml";
   static final String RUPTURES_XML_OUT = "fault_ruptures.xml";
-  
+
   static final String CASTLE_MTN_NAME = "Castle Mountain Fault";
   static final String DENALI_TOTSCHUNDA_NAME = "Denali – Totschunda System";
-  
+
   static final String REF = "AKF2.out_revF.in, AKF3.out_revF.in";
 
   public static void main(String[] args) throws Exception {
@@ -67,11 +67,12 @@ class SystemCreator {
     writeRuptures(DENALI_TOTSCHUNDA_NAME + " (CE)", -1, 1.0, REF, DENALI_CENTER_EAST_RUPTURES);
 
     writeSections(DENALI_TOTSCHUNDA_NAME + " (CT)", REF, DENALI_CENTER_TOTSCHUNDA_SECTIONS);
-    writeRuptures(DENALI_TOTSCHUNDA_NAME + " (CT)", -1, 1.0, REF, DENALI_CENTER_TOTSCHUNDA_RUPTURES);
-    
+    writeRuptures(DENALI_TOTSCHUNDA_NAME + " (CT)", -1, 1.0, REF,
+        DENALI_CENTER_TOTSCHUNDA_RUPTURES);
+
     writeSections(DENALI_TOTSCHUNDA_NAME, REF, DENALI_TOTSCHUNDA_SECTIONS);
     writeRuptures(DENALI_TOTSCHUNDA_NAME, -1, 1.0, REF, DENALI_TOTSCHUNDA_RUPTURES);
-    
+
   }
 
   static void writeSections(

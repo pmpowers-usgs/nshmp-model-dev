@@ -93,41 +93,41 @@ import com.google.common.primitives.Doubles;
  */
 public class SystemGridConverter {
 
-	private static final String GRID_XML = "grid_sources.xml";
-	private static final String GRID_BIN = "grid_sources.bin";
+  private static final String GRID_XML = "grid_sources.xml";
+  private static final String GRID_BIN = "grid_sources.bin";
 
-	private static final Region CA_REGION;
+  private static final Region CA_REGION;
 
-	// Using strings for grid mag MFD parsing because of printed rounding errors
-	// in source files
-	private static final double[] mags;
-	private static final Set<String> magStrSet;
-	private static double[] fracStrikeSlip;
-	private static double[] fracNormal;
-	private static double[] fracReverse;
-	private static Map<FocalMech, Double> defaultMechMap;
+  // Using strings for grid mag MFD parsing because of printed rounding errors
+  // in source files
+  private static final double[] mags;
+  private static final Set<String> magStrSet;
+  private static double[] fracStrikeSlip;
+  private static double[] fracNormal;
+  private static double[] fracReverse;
+  private static Map<FocalMech, Double> defaultMechMap;
 
-	static {
-		mags = Data.buildSequence(5.05, 7.85, 0.1, true);
-		magStrSet = ImmutableSet.copyOf(FluentIterable.from(Doubles.asList(mags))
-			.transform(Parsing.formatDoubleFunction("%.2f")).toList());
-		try {
-			fracStrikeSlip = readFocalMechs("StrikeSlipWts.txt");
-			fracNormal = readFocalMechs("NormalWts.txt");
-			fracReverse = readFocalMechs("ReverseWts.txt");
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+  static {
+    mags = Data.buildSequence(5.05, 7.85, 0.1, true);
+    magStrSet = ImmutableSet.copyOf(FluentIterable.from(Doubles.asList(mags))
+        .transform(Parsing.formatDoubleFunction("%.2f")).toList());
+    try {
+      fracStrikeSlip = readFocalMechs("StrikeSlipWts.txt");
+      fracNormal = readFocalMechs("NormalWts.txt");
+      fracReverse = readFocalMechs("ReverseWts.txt");
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
 
-		// this is unused but added to <SourceProperties> for consistency
-		// with other grid sources that require it; mechs can be overridden
-		// in each <Node>
-		defaultMechMap = new EnumMap<>(FocalMech.class);
-		defaultMechMap.put(STRIKE_SLIP, 0.334);
-		defaultMechMap.put(REVERSE, 0.333);
-		defaultMechMap.put(NORMAL, 0.333);
+    // this is unused but added to <SourceProperties> for consistency
+    // with other grid sources that require it; mechs can be overridden
+    // in each <Node>
+    defaultMechMap = new EnumMap<>(FocalMech.class);
+    defaultMechMap.put(STRIKE_SLIP, 0.334);
+    defaultMechMap.put(REVERSE, 0.333);
+    defaultMechMap.put(NORMAL, 0.333);
 
-		//@formatter:off
+    //@formatter:off
 		LocationList border = LocationList.create(
 			Location.create(39.000, -119.999),
 			Location.create(35.000, -114.635),

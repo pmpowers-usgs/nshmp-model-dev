@@ -11,36 +11,37 @@ package gov.usgs.earthquake.nshm.util;
  */
 public enum FaultCode {
 
-	/** Do not use finite sources */
-	OFF(0),
+  /** Do not use finite sources */
+  OFF(0),
 
-	/** Use finite sources for M&ge;6. */
-	ON(1),
+  /** Use finite sources for M&ge;6. */
+  ON(1),
 
-	/** Use finite sources with fixed strike for M&ge;6. */
-	FIXED(2),
+  /** Use finite sources with fixed strike for M&ge;6. */
+  FIXED(2),
 
-	/** Use finite sources for M&ge;6 with Johston mblg to Mw converter. */
-	M_CONV_J(3),
+  /** Use finite sources for M&ge;6 with Johston mblg to Mw converter. */
+  M_CONV_J(3),
 
-	/**
-	 * Use finite sources for M&ge;6 with Atkinson and Booore mblg to Mw
-	 * converter.
-	 */
-	M_CONV_AB(4),
-	
-	LONG_HEADER(20);
-	
-	private int id;
-	private FaultCode(int id) {
-		this.id = id;
-	}
+  /**
+   * Use finite sources for M&ge;6 with Atkinson and Booore mblg to Mw
+   * converter.
+   */
+  M_CONV_AB(4),
 
-	public static FaultCode typeForID(int id) {
-		for (FaultCode ff : FaultCode.values()) {
-			if (ff.id == id) return ff;
-		}
-		return null;
-	}
+  LONG_HEADER(20);
+
+  private int id;
+
+  private FaultCode(int id) {
+    this.id = id;
+  }
+
+  public static FaultCode typeForID(int id) {
+    for (FaultCode ff : FaultCode.values()) {
+      if (ff.id == id) return ff;
+    }
+    return null;
+  }
 
 }

@@ -545,7 +545,7 @@ public class VariableSlipUtil {
   }
 
   private static List<Rupture> combineRuptures(List<Rupture> a, List<Rupture> b) {
-    
+
     /* create indices to rupture map with rupture copies */
     Map<String, Rupture> aMap = FluentIterable
         .from(a)
@@ -553,7 +553,8 @@ public class VariableSlipUtil {
           @Override
           public Rupture apply(Rupture rupture) {
             return rupture.copy();
-          }})
+          }
+        })
         .uniqueIndex(new Function<Rupture, String>() {
           @Override
           public String apply(Rupture rupture) {

@@ -70,389 +70,389 @@ import com.google.common.primitives.Doubles;
  */
 class SystemFaultConverter {
 
-	static final String SECTION_XML_IN = "fault_sections.xml";
-	static final String SECTION_XML_OUT = SECTION_XML_IN;
-	static final String RUPTURES_XML_OUT = "fault_ruptures.xml";
+  static final String SECTION_XML_IN = "fault_sections.xml";
+  static final String SECTION_XML_OUT = SECTION_XML_IN;
+  static final String RUPTURES_XML_OUT = "fault_ruptures.xml";
 
-	static final String RUPTURES_BIN_IN = "rup_sections.bin";
-	static final String MAGS_BIN_IN = "mags.bin";
-	static final String RATES_BIN_IN = "rates.bin";
-	static final String RAKES_BIN_IN = "rakes.bin";
+  static final String RUPTURES_BIN_IN = "rup_sections.bin";
+  static final String MAGS_BIN_IN = "mags.bin";
+  static final String RATES_BIN_IN = "rates.bin";
+  static final String RAKES_BIN_IN = "rakes.bin";
 
-	private SystemFaultConverter() {};
+  private SystemFaultConverter() {};
 
-	static SystemFaultConverter create() {
-		SystemFaultConverter ifc = new SystemFaultConverter();
-		return ifc;
-	}
+  static SystemFaultConverter create() {
+    SystemFaultConverter ifc = new SystemFaultConverter();
+    return ifc;
+  }
 
-	void process(Path solPath, Path outDir, UC3_Filter filter)
-			throws IOException, ParserConfigurationException, SAXException, TransformerException {
+  void process(Path solPath, Path outDir, UC3_Filter filter)
+      throws IOException, ParserConfigurationException, SAXException, TransformerException {
 
-		String solName = solPath.getFileName().toString();
-		solName = solName.substring(0, solName.lastIndexOf('.'));
-		Path brAvgId = solPath.getParent().getFileName();
-		Path solDir = outDir.resolve(brAvgId).resolve(SYSTEM.toString()).resolve(solName);
-		Files.createDirectories(solDir);
+    String solName = solPath.getFileName().toString();
+    solName = solName.substring(0, solName.lastIndexOf('.'));
+    Path brAvgId = solPath.getParent().getFileName();
+    Path solDir = outDir.resolve(brAvgId).resolve(SYSTEM.toString()).resolve(solName);
+    Files.createDirectories(solDir);
 
-		ZipFile zip = new ZipFile(solPath.toString());
+    ZipFile zip = new ZipFile(solPath.toString());
 
-		double weight = SystemConverter.computeWeight(solName);
-		
-		System.out.println("");
-		System.out.println("  Solution file: " + zip.getName());
+    double weight = SystemConverter.computeWeight(solName);
+
+    System.out.println("");
+    System.out.println("  Solution file: " + zip.getName());
     System.out.println("         Filter: " + filter);
-		System.out.println("         Weight: " + weight);
-		
-		// section XML
-		File sectionsOut = solDir.resolve(SECTION_XML_OUT).toFile();
-		ZipEntry sectionsEntry = zip.getEntry(SECTION_XML_IN);
-		SectionData sectData = processSections(zip.getInputStream(sectionsEntry), sectionsOut,
-			solName);
+    System.out.println("         Weight: " + weight);
 
-		// rupture XML -- the file reading below assumes files smaller
-		// than 4G per... (int) magsEntry.getSize()
-		ZipEntry magsEntry = zip.getEntry(MAGS_BIN_IN);
-		List<Double> rupMags = Parsing.readBinaryDoubleList(zip.getInputStream(magsEntry),
-			(int) magsEntry.getSize());
-		System.out.println("      Mags file: " + rupMags.size());
-		ZipEntry ratesEntry = zip.getEntry(RATES_BIN_IN);
-		List<Double> rupRates = Parsing.readBinaryDoubleList(zip.getInputStream(ratesEntry),
-			(int) ratesEntry.getSize());
-		System.out.println("     Rates file: " + rupRates.size());
-		ZipEntry rakesEntry = zip.getEntry(RAKES_BIN_IN);
-		List<Double> rupRakes = Parsing.readBinaryDoubleList(zip.getInputStream(rakesEntry),
-			(int) rakesEntry.getSize());
-		System.out.println("     Rakes file: " + rupRakes.size());
-		ZipEntry rupsEntry = zip.getEntry(RUPTURES_BIN_IN);
-		List<List<Integer>> rupIndices = Parsing.readBinaryIntLists(zip.getInputStream(rupsEntry));
-		System.out.println("   Indices file: " + rupIndices.size());
-		File rupsOut = solDir.resolve(RUPTURES_XML_OUT).toFile();
+    // section XML
+    File sectionsOut = solDir.resolve(SECTION_XML_OUT).toFile();
+    ZipEntry sectionsEntry = zip.getEntry(SECTION_XML_IN);
+    SectionData sectData = processSections(zip.getInputStream(sectionsEntry), sectionsOut,
+        solName);
 
-		// build rupture fields that require building indexed surfaces
-		System.out.println("Building averaged rupture data ...");
-		sectData.buildRuptureData(rupIndices);
-		List<Double> rupDips = Doubles.asList(sectData.rupDips);
-		List<Double> rupDepths = Doubles.asList(sectData.rupDepths);
-		List<Double> rupWidths = Doubles.asList(sectData.rupWidths);
-		System.out.println(" Fault ruptures: " + rupDips.size());
+    // rupture XML -- the file reading below assumes files smaller
+    // than 4G per... (int) magsEntry.getSize()
+    ZipEntry magsEntry = zip.getEntry(MAGS_BIN_IN);
+    List<Double> rupMags = Parsing.readBinaryDoubleList(zip.getInputStream(magsEntry),
+        (int) magsEntry.getSize());
+    System.out.println("      Mags file: " + rupMags.size());
+    ZipEntry ratesEntry = zip.getEntry(RATES_BIN_IN);
+    List<Double> rupRates = Parsing.readBinaryDoubleList(zip.getInputStream(ratesEntry),
+        (int) ratesEntry.getSize());
+    System.out.println("     Rates file: " + rupRates.size());
+    ZipEntry rakesEntry = zip.getEntry(RAKES_BIN_IN);
+    List<Double> rupRakes = Parsing.readBinaryDoubleList(zip.getInputStream(rakesEntry),
+        (int) rakesEntry.getSize());
+    System.out.println("     Rakes file: " + rupRakes.size());
+    ZipEntry rupsEntry = zip.getEntry(RUPTURES_BIN_IN);
+    List<List<Integer>> rupIndices = Parsing.readBinaryIntLists(zip.getInputStream(rupsEntry));
+    System.out.println("   Indices file: " + rupIndices.size());
+    File rupsOut = solDir.resolve(RUPTURES_XML_OUT).toFile();
 
-		processRuptures(rupIndices, rupMags, rupRates, rupRakes, rupDips, rupWidths, rupDepths,
-			solName, rupsOut, weight, filter);
+    // build rupture fields that require building indexed surfaces
+    System.out.println("Building averaged rupture data ...");
+    sectData.buildRuptureData(rupIndices);
+    List<Double> rupDips = Doubles.asList(sectData.rupDips);
+    List<Double> rupDepths = Doubles.asList(sectData.rupDepths);
+    List<Double> rupWidths = Doubles.asList(sectData.rupWidths);
+    System.out.println(" Fault ruptures: " + rupDips.size());
 
-		zip.close();
-	}
+    processRuptures(rupIndices, rupMags, rupRates, rupRakes, rupDips, rupWidths, rupDepths,
+        solName, rupsOut, weight, filter);
 
-	/*
-	 * Consolidates rupture indices, mag, rate, and rake data into single XML
-	 * file. Filters out ruptures with rate = 0.
-	 */
-	private void processRuptures(List<List<Integer>> rupIndices, List<Double> mags,
-			List<Double> rates, List<Double> rakes, List<Double> dips, List<Double> widths,
-			List<Double> depths, String id, File out, double weight, UC3_Filter filter)
-			throws ParserConfigurationException, TransformerException {
+    zip.close();
+  }
 
-		int rupSize = rupIndices.size();
-		checkSize(depths, rupSize, "depths");
-		checkSize(dips, rupSize, "dips");
-		checkSize(mags, rupSize, "mags");
-		checkSize(rakes, rupSize, "rakes");
-		checkSize(rates, rupSize, "rates");
-		checkSize(widths, rupSize, "widths");
+  /*
+   * Consolidates rupture indices, mag, rate, and rake data into single XML
+   * file. Filters out ruptures with rate = 0.
+   */
+  private void processRuptures(List<List<Integer>> rupIndices, List<Double> mags,
+      List<Double> rates, List<Double> rakes, List<Double> dips, List<Double> widths,
+      List<Double> depths, String id, File out, double weight, UC3_Filter filter)
+      throws ParserConfigurationException, TransformerException {
 
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.newDocument();
-		Element root = doc.createElement(SYSTEM_SOURCE_SET.toString());
-		doc.appendChild(root);
-		addAttribute(NAME, id, root);
-		addAttribute(WEIGHT, weight, root);
-		addAttribute(ID, -1, root);
-		Converter.addDisclaimer(root);
-		addComment(" Reference: " + id + " ", root);
-		addComment(" Description: " + nameToDescription(id), root);
+    int rupSize = rupIndices.size();
+    checkSize(depths, rupSize, "depths");
+    checkSize(dips, rupSize, "dips");
+    checkSize(mags, rupSize, "mags");
+    checkSize(rakes, rupSize, "rakes");
+    checkSize(rates, rupSize, "rates");
+    checkSize(widths, rupSize, "widths");
 
-		// settings and defaults
-		Element settings = addElement(SETTINGS, root);
-		Element mfdRef = addElement(DEFAULT_MFDS, settings);
-		CH_Data refCH = CH_Data.create(6.5, 0.0, 1.0, false);
-		refCH.appendTo(mfdRef, null);
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    Document doc = dBuilder.newDocument();
+    Element root = doc.createElement(SYSTEM_SOURCE_SET.toString());
+    doc.appendChild(root);
+    addAttribute(NAME, id, root);
+    addAttribute(WEIGHT, weight, root);
+    addAttribute(ID, -1, root);
+    Converter.addDisclaimer(root);
+    addComment(" Reference: " + id + " ", root);
+    addComment(" Description: " + nameToDescription(id), root);
 
-		int zeroRate = 0;
-		int nonZeroRate = 0;
-		int uc3filter = 0;
-		for (int i = 0; i < rupIndices.size(); i++) {
-			double rate = rates.get(i);
-			if (rate == 0.0) {
-				zeroRate++;
-				continue;
-			}
-			if (filter.filter(rupIndices.get(i))) {
-				uc3filter++;
-				continue;
-			}
-			Element sourceElem = addElement(SOURCE, root);
-			double mag = mags.get(i);
-			double scaledRate = SystemAftershockFilter.scaleFaultRate(mag, rate);
-			CH_Data mfdData = CH_Data.create(mag, scaledRate, 1.0, false);
-			mfdData.appendTo(sourceElem, refCH);
-			Element geom = addElement(GEOMETRY, sourceElem);
+    // settings and defaults
+    Element settings = addElement(SETTINGS, root);
+    Element mfdRef = addElement(DEFAULT_MFDS, settings);
+    CH_Data refCH = CH_Data.create(6.5, 0.0, 1.0, false);
+    refCH.appendTo(mfdRef, null);
 
-			addAttribute(DIP, dips.get(i), "%.1f", geom);
-			addAttribute(INDICES, Parsing.intListToRangeString(rupIndices.get(i)), geom);
-			addAttribute(WIDTH, widths.get(i), "%.3f", geom);
-			addAttribute(DEPTH, depths.get(i), "%.3f", geom);
-			addAttribute(RAKE, rakes.get(i), "%.1f", geom);
-			nonZeroRate++;
-		}
-		System.out.println("      Zero rate: " + zeroRate);
-		System.out.println("   UC3 Filtered: " + uc3filter);
-		System.out.println("  Positive rate: " + nonZeroRate);
-		checkState(zeroRate + nonZeroRate + uc3filter == rupIndices.size());
+    int zeroRate = 0;
+    int nonZeroRate = 0;
+    int uc3filter = 0;
+    for (int i = 0; i < rupIndices.size(); i++) {
+      double rate = rates.get(i);
+      if (rate == 0.0) {
+        zeroRate++;
+        continue;
+      }
+      if (filter.filter(rupIndices.get(i))) {
+        uc3filter++;
+        continue;
+      }
+      Element sourceElem = addElement(SOURCE, root);
+      double mag = mags.get(i);
+      double scaledRate = SystemAftershockFilter.scaleFaultRate(mag, rate);
+      CH_Data mfdData = CH_Data.create(mag, scaledRate, 1.0, false);
+      mfdData.appendTo(sourceElem, refCH);
+      Element geom = addElement(GEOMETRY, sourceElem);
 
-		TransformerFactory transFactory = TransformerFactory.newInstance();
-		Transformer trans = transFactory.newTransformer();
-		trans.setOutputProperty(OutputKeys.INDENT, "yes");
-		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(out);
-		trans.transform(source, result);
-	}
+      addAttribute(DIP, dips.get(i), "%.1f", geom);
+      addAttribute(INDICES, Parsing.intListToRangeString(rupIndices.get(i)), geom);
+      addAttribute(WIDTH, widths.get(i), "%.3f", geom);
+      addAttribute(DEPTH, depths.get(i), "%.3f", geom);
+      addAttribute(RAKE, rakes.get(i), "%.1f", geom);
+      nonZeroRate++;
+    }
+    System.out.println("      Zero rate: " + zeroRate);
+    System.out.println("   UC3 Filtered: " + uc3filter);
+    System.out.println("  Positive rate: " + nonZeroRate);
+    checkState(zeroRate + nonZeroRate + uc3filter == rupIndices.size());
 
-	private static void checkSize(List<Double> data, int target, String id) {
-		checkArgument(data.size() == target, "%s size mismatch [%s, %s]", id, target, data.size());
-	}
+    TransformerFactory transFactory = TransformerFactory.newInstance();
+    Transformer trans = transFactory.newTransformer();
+    trans.setOutputProperty(OutputKeys.INDENT, "yes");
+    trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    DOMSource source = new DOMSource(doc);
+    StreamResult result = new StreamResult(out);
+    trans.transform(source, result);
+  }
 
-	/*
-	 * Simplifies fault system solution section XML - preserves dip dir from
-	 * splitting of parent faults
-	 */
-	private SectionData processSections(InputStream in, File out, String id)
-			throws ParserConfigurationException, SAXException, IOException, TransformerException {
+  private static void checkSize(List<Double> data, int target, String id) {
+    checkArgument(data.size() == target, "%s size mismatch [%s, %s]", id, target, data.size());
+  }
 
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document docIn = dBuilder.parse(in);
-		docIn.getDocumentElement().normalize();
+  /*
+   * Simplifies fault system solution section XML - preserves dip dir from
+   * splitting of parent faults
+   */
+  private SectionData processSections(InputStream in, File out, String id)
+      throws ParserConfigurationException, SAXException, IOException, TransformerException {
 
-		// file out
-		Document docOut = dBuilder.newDocument();
-		Element root = docOut.createElement(SYSTEM_FAULT_SECTIONS.toString());
-		addAttribute(NAME, id, root);
-		Converter.addDisclaimer(root);
-		addComment(" Reference: " + id + " ", root);
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+    Document docIn = dBuilder.parse(in);
+    docIn.getDocumentElement().normalize();
 
-		docOut.appendChild(root);
+    // file out
+    Document docOut = dBuilder.newDocument();
+    Element root = docOut.createElement(SYSTEM_FAULT_SECTIONS.toString());
+    addAttribute(NAME, id, root);
+    Converter.addDisclaimer(root);
+    addComment(" Reference: " + id + " ", root);
 
-		// file in
-		Element rootIn = docIn.getDocumentElement();
-		NodeList sectsIn = ((Element) rootIn.getElementsByTagName("FaultSectionPrefDataList").item(
-			0)).getChildNodes();
+    docOut.appendChild(root);
 
-		// init data collectors
-		SectionData data = new SectionData(sectsIn.getLength());
+    // file in
+    Element rootIn = docIn.getDocumentElement();
+    NodeList sectsIn = ((Element) rootIn.getElementsByTagName("FaultSectionPrefDataList").item(
+        0)).getChildNodes();
 
-		for (int i = 0; i < sectsIn.getLength(); i++) {
-			Node node = sectsIn.item(i);
-			if (!(node instanceof Element)) continue;
-			Element sectIn = (Element) node;
-			LocationList trace = readTrace((Element) sectIn.getElementsByTagName("FaultTrace")
-				.item(0));
+    // init data collectors
+    SectionData data = new SectionData(sectsIn.getLength());
 
-			// add to out
-			Element sectOut = addElement(SECTION, root);
-			String sectName = sectIn.getAttribute("sectionName");
-			addAttribute(NAME, sectName, sectOut);
-			String sectIdx = sectIn.getAttribute("sectionId");
-			addAttribute(INDEX, sectIdx, sectOut);
-			Element geomOut = addElement(GEOMETRY, sectOut);
+    for (int i = 0; i < sectsIn.getLength(); i++) {
+      Node node = sectsIn.item(i);
+      if (!(node instanceof Element)) continue;
+      Element sectIn = (Element) node;
+      LocationList trace = readTrace((Element) sectIn.getElementsByTagName("FaultTrace")
+          .item(0));
 
-			double dip = Double.valueOf(sectIn.getAttribute("aveDip"));
-			addAttribute(DIP, dip, "%.1f", geomOut);
-			data.dips.add(dip);
+      // add to out
+      Element sectOut = addElement(SECTION, root);
+      String sectName = sectIn.getAttribute("sectionName");
+      addAttribute(NAME, sectName, sectOut);
+      String sectIdx = sectIn.getAttribute("sectionId");
+      addAttribute(INDEX, sectIdx, sectOut);
+      Element geomOut = addElement(GEOMETRY, sectOut);
 
-			double dipDir = Double.valueOf(sectIn.getAttribute("dipDirection"));
-			addAttribute(DIP_DIR, dipDir, "%.3f", geomOut);
-			data.dipDirs.add(dipDir);
+      double dip = Double.valueOf(sectIn.getAttribute("aveDip"));
+      addAttribute(DIP, dip, "%.1f", geomOut);
+      data.dips.add(dip);
 
-			double depth = Double.valueOf(sectIn.getAttribute("aveUpperDepth"));
-			addAttribute(DEPTH, depth, "%.5f", geomOut);
-			data.depths.add(depth);
+      double dipDir = Double.valueOf(sectIn.getAttribute("dipDirection"));
+      addAttribute(DIP_DIR, dipDir, "%.3f", geomOut);
+      data.dipDirs.add(dipDir);
 
-			double lowerDepth = Double.valueOf(sectIn.getAttribute("aveLowerDepth"));
-			addAttribute(LOWER_DEPTH, lowerDepth, "%.5f", geomOut);
-			data.lowerDepths.add(lowerDepth);
+      double depth = Double.valueOf(sectIn.getAttribute("aveUpperDepth"));
+      addAttribute(DEPTH, depth, "%.5f", geomOut);
+      data.depths.add(depth);
 
-			double aseis = Double.valueOf(sectIn.getAttribute("aseismicSlipFactor"));
-			addAttribute(ASEIS, aseis, "%.4f", geomOut);
-			data.aseises.add(aseis);
+      double lowerDepth = Double.valueOf(sectIn.getAttribute("aveLowerDepth"));
+      addAttribute(LOWER_DEPTH, lowerDepth, "%.5f", geomOut);
+      data.lowerDepths.add(lowerDepth);
 
-			// Section rakes are of no consequence as rupture rakes are read
-			// from a file. These are presumably correctly area-weight averaged
-			// as dips are when building ruptures and (TODO) in the future
-			// should probably be computed the same way -- leaving consistent
-			// with OpenSHA implementation for now
+      double aseis = Double.valueOf(sectIn.getAttribute("aseismicSlipFactor"));
+      addAttribute(ASEIS, aseis, "%.4f", geomOut);
+      data.aseises.add(aseis);
 
-			Element traceOut = addElement(TRACE, geomOut);
-			traceOut.setTextContent(trace.toString());
-			data.traces.add(trace);
+      // Section rakes are of no consequence as rupture rakes are read
+      // from a file. These are presumably correctly area-weight averaged
+      // as dips are when building ruptures and (TODO) in the future
+      // should probably be computed the same way -- leaving consistent
+      // with OpenSHA implementation for now
 
-			// System.out.println("        Section: [" + sectIdx + "] " +
-			// sectName);
-		}
+      Element traceOut = addElement(TRACE, geomOut);
+      traceOut.setTextContent(trace.toString());
+      data.traces.add(trace);
 
-		TransformerFactory transFactory = TransformerFactory.newInstance();
-		Transformer trans = transFactory.newTransformer();
-		trans.setOutputProperty(OutputKeys.INDENT, "yes");
-		trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		DOMSource source = new DOMSource(docOut);
-		StreamResult result = new StreamResult(out);
-		trans.transform(source, result);
+      // System.out.println(" Section: [" + sectIdx + "] " +
+      // sectName);
+    }
 
-		System.out.println(" Fault sections: " + data.traces.size());
+    TransformerFactory transFactory = TransformerFactory.newInstance();
+    Transformer trans = transFactory.newTransformer();
+    trans.setOutputProperty(OutputKeys.INDENT, "yes");
+    trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    DOMSource source = new DOMSource(docOut);
+    StreamResult result = new StreamResult(out);
+    trans.transform(source, result);
 
-		return data;
-	}
+    System.out.println(" Fault sections: " + data.traces.size());
 
-	/*
-	 * Wrapper class for section data. Class is used to build section surfaces
-	 * and then build multi-section surfaces for each rupture to derive
-	 * (area-weight-averaged) rupture depths, widths, and dips.
-	 */
-	static class SectionData {
+    return data;
+  }
 
-		final List<Double> dips;
-		final List<Double> dipDirs;
-		final List<Double> depths;
-		final List<Double> lowerDepths;
-		final List<Double> aseises;
-		final List<LocationList> traces;
+  /*
+   * Wrapper class for section data. Class is used to build section surfaces and
+   * then build multi-section surfaces for each rupture to derive
+   * (area-weight-averaged) rupture depths, widths, and dips.
+   */
+  static class SectionData {
 
-		// rupture data lists
-		double[] rupDepths;
-		double[] rupWidths;
-		double[] rupDips;
+    final List<Double> dips;
+    final List<Double> dipDirs;
+    final List<Double> depths;
+    final List<Double> lowerDepths;
+    final List<Double> aseises;
+    final List<LocationList> traces;
 
-		SectionData(int size) {
-			dips = Lists.newArrayListWithCapacity(size);
-			dipDirs = Lists.newArrayListWithCapacity(size);
-			depths = Lists.newArrayListWithCapacity(size);
-			lowerDepths = Lists.newArrayListWithCapacity(size);
-			aseises = Lists.newArrayListWithCapacity(size);
-			traces = Lists.newArrayListWithCapacity(size);
-		}
+    // rupture data lists
+    double[] rupDepths;
+    double[] rupWidths;
+    double[] rupDips;
 
-		void buildRuptureData(List<List<Integer>> indicesList) {
+    SectionData(int size) {
+      dips = Lists.newArrayListWithCapacity(size);
+      dipDirs = Lists.newArrayListWithCapacity(size);
+      depths = Lists.newArrayListWithCapacity(size);
+      lowerDepths = Lists.newArrayListWithCapacity(size);
+      aseises = Lists.newArrayListWithCapacity(size);
+      traces = Lists.newArrayListWithCapacity(size);
+    }
 
-			// create sesction list
-			List<GriddedSurface> sections = Lists.newArrayList();
-			for (int i = 0; i < traces.size(); i++) {
-				// corrected depth
-				double depth = depths.get(i) +
-					(aseises.get(i) * (lowerDepths.get(i) - depths.get(i)));
-				DefaultGriddedSurface surface = DefaultGriddedSurface.builder()
-					.trace(traces.get(i)).depth(depth).dip(dips.get(i)).dipDir(dipDirs.get(i))
-					.lowerDepth(lowerDepths.get(i)).build();
-				sections.add(surface);
-			}
+    void buildRuptureData(List<List<Integer>> indicesList) {
 
-			// create IndexedFaultSurfaces from section lists
+      // create sesction list
+      List<GriddedSurface> sections = Lists.newArrayList();
+      for (int i = 0; i < traces.size(); i++) {
+        // corrected depth
+        double depth = depths.get(i) +
+            (aseises.get(i) * (lowerDepths.get(i) - depths.get(i)));
+        DefaultGriddedSurface surface = DefaultGriddedSurface.builder()
+            .trace(traces.get(i)).depth(depth).dip(dips.get(i)).dipDir(dipDirs.get(i))
+            .lowerDepth(lowerDepths.get(i)).build();
+        sections.add(surface);
+      }
 
-			int size = indicesList.size();
-			rupDepths = new double[size];
-			rupWidths = new double[size];
-			rupDips = new double[size];
+      // create IndexedFaultSurfaces from section lists
 
-			int count = 0;
-			for (List<Integer> indices : indicesList) {
-				SystemFaultSurface ifs = createIndexedSurface(sections, indices);
-				rupDepths[count] = ifs.rupDepth();
-				rupWidths[count] = ifs.rupWidth();
-				rupDips[count] = ifs.rupDip();
-				if (count % 50000 == 0) {
-					System.out.println("      completed: " + count);
-				}
-				count++;
-			}
-		}
-	}
+      int size = indicesList.size();
+      rupDepths = new double[size];
+      rupWidths = new double[size];
+      rupDips = new double[size];
 
-	private static SystemFaultSurface createIndexedSurface(List<GriddedSurface> sections,
-			List<Integer> indices) {
+      int count = 0;
+      for (List<Integer> indices : indicesList) {
+        SystemFaultSurface ifs = createIndexedSurface(sections, indices);
+        rupDepths[count] = ifs.rupDepth();
+        rupWidths[count] = ifs.rupWidth();
+        rupDips[count] = ifs.rupDip();
+        if (count % 50000 == 0) {
+          System.out.println("      completed: " + count);
+        }
+        count++;
+      }
+    }
+  }
 
-		List<GriddedSurface> rupSections = Lists.newArrayList();
-		for (int i : indices) {
-			rupSections.add(sections.get(i));
-		}
-		return new SystemFaultSurface(rupSections);
-	}
+  private static SystemFaultSurface createIndexedSurface(List<GriddedSurface> sections,
+      List<Integer> indices) {
 
-	private static LocationList readTrace(Element trace) {
-		NodeList locNodes = trace.getElementsByTagName("Location");
-		LocationList.Builder locs = LocationList.builder();
-		for (int i = 0; i < locNodes.getLength(); i++) {
-			Element locElem = (Element) locNodes.item(i);
-			locs.add(Location.create(Double.valueOf(locElem.getAttribute("Latitude")),
-				Double.valueOf(locElem.getAttribute("Longitude")),
-				Double.valueOf(locElem.getAttribute("Depth"))));
-		}
-		return locs.build();
-	}
+    List<GriddedSurface> rupSections = Lists.newArrayList();
+    for (int i : indices) {
+      rupSections.add(sections.get(i));
+    }
+    return new SystemFaultSurface(rupSections);
+  }
 
-	// replaces ', Subsection' with ':'
-	static String cleanName(String name) {
-		return name.replace(", Subsection", " :");
-	}
-	
-	static String nameToDescription(String name) {
-		StringBuilder sb = new StringBuilder();
-		if (name.contains("UC33")) sb.append("UCERF 3.3 ");
-		if (name.contains("brAvg")) sb.append("Branch Averaged Solution (");
-		if (name.contains("FM31")) sb.append("FM31");
-		if (name.contains("FM32")) sb.append("FM32");
-		sb.append(")");
-		return sb.toString();
-	}
+  private static LocationList readTrace(Element trace) {
+    NodeList locNodes = trace.getElementsByTagName("Location");
+    LocationList.Builder locs = LocationList.builder();
+    for (int i = 0; i < locNodes.getLength(); i++) {
+      Element locElem = (Element) locNodes.item(i);
+      locs.add(Location.create(Double.valueOf(locElem.getAttribute("Latitude")),
+          Double.valueOf(locElem.getAttribute("Longitude")),
+          Double.valueOf(locElem.getAttribute("Depth"))));
+    }
+    return locs.build();
+  }
 
-	/*
-	 * Filter enum for Klamath and Carson rupture filters. Carson ruptures are
-	 * restricted to the Carson-Kings (Genoa) parent fault. Klamath ruptures
-	 * extend onto Klamath Lake West. In both cases though, we can just test if
-	 * the Range of interest contains the first index supplied to the filter;
-	 * Karson east participation always comes first in rupture indices.
-	 * 
-	 * This filtering makes no accomodation for removing (now unused) fault
-	 * sections.
-	 */
+  // replaces ', Subsection' with ':'
+  static String cleanName(String name) {
+    return name.replace(", Subsection", " :");
+  }
 
-	static final int KLAMATH_MIN_FM31 = 2422;
-	static final int KLAMATH_MAX_FM31 = 2430;
-	static final int KLAMATH_MIN_FM32 = 2487;
-	static final int KLAMATH_MAX_FM32 = 2495;
+  static String nameToDescription(String name) {
+    StringBuilder sb = new StringBuilder();
+    if (name.contains("UC33")) sb.append("UCERF 3.3 ");
+    if (name.contains("brAvg")) sb.append("Branch Averaged Solution (");
+    if (name.contains("FM31")) sb.append("FM31");
+    if (name.contains("FM32")) sb.append("FM32");
+    sb.append(")");
+    return sb.toString();
+  }
 
-	static final int CARSON_MIN_FM31 = 257;
-	static final int CARSON_MAX_FM31 = 263;
-	static final int CARSON_MIN_FM32 = 261;
-	static final int CARSON_MAX_FM32 = 267;
+  /*
+   * Filter enum for Klamath and Carson rupture filters. Carson ruptures are
+   * restricted to the Carson-Kings (Genoa) parent fault. Klamath ruptures
+   * extend onto Klamath Lake West. In both cases though, we can just test if
+   * the Range of interest contains the first index supplied to the filter;
+   * Karson east participation always comes first in rupture indices.
+   * 
+   * This filtering makes no accomodation for removing (now unused) fault
+   * sections.
+   */
 
-	static enum UC3_Filter {
+  static final int KLAMATH_MIN_FM31 = 2422;
+  static final int KLAMATH_MAX_FM31 = 2430;
+  static final int KLAMATH_MIN_FM32 = 2487;
+  static final int KLAMATH_MAX_FM32 = 2495;
 
-		FM31(CARSON_MIN_FM31, CARSON_MAX_FM31, KLAMATH_MIN_FM31, KLAMATH_MAX_FM31),
-		FM32(CARSON_MIN_FM32, CARSON_MAX_FM32, KLAMATH_MIN_FM32, KLAMATH_MAX_FM32);
+  static final int CARSON_MIN_FM31 = 257;
+  static final int CARSON_MAX_FM31 = 263;
+  static final int CARSON_MIN_FM32 = 261;
+  static final int CARSON_MAX_FM32 = 267;
 
-		private Range<Integer> carsonRange;
-		private Range<Integer> klamathRange;
+  static enum UC3_Filter {
 
-		private UC3_Filter(int carsonMin, int carsonMax, int klamathMin, int klamathMax) {
-			carsonRange = Range.closed(carsonMin, carsonMax);
-			klamathRange = Range.closed(klamathMin, klamathMax);
-		}
+    FM31(CARSON_MIN_FM31, CARSON_MAX_FM31, KLAMATH_MIN_FM31, KLAMATH_MAX_FM31),
+    FM32(CARSON_MIN_FM32, CARSON_MAX_FM32, KLAMATH_MIN_FM32, KLAMATH_MAX_FM32);
 
-		public boolean filter(List<Integer> indices) {
-			int index = indices.get(0);
-			return carsonRange.contains(index) || klamathRange.contains(index);
-		};
+    private Range<Integer> carsonRange;
+    private Range<Integer> klamathRange;
 
-	}
+    private UC3_Filter(int carsonMin, int carsonMax, int klamathMin, int klamathMax) {
+      carsonRange = Range.closed(carsonMin, carsonMax);
+      klamathRange = Range.closed(klamathMin, klamathMax);
+    }
+
+    public boolean filter(List<Integer> indices) {
+      int index = indices.get(0);
+      return carsonRange.contains(index) || klamathRange.contains(index);
+    };
+
+  }
 
 }

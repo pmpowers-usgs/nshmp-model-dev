@@ -7,7 +7,7 @@ package gov.usgs.earthquake.nshm.util;
  */
 public enum RateType {
 
-	INCREMENTAL,
-	CUMULATIVE;
-	
+  INCREMENTAL,
+  CUMULATIVE;
+
 }

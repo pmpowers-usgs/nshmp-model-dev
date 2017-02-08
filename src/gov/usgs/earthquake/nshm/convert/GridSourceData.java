@@ -76,43 +76,43 @@ import com.google.common.primitives.Doubles;
  */
 class GridSourceData {
 
-	String name;
-	int id;
-	double weight;
+  String name;
+  int id;
+  double weight;
 
-	double[] depths;
-	double depthMag;
-	double maxDepth;
-	Map<FocalMech, Double> mechWtMap;
+  double[] depths;
+  double depthMag;
+  double maxDepth;
+  Map<FocalMech, Double> mechWtMap;
 
-	GR_Data grDat;
-	CH_Data chDat;
+  GR_Data grDat;
+  CH_Data chDat;
 
-	double dR, rMax;
+  double dR, rMax;
 
-	double minLat, maxLat, dLat;
-	double minLon, maxLon, dLon;
+  double minLat, maxLat, dLat;
+  double minLon, maxLon, dLon;
 
-	FaultCode fltCode;
-	boolean bGrid, mMaxGrid, weightGrid;
-	double mTaper;
+  FaultCode fltCode;
+  boolean bGrid, mMaxGrid, weightGrid;
+  double mTaper;
 
-	// we're now ignoring mTaper in favor of using
-	// incremental MFDs where appropriate/necessary
+  // we're now ignoring mTaper in favor of using
+  // incremental MFDs where appropriate/necessary
 
-	URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
+  URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
 
-	double timeSpan;
-	RateType rateType;
+  double timeSpan;
+  RateType rateType;
 
-	double strike = Double.NaN;
+  double strike = Double.NaN;
 
-	GriddedRegion region;
-	double[] aDat, bDat, mMaxDat, wgtDat;
+  GriddedRegion region;
+  double[] aDat, bDat, mMaxDat, wgtDat;
 
-	private static final String LF = System.getProperty("line.separator");
+  private static final String LF = System.getProperty("line.separator");
 
-	// @formatter:off
+  // @formatter:off
 
 	/**
 	 * Write grid data to XML.

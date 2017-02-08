@@ -23,7 +23,7 @@ class AkData {
    */
 
   static final RuptureScaling AK_SCALING = RuptureScaling.NSHM_FAULT_WC94_LENGTH;
-  
+
   static final double AK_M_MIN = 6.5;
   static final double AK_B_VALUE = 0.87;
   static final double AK_M_DELTA = 0.1;
@@ -33,15 +33,13 @@ class AkData {
   static final double AK_ASEIS = 0.0;
   static final double AK_DEPTH = 0.0;
   static final double AK_RAKE = 0.0;
-  
-  
+
   static final double DENALI_CH_M = 7.9;
   static final double DENALI_GR_M_MAX = DENALI_CH_M - AK_M_DELTA / 2.0;
   static final double DENALI_DIP = 90.0;
   static final double DENALI_WIDTH = 15.0;
   static final double DENALI_LOWER_DEPTH = 15.0;
-  
-  
+
   static final class Uncertainty {
     final double[] epiDeltas = { -0.2, 0.0, 0.2 };
     final double[] epiWeights = { 0.2, 0.6, 0.2 };
@@ -51,7 +49,7 @@ class AkData {
     final double aleaCutoff = AK_M_MIN;
     final int aleaCount = 11;
   }
-  
+
   static final Uncertainty AK_M_UNCERTAINTY = new Uncertainty();
 
   /* Central Denali */
@@ -370,5 +368,5 @@ class AkData {
             }))
         .build();
   }
-  
+
 }

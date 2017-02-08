@@ -24,23 +24,25 @@ import java.net.URL;
  */
 class SourceManager_2014 extends SourceManager {
 
-	private static final String PATH = "/Users/pmpowers/projects/git/nshmp-haz-fortran/conf/";
-	private static SourceManager_2014 mgr;
+  private static final String PATH = "/Users/pmpowers/projects/git/nshmp-haz-fortran/conf/";
+  private static SourceManager_2014 mgr;
 
-	static SourceManager_2014 instance() {
-		if (mgr == null) {
-			mgr = new SourceManager_2014();
-		}
-		return mgr;
-	}
+  static SourceManager_2014 instance() {
+    if (mgr == null) {
+      mgr = new SourceManager_2014();
+    }
+    return mgr;
+  }
 
-	@Override String path() {
-		return PATH;
-	}
+  @Override
+  String path() {
+    return PATH;
+  }
 
-	@Override void init() {
+  @Override
+  void init() {
 
-		// @formatter:off
+    // @formatter:off
 				
 		// *******  WUS fault  *******
 

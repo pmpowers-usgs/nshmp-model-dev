@@ -18,7 +18,7 @@ import org.opensha2.geo.LocationList;
 import org.w3c.dom.Element;
 
 class FaultSection {
-  
+
   int index;
   String name;
   LocationList trace;
@@ -29,7 +29,7 @@ class FaultSection {
   double dip;
   double dipDir;
   double slipRate;
-  
+
   Element appendTo(Element parent) {
     Element sectionElement = addElement(SECTION, parent);
     addAttribute(NAME, name, sectionElement);

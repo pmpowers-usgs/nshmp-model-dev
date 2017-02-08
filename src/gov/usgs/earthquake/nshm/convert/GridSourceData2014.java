@@ -71,53 +71,53 @@ import com.google.common.math.DoubleMath;
  */
 class GridSourceData2014 {
 
-	String name; // original name
-	int id;
-	String displayName;
-	String fileName;
-	double weight;
+  String name; // original name
+  int id;
+  String displayName;
+  String fileName;
+  double weight;
 
-	SourceRegion srcRegion;
-	SourceType srcType;
+  SourceRegion srcRegion;
+  SourceType srcType;
 
-	double[] depths;
-	double depthMag;
-	double maxDepth;
-	Map<FocalMech, Double> mechWtMap;
+  double[] depths;
+  double depthMag;
+  double maxDepth;
+  Map<FocalMech, Double> mechWtMap;
 
-	GR_Data grDat;
-	CH_Data chDat;
-	Set<CH_Data> chDats;
+  GR_Data grDat;
+  CH_Data chDat;
+  Set<CH_Data> chDats;
 
-	double dR, rMax;
+  double dR, rMax;
 
-	double minLat, maxLat, dLat;
-	double minLon, maxLon, dLon;
+  double minLat, maxLat, dLat;
+  double minLon, maxLon, dLon;
 
-	FaultCode fltCode;
-	boolean bGrid, mMaxGrid, weightGrid;
-	double mTaper;
-	List<Map<Double, Double>> mMaxWtMaps;
-	Multiset<Double> mMaxZoneBag;
+  FaultCode fltCode;
+  boolean bGrid, mMaxGrid, weightGrid;
+  double mTaper;
+  List<Map<Double, Double>> mMaxWtMaps;
+  Multiset<Double> mMaxZoneBag;
 
-	// we're now ignoring mTaper in favor of using
-	// incremental MFDs where appropriate/necessary
+  // we're now ignoring mTaper in favor of using
+  // incremental MFDs where appropriate/necessary
 
-	URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
+  URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
 
-	double timeSpan;
-	RateType rateType;
+  double timeSpan;
+  RateType rateType;
 
-	double strike = Double.NaN;
+  double strike = Double.NaN;
 
-	RuptureScaling rupScaling;
+  RuptureScaling rupScaling;
 
-	GriddedRegion region;
-	double[] aDat, bDat, mMaxDat, wgtDat;
+  GriddedRegion region;
+  double[] aDat, bDat, mMaxDat, wgtDat;
 
-	private static final String LF = System.getProperty("line.separator");
+  private static final String LF = System.getProperty("line.separator");
 
-	// @formatter:off
+  // @formatter:off
 
 	/**
 	 * Write grid data to XML.

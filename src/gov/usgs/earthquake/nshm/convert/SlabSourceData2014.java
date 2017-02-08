@@ -67,44 +67,44 @@ import com.google.common.math.DoubleMath;
  */
 class SlabSourceData2014 {
 
-	String name;
-	int id;
-	double weight;
+  String name;
+  int id;
+  double weight;
 
-	Map<Double, Range<Double>> lonDepthMap;
-	double depth;
-	double maxDepth;
-	Map<FocalMech, Double> mechWtMap;
+  Map<Double, Range<Double>> lonDepthMap;
+  double depth;
+  double maxDepth;
+  Map<FocalMech, Double> mechWtMap;
 
-	GR_Data grDat;
-	CH_Data chDat;
+  GR_Data grDat;
+  CH_Data chDat;
 
-	double dR, rMax;
+  double dR, rMax;
 
-	double minLat, maxLat, dLat;
-	double minLon, maxLon, dLon;
+  double minLat, maxLat, dLat;
+  double minLon, maxLon, dLon;
 
-	FaultCode fltCode;
-	boolean bGrid, mMaxGrid, weightGrid;
-	double mTaper;
+  FaultCode fltCode;
+  boolean bGrid, mMaxGrid, weightGrid;
+  double mTaper;
 
-	// we're now ignoring mTaper in favor of using
-	// incremental MFDs where appropriate/necessary
+  // we're now ignoring mTaper in favor of using
+  // incremental MFDs where appropriate/necessary
 
-	URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
+  URL aGridURL, bGridURL, mMaxGridURL, weightGridURL;
 
-	double timeSpan;
-	RateType rateType;
+  double timeSpan;
+  RateType rateType;
 
-	double strike = Double.NaN;
-	RuptureScaling rupScaling;
+  double strike = Double.NaN;
+  RuptureScaling rupScaling;
 
-	GriddedRegion region;
-	double[] aDat, bDat, mMaxDat, wgtDat;
+  GriddedRegion region;
+  double[] aDat, bDat, mMaxDat, wgtDat;
 
-	private static final String LF = System.getProperty("line.separator");
+  private static final String LF = System.getProperty("line.separator");
 
-	// @formatter:off
+  // @formatter:off
 
 	/**
 	 * Write grid data to XML.

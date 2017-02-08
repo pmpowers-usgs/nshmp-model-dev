@@ -30,85 +30,86 @@ import com.google.common.collect.Lists;
 
 /*
  * NSHMP source file manager
+ * 
  * @author Peter Powers
  */
 abstract class SourceManager {
 
-	protected List<SourceFile> files;
-	
-	// no instantiation - use subclasses that have populated the file list
-	SourceManager() {
-		files = Lists.newArrayList();
-		init();
-	}
+  protected List<SourceFile> files;
 
-	/* Returns an immutable list of all NSHHMP source files. */
-	List<SourceFile> getAll() {
-		return ImmutableList.copyOf(files);
-	}
+  // no instantiation - use subclasses that have populated the file list
+  SourceManager() {
+    files = Lists.newArrayList();
+    init();
+  }
 
-	/*
-	 * Returns an immutable list of the source files that match the supplied
-	 * SourceRegion and SourceType. If either argument is null or empty, method
-	 * will match all elements of the argument class.
-	 */
-	List<SourceFile> get(SourceRegion region, SourceType type) {
-		return get(region, type, null);
-	}
+  /* Returns an immutable list of all NSHHMP source files. */
+  List<SourceFile> getAll() {
+    return ImmutableList.copyOf(files);
+  }
 
-	/*
-	 * Returns an immutable list of the source files that match the supplied
-	 * SourceRegion, SourceType, and file name. If either argument is null,
-	 * method will match all elements of the argument class.
-	 */
-	List<SourceFile> get(SourceRegion region, SourceType type,
-			String name) {
-		return get((region != null) ? EnumSet.of(region) : null, (type != null)
-			? EnumSet.of(type) : null, (name != null && !name.trim().isEmpty())
-			? ImmutableSet.of(name) : null);
-	}
+  /*
+   * Returns an immutable list of the source files that match the supplied
+   * SourceRegion and SourceType. If either argument is null or empty, method
+   * will match all elements of the argument class.
+   */
+  List<SourceFile> get(SourceRegion region, SourceType type) {
+    return get(region, type, null);
+  }
 
-	/*
-	 * Returns an immutable list of the source files that match the supplied
-	 * SourceRegions, SourceTypes, and file names. If any argument is null or
-	 * empty, method will match all elements of the argument class.
-	 */
-	List<SourceFile> get(EnumSet<SourceRegion> regions,
-			EnumSet<SourceType> types, Set<String> names) {
-		List<Predicate<SourceFile>> pList = generateFilters(regions, types,
-			names);
-		Predicate<SourceFile> p = Predicates.and(pList);
-		return ImmutableList.copyOf(Collections2.filter(files, p));
-	}
-	
-	private static List<Predicate<SourceFile>> generateFilters(
-			EnumSet<SourceRegion> regions, EnumSet<SourceType> types,
-			Set<String> names) {
-		Predicate<SourceFile> rp = Predicates.alwaysTrue();
-		if (regions != null && !regions.isEmpty()) {
-			rp = Predicates.alwaysFalse();
-			for (SourceRegion region : regions) {
-				rp = Predicates.or(rp, new SourceFileRegion(region));
-			}
-		}
-		Predicate<SourceFile> tp = Predicates.alwaysTrue();
-		if (types != null && !types.isEmpty()) {
-			tp = Predicates.alwaysFalse();
-			for (SourceType type : types) {
-				tp = Predicates.or(tp, new SourceFileType(type));
-			}
-		}
-		Predicate<SourceFile> np = Predicates.alwaysTrue();
-		if (names != null && !names.isEmpty()) {
-			np = Predicates.alwaysFalse();
-			for (String name : names) {
-				np = Predicates.or(np, new SourceFileName(name));
-			}
-		}
-		return ImmutableList.of(rp, tp, np);
-	}
+  /*
+   * Returns an immutable list of the source files that match the supplied
+   * SourceRegion, SourceType, and file name. If either argument is null, method
+   * will match all elements of the argument class.
+   */
+  List<SourceFile> get(SourceRegion region, SourceType type,
+      String name) {
+    return get((region != null) ? EnumSet.of(region) : null, (type != null)
+        ? EnumSet.of(type) : null, (name != null && !name.trim().isEmpty())
+            ? ImmutableSet.of(name) : null);
+  }
 
-	// @formatter:off
+  /*
+   * Returns an immutable list of the source files that match the supplied
+   * SourceRegions, SourceTypes, and file names. If any argument is null or
+   * empty, method will match all elements of the argument class.
+   */
+  List<SourceFile> get(EnumSet<SourceRegion> regions,
+      EnumSet<SourceType> types, Set<String> names) {
+    List<Predicate<SourceFile>> pList = generateFilters(regions, types,
+        names);
+    Predicate<SourceFile> p = Predicates.and(pList);
+    return ImmutableList.copyOf(Collections2.filter(files, p));
+  }
+
+  private static List<Predicate<SourceFile>> generateFilters(
+      EnumSet<SourceRegion> regions, EnumSet<SourceType> types,
+      Set<String> names) {
+    Predicate<SourceFile> rp = Predicates.alwaysTrue();
+    if (regions != null && !regions.isEmpty()) {
+      rp = Predicates.alwaysFalse();
+      for (SourceRegion region : regions) {
+        rp = Predicates.or(rp, new SourceFileRegion(region));
+      }
+    }
+    Predicate<SourceFile> tp = Predicates.alwaysTrue();
+    if (types != null && !types.isEmpty()) {
+      tp = Predicates.alwaysFalse();
+      for (SourceType type : types) {
+        tp = Predicates.or(tp, new SourceFileType(type));
+      }
+    }
+    Predicate<SourceFile> np = Predicates.alwaysTrue();
+    if (names != null && !names.isEmpty()) {
+      np = Predicates.alwaysFalse();
+      for (String name : names) {
+        np = Predicates.or(np, new SourceFileName(name));
+      }
+    }
+    return ImmutableList.of(rp, tp, np);
+  }
+
+  // @formatter:off
 
 	private static class SourceFileType implements Predicate<SourceFile> {
 		SourceType type;
@@ -138,42 +139,42 @@ abstract class SourceManager {
 	}
 
 	// @formatter:on
-	
-	SourceFile create(String resource, double weight) {
-		List<String> parts = Lists.newArrayList(Parsing.split(resource, Delimiter.SLASH));
-		SourceRegion region = SourceRegion.valueOf(parts.get(0));
-		String typeFolder = parts.get(1);
-		SourceType type = null;
-		if (region == CASC) {
-			type = INTERFACE;
-		} else if (resource.contains("cluster") || resource.contains("_clu")) {
-			type = CLUSTER;
-		} else if (typeFolder.equals("gridded")) {
-			type = resource.contains("deep") ? SLAB : GRID;
-		} else {
-			type = FAULT;
-		}
-		// move CA and CASC inputs to WUS, 2008 and 2014
-		if (region == CASC) region = WUS;
-		if (region == CA) region = WUS;
-		
-		URL url = null;
-		try {
-			url = new File(path() + resource).toURI().toURL();
-		} catch (MalformedURLException mue) {
-			mue.printStackTrace();
-		}
-		return new SourceFile(url, region, type, weight);
-		
-	}
-	
-	/* Return the path to the root of the source file directory structure */
-	abstract String path();
-	
-	/* Implementations should poluate file list here */
-	abstract void init();
 
-	/* implementations return weights used to combine cluster sources */
-	abstract double getClusterWeight(String name, int group);
-	
+  SourceFile create(String resource, double weight) {
+    List<String> parts = Lists.newArrayList(Parsing.split(resource, Delimiter.SLASH));
+    SourceRegion region = SourceRegion.valueOf(parts.get(0));
+    String typeFolder = parts.get(1);
+    SourceType type = null;
+    if (region == CASC) {
+      type = INTERFACE;
+    } else if (resource.contains("cluster") || resource.contains("_clu")) {
+      type = CLUSTER;
+    } else if (typeFolder.equals("gridded")) {
+      type = resource.contains("deep") ? SLAB : GRID;
+    } else {
+      type = FAULT;
+    }
+    // move CA and CASC inputs to WUS, 2008 and 2014
+    if (region == CASC) region = WUS;
+    if (region == CA) region = WUS;
+
+    URL url = null;
+    try {
+      url = new File(path() + resource).toURI().toURL();
+    } catch (MalformedURLException mue) {
+      mue.printStackTrace();
+    }
+    return new SourceFile(url, region, type, weight);
+
+  }
+
+  /* Return the path to the root of the source file directory structure */
+  abstract String path();
+
+  /* Implementations should poluate file list here */
+  abstract void init();
+
+  /* implementations return weights used to combine cluster sources */
+  abstract double getClusterWeight(String name, int group);
+
 }

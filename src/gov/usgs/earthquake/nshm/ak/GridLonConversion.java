@@ -40,11 +40,11 @@ class GridLonConversion {
         String newLine = lineIn.substring(0, start) + newLon + lineIn.substring(end);
         linesOut.add(newLine);
       } else {
-         linesOut.add(lineIn);
+        linesOut.add(lineIn);
       }
     }
 
-     Path outPath = OUT_DIR.resolve(filename);
-     Files.write(outPath, linesOut, StandardCharsets.UTF_8);
+    Path outPath = OUT_DIR.resolve(filename);
+    Files.write(outPath, linesOut, StandardCharsets.UTF_8);
   }
 }

@@ -45,209 +45,209 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
-@SuppressWarnings({"javadoc", "unchecked"})
+@SuppressWarnings({ "javadoc", "unchecked" })
 public class PeerTestData {
 
-	// defined from north to south so that reverse representation
-	// is east-vergent
-	private static final LocationList TRACE_1_2 = LocationList.create(
-		Location.create(38.2248, -122.0000), Location.create(38.000, -122.000));
+  // defined from north to south so that reverse representation
+  // is east-vergent
+  private static final LocationList TRACE_1_2 = LocationList.create(
+      Location.create(38.2248, -122.0000), Location.create(38.000, -122.000));
 
-	private static final LocationList TRACE_B = LocationList.create(
-		Location.create(0.44966, -65.38222), Location.create(0.44966, -64.61778));
+  private static final LocationList TRACE_B = LocationList.create(
+      Location.create(0.44966, -65.38222), Location.create(0.44966, -64.61778));
 
-	private static final LocationList TRACE_C = LocationList.create(
-		Location.create(-0.22483, -65.22484), Location.create(-0.22483, -64.77516));
+  private static final LocationList TRACE_C = LocationList.create(
+      Location.create(-0.22483, -65.22484), Location.create(-0.22483, -64.77516));
 
-	private static final LocationList TRACE_3_4 = LocationList.create(
-		Location.create(0.38221, -65.0), Location.create(-0.38221, -65.0));
+  private static final LocationList TRACE_3_4 = LocationList.create(
+      Location.create(0.38221, -65.0), Location.create(-0.38221, -65.0));
 
-	private static final LocationList TRACE_5_6 = LocationList.create(
-		Location.create(0.11240, -65.0), Location.create(-0.11240, -65.0));
+  private static final LocationList TRACE_5_6 = LocationList.create(
+      Location.create(0.11240, -65.0), Location.create(-0.11240, -65.0));
 
-	private static final double ZTOP_0 = 0.0;
-	private static final double ZTOP_1 = 1.0;
-	private static final double ZBOT_12 = 12.0;
-	private static final double ZBOT_30 = 30.0;
-	private static final double LENGTH_25 = 25.0;
-	private static final double LENGTH_50 = 50.0;
-	private static final double LENGTH_85 = 85.0;
-	private static final double DIP_90 = 90.0;
-	private static final double DIP_60 = 60.0;
-	private static final double DIP_45 = 45.0;
-	private static final double RAKE_SS = 0.0;
-	private static final double RAKE_REV = 90.0;
+  private static final double ZTOP_0 = 0.0;
+  private static final double ZTOP_1 = 1.0;
+  private static final double ZBOT_12 = 12.0;
+  private static final double ZBOT_30 = 30.0;
+  private static final double LENGTH_25 = 25.0;
+  private static final double LENGTH_50 = 50.0;
+  private static final double LENGTH_85 = 85.0;
+  private static final double DIP_90 = 90.0;
+  private static final double DIP_60 = 60.0;
+  private static final double DIP_45 = 45.0;
+  private static final double RAKE_SS = 0.0;
+  private static final double RAKE_REV = 90.0;
 
-	static class Fault {
+  static class Fault {
 
-		final LocationList trace;
-		final double length;
-		final double dip;
-		final double rake;
-		final double depth;
-		final double width;
-		final String name;
+    final LocationList trace;
+    final double length;
+    final double dip;
+    final double rake;
+    final double depth;
+    final double width;
+    final String name;
 
-		Fault(LocationList trace, double length, double dip, double rake, double zTop, double zBot,
-				String id) {
-			this.trace = trace;
-			this.length = length;
-			this.dip = dip;
-			this.rake = rake;
-			this.depth = zTop;
-			this.width = downDipWidth(zTop, zBot, dip);
-			this.name = "Fault " + id;
-		}
-	}
+    Fault(LocationList trace, double length, double dip, double rake, double zTop, double zBot,
+        String id) {
+      this.trace = trace;
+      this.length = length;
+      this.dip = dip;
+      this.rake = rake;
+      this.depth = zTop;
+      this.width = downDipWidth(zTop, zBot, dip);
+      this.name = "Fault " + id;
+    }
+  }
 
-	static final Fault F1 = new Fault(TRACE_1_2, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "1");
-	static final Fault F2 = new Fault(TRACE_1_2, LENGTH_25, DIP_60, RAKE_REV, ZTOP_1, ZBOT_12, "2");
-	static final Fault FB = new Fault(TRACE_B, LENGTH_85, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "B");
-	static final Fault FC = new Fault(TRACE_C, LENGTH_50, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "C");
-	static final Fault F3 = new Fault(TRACE_3_4, LENGTH_85, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "3");
-	static final Fault F4 = new Fault(TRACE_3_4, LENGTH_85, DIP_45, RAKE_REV, ZTOP_1, ZBOT_12, "4");
-	static final Fault F5 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_30, "5");
-	static final Fault F6 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "6");
+  static final Fault F1 = new Fault(TRACE_1_2, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "1");
+  static final Fault F2 = new Fault(TRACE_1_2, LENGTH_25, DIP_60, RAKE_REV, ZTOP_1, ZBOT_12, "2");
+  static final Fault FB = new Fault(TRACE_B, LENGTH_85, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "B");
+  static final Fault FC = new Fault(TRACE_C, LENGTH_50, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "C");
+  static final Fault F3 = new Fault(TRACE_3_4, LENGTH_85, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "3");
+  static final Fault F4 = new Fault(TRACE_3_4, LENGTH_85, DIP_45, RAKE_REV, ZTOP_1, ZBOT_12, "4");
+  static final Fault F5 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_30, "5");
+  static final Fault F6 = new Fault(TRACE_5_6, LENGTH_25, DIP_90, RAKE_SS, ZTOP_0, ZBOT_12, "6");
 
-	static final String AREA_DEPTH_STR;
-	static final String AREA_DEPTH_VAR_STR;
+  static final String AREA_DEPTH_STR;
+  static final String AREA_DEPTH_VAR_STR;
 
-	static final LocationList S1_AREA_SOURCE_BORDER;
+  static final LocationList S1_AREA_SOURCE_BORDER;
 
-	static final Location S2_DEAGG_SITE;
-	static final LocationList S2_NGA_SITES;
+  static final Location S2_DEAGG_SITE;
+  static final LocationList S2_NGA_SITES;
 
-	static final LocationList S2_AREA_SOURCE_BORDER;
+  static final LocationList S2_AREA_SOURCE_BORDER;
 
-	static final double B_VAL = 0.9;
-	static final double SINGLE_6P0 = 6.0;
-	static final double SINGLE_6P5 = 6.5;
-	static final double SINGLE_7P0 = 7.0;
-	static final double GR_MIN = 5.0;
-	static final double GR_MAX = 6.5;
-	static final double NGA_GR_MAX = 7.0;
-	static final double YC_MAX1 = 6.45;
-	static final double YC_MAX1_BIN = 6.445;
-	static final double YC_MAX2 = 7.0;
-	static final double YC_MAX2_BIN = 6.995;
-	static final double YC_MAX3 = 6.75;
-	static final double YC_MAX3_BIN = 6.745;
-	static final double GAUSS_MEAN = 6.2;
-	static final double GAUSS_SIGMA = 0.25;
-	static final double SLIP_2MM = 2.0;
-	static final double SLIP_1MM = 1.0;
-	static final double AREA_EVENT_RATE = 0.0395;
+  static final double B_VAL = 0.9;
+  static final double SINGLE_6P0 = 6.0;
+  static final double SINGLE_6P5 = 6.5;
+  static final double SINGLE_7P0 = 7.0;
+  static final double GR_MIN = 5.0;
+  static final double GR_MAX = 6.5;
+  static final double NGA_GR_MAX = 7.0;
+  static final double YC_MAX1 = 6.45;
+  static final double YC_MAX1_BIN = 6.445;
+  static final double YC_MAX2 = 7.0;
+  static final double YC_MAX2_BIN = 6.995;
+  static final double YC_MAX3 = 6.75;
+  static final double YC_MAX3_BIN = 6.745;
+  static final double GAUSS_MEAN = 6.2;
+  static final double GAUSS_SIGMA = 0.25;
+  static final double SLIP_2MM = 2.0;
+  static final double SLIP_1MM = 1.0;
+  static final double AREA_EVENT_RATE = 0.0395;
 
-	static final IncrementalMfd F1_SINGLE_6P5_MFD; // 1.1
-	static final IncrementalMfd F1_SINGLE_6P0_FLOAT_MFD; // 1.2, 1.3, 1.8a,
-															// 1.8b, 1.8c
-	static final IncrementalMfd F2_SINGLE_6P0_FLOAT_MFD; // 1.4
-	static final IncrementalMfd F1_GR_FLOAT_MFD; // 1.5
-	static final IncrementalMfd F1_GAUSS_FLOAT_MFD; // 1.6
-	static final IncrementalMfd F1_YC_CHAR_FLOAT_MFD; // 1.7
-	static final IncrementalMfd AREA_GR_MFD; // 1.10 ,1.11, 2.1
-	static final IncrementalMfd FB_YC_CHAR_FLOAT_MFD; // 2.1
-	static final IncrementalMfd FC_YC_CHAR_FLOAT_MFD; // 2.1
-	static final IncrementalMfd F3_GR_FLOAT_MFD; // 2.2
-	static final IncrementalMfd F4_SINGLE_7P0_FLOAT_MFD; // 2.3
-	static final IncrementalMfd F5_SINGLE_6P0_FLOAT_MFD; // 2.4
-	static final IncrementalMfd F6_SINGLE_6P0_FLOAT_MFD; // 2.5
+  static final IncrementalMfd F1_SINGLE_6P5_MFD; // 1.1
+  static final IncrementalMfd F1_SINGLE_6P0_FLOAT_MFD; // 1.2, 1.3, 1.8a,
+  // 1.8b, 1.8c
+  static final IncrementalMfd F2_SINGLE_6P0_FLOAT_MFD; // 1.4
+  static final IncrementalMfd F1_GR_FLOAT_MFD; // 1.5
+  static final IncrementalMfd F1_GAUSS_FLOAT_MFD; // 1.6
+  static final IncrementalMfd F1_YC_CHAR_FLOAT_MFD; // 1.7
+  static final IncrementalMfd AREA_GR_MFD; // 1.10 ,1.11, 2.1
+  static final IncrementalMfd FB_YC_CHAR_FLOAT_MFD; // 2.1
+  static final IncrementalMfd FC_YC_CHAR_FLOAT_MFD; // 2.1
+  static final IncrementalMfd F3_GR_FLOAT_MFD; // 2.2
+  static final IncrementalMfd F4_SINGLE_7P0_FLOAT_MFD; // 2.3
+  static final IncrementalMfd F5_SINGLE_6P0_FLOAT_MFD; // 2.4
+  static final IncrementalMfd F6_SINGLE_6P0_FLOAT_MFD; // 2.5
 
-	static final List<Double> GMM_CUTOFFS = Lists.newArrayList(500.0);
+  static final List<Double> GMM_CUTOFFS = Lists.newArrayList(500.0);
 
-	private static final Map<Gmm, Double> SADIGH_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
-	private static final Map<Gmm, Double> ASK14_MAP = ImmutableMap.of(Gmm.ASK_14, 1.0);
-	private static final Map<Gmm, Double> BSSA14_MAP = ImmutableMap.of(Gmm.BSSA_14, 1.0);
-	private static final Map<Gmm, Double> CB14_MAP = ImmutableMap.of(Gmm.CB_14, 1.0);
-	private static final Map<Gmm, Double> CY14_MAP = ImmutableMap.of(Gmm.CY_14, 1.0);
+  private static final Map<Gmm, Double> SADIGH_MAP = ImmutableMap.of(Gmm.SADIGH_97, 1.0);
+  private static final Map<Gmm, Double> ASK14_MAP = ImmutableMap.of(Gmm.ASK_14, 1.0);
+  private static final Map<Gmm, Double> BSSA14_MAP = ImmutableMap.of(Gmm.BSSA_14, 1.0);
+  private static final Map<Gmm, Double> CB14_MAP = ImmutableMap.of(Gmm.CB_14, 1.0);
+  private static final Map<Gmm, Double> CY14_MAP = ImmutableMap.of(Gmm.CY_14, 1.0);
 
-	static final List<Map<Gmm, Double>> SADIGH_GMM = Lists.newArrayList(SADIGH_MAP);
-	static final List<Map<Gmm, Double>> ASK14_GMM = Lists.newArrayList(ASK14_MAP);
-	static final List<Map<Gmm, Double>> BSSA14_GMM = Lists.newArrayList(BSSA14_MAP);
-	static final List<Map<Gmm, Double>> CB14_GMM = Lists.newArrayList(CB14_MAP);
-	static final List<Map<Gmm, Double>> CY14_GMM = Lists.newArrayList(CY14_MAP);
+  static final List<Map<Gmm, Double>> SADIGH_GMM = Lists.newArrayList(SADIGH_MAP);
+  static final List<Map<Gmm, Double>> ASK14_GMM = Lists.newArrayList(ASK14_MAP);
+  static final List<Map<Gmm, Double>> BSSA14_GMM = Lists.newArrayList(BSSA14_MAP);
+  static final List<Map<Gmm, Double>> CB14_GMM = Lists.newArrayList(CB14_MAP);
+  static final List<Map<Gmm, Double>> CY14_GMM = Lists.newArrayList(CY14_MAP);
 
-	static final Map<String, String> COMMENTS = Maps.newHashMap();
+  static final Map<String, String> COMMENTS = Maps.newHashMap();
 
-	/* Compute down dip width */
-	static double downDipWidth(double zTop, double zBot, double dip) {
-		return (zBot - zTop) / Math.sin(dip * TO_RAD);
-	}
+  /* Compute down dip width */
+  static double downDipWidth(double zTop, double zBot, double dip) {
+    return (zBot - zTop) / Math.sin(dip * TO_RAD);
+  }
 
-	/* Compute area in m^2 given length and width args in km */
-	static double area(Fault fault) {
-		return fault.length * 1000.0 * fault.width * 1000.0;
-	}
+  /* Compute area in m^2 given length and width args in km */
+  static double area(Fault fault) {
+    return fault.length * 1000.0 * fault.width * 1000.0;
+  }
 
-	/* Compute the moment rate for a fault and slip (in mm/yr) */
-	static double moRate(Fault fault, double slip) {
-		return Magnitudes.moment(area(fault), slip / 1000.0);
-	}
+  /* Compute the moment rate for a fault and slip (in mm/yr) */
+  static double moRate(Fault fault, double slip) {
+    return Magnitudes.moment(area(fault), slip / 1000.0);
+  }
 
-	static {
+  static {
 
-		// moment rates
-		double F1tmr = moRate(F1, SLIP_2MM);
-		double F2tmr = moRate(F2, SLIP_2MM);
-		double FBtmr = moRate(FB, SLIP_2MM);
-		double FCtmr = moRate(FC, SLIP_1MM);
-		double F3tmr = moRate(F3, SLIP_2MM);
-		double F4tmr = moRate(F4, SLIP_2MM);
-		double F5tmr = moRate(F5, SLIP_2MM);
-		double F6tmr = moRate(F6, SLIP_2MM);
+    // moment rates
+    double F1tmr = moRate(F1, SLIP_2MM);
+    double F2tmr = moRate(F2, SLIP_2MM);
+    double FBtmr = moRate(FB, SLIP_2MM);
+    double FCtmr = moRate(FC, SLIP_1MM);
+    double F3tmr = moRate(F3, SLIP_2MM);
+    double F4tmr = moRate(F4, SLIP_2MM);
+    double F5tmr = moRate(F5, SLIP_2MM);
+    double F6tmr = moRate(F6, SLIP_2MM);
 
-		F1_SINGLE_6P5_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P5, F1tmr, false);
-		F1_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F1tmr, true);
-		F2_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F2tmr, true);
+    F1_SINGLE_6P5_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P5, F1tmr, false);
+    F1_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F1tmr, true);
+    F2_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F2tmr, true);
 
-		IncrementalMfd gmMfd = Mfds
-			.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, F1tmr);
-		F1_GR_FLOAT_MFD = trimToRange(gmMfd, GR_MIN, GR_MAX);
+    IncrementalMfd gmMfd = Mfds
+        .newGutenbergRichterMoBalancedMFD(0.005, 0.01, 650, B_VAL, F1tmr);
+    F1_GR_FLOAT_MFD = trimToRange(gmMfd, GR_MIN, GR_MAX);
 
-		GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000, false);
-		gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, F1tmr, 1.19, 1);
-		F1_GAUSS_FLOAT_MFD = trimToRange(gaussMfd, GR_MIN, GR_MAX);
+    GaussianMfd gaussMfd = new GaussianMfd(0.005, 9.995, 1000, false);
+    gaussMfd.setAllButCumRate(GAUSS_MEAN, GAUSS_SIGMA, F1tmr, 1.19, 1);
+    F1_GAUSS_FLOAT_MFD = trimToRange(gaussMfd, GR_MIN, GR_MAX);
 
-		YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX1_BIN, 0.49,
-			5.945, 1.0, B_VAL, F1tmr);
-		F1_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX1);
+    YC_1985_CharMfd ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX1_BIN, 0.49,
+        5.945, 1.0, B_VAL, F1tmr);
+    F1_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX1);
 
-		AREA_GR_MFD = Mfds.newGutenbergRichterMFD(5.005, 0.01, 150, B_VAL, AREA_EVENT_RATE);
+    AREA_GR_MFD = Mfds.newGutenbergRichterMFD(5.005, 0.01, 150, B_VAL, AREA_EVENT_RATE);
 
-		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX2_BIN, 0.49, 6.495, 1.0, B_VAL,
-			FBtmr);
-		FB_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX2);
+    ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX2_BIN, 0.49, 6.495, 1.0, B_VAL,
+        FBtmr);
+    FB_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX2);
 
-		ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX3_BIN, 0.49, 6.245, 1.0, B_VAL,
-			FCtmr);
-		FC_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX3);
+    ycMfd = new YC_1985_CharMfd(0.005, 1001, 0.01, 0.005, YC_MAX3_BIN, 0.49, 6.245, 1.0, B_VAL,
+        FCtmr);
+    FC_YC_CHAR_FLOAT_MFD = trimToRange(ycMfd, GR_MIN, YC_MAX3);
 
-		IncrementalMfd ngaMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 700, B_VAL,
-			F3tmr);
-		F3_GR_FLOAT_MFD = trimToRange(ngaMfd, GR_MIN, NGA_GR_MAX);
+    IncrementalMfd ngaMfd = Mfds.newGutenbergRichterMoBalancedMFD(0.005, 0.01, 700, B_VAL,
+        F3tmr);
+    F3_GR_FLOAT_MFD = trimToRange(ngaMfd, GR_MIN, NGA_GR_MAX);
 
-		F4_SINGLE_7P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_7P0, F4tmr, true);
-		F5_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F5tmr, true);
-		F6_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F6tmr, true);
+    F4_SINGLE_7P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_7P0, F4tmr, true);
+    F5_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F5tmr, true);
+    F6_SINGLE_6P0_FLOAT_MFD = Mfds.newSingleMoBalancedMFD(SINGLE_6P0, F6tmr, true);
 
-	}
+  }
 
-	private static IncrementalMfd trimToRange(IncrementalMfd mfd, double mMin, double mMax) {
-		List<Double> mags = new ArrayList<>();
-		List<Double> rates = new ArrayList<>();
-		for (int i = 0; i < mfd.getNum(); i++) {
-			double mag = mfd.getX(i);
-			double rate = mfd.getY(i);
-			if (mag > mMin && mag < mMax && rate > 0.0) {
-				mags.add(mag);
-				rates.add(rate);
-			}
-		}
-		return Mfds.newIncrementalMFD(Doubles.toArray(mags), Doubles.toArray(rates));
-	}
+  private static IncrementalMfd trimToRange(IncrementalMfd mfd, double mMin, double mMax) {
+    List<Double> mags = new ArrayList<>();
+    List<Double> rates = new ArrayList<>();
+    for (int i = 0; i < mfd.getNum(); i++) {
+      double mag = mfd.getX(i);
+      double rate = mfd.getY(i);
+      if (mag > mMin && mag < mMax && rate > 0.0) {
+        mags.add(mag);
+        rates.add(rate);
+      }
+    }
+    return Mfds.newIncrementalMFD(Doubles.toArray(mags), Doubles.toArray(rates));
+  }
 
-	static {
-		// @formatter:off
+  static {
+    // @formatter:off
 		
 		AREA_DEPTH_STR = "[10.0::[5.0:1.0]]";
 		
