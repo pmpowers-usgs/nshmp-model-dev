@@ -1,0 +1,4 @@
+rootProject.name = 'nshmp-model-dev'
+include ':nshmp-haz'
+project(':nshmp-haz').projectDir = new File(settingsDir, '../nshmp-haz')
+

@@ -1,0 +1,30 @@
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile('com.google.guava:guava:24.1') {
+    /* skip optional guava dependencies */
+    transitive = false
+  }
+  compile 'com.google.code.gson:gson:2.8.2'
+  testCompile 'junit:junit:4.12'
+}
+
+sourceSets {
+  main {
+    java {
+      srcDirs = ['src']
+    }
+    resources {
+      srcDirs = ['src']
+      exclude '**/*.java'
+    }
+  }
+}
