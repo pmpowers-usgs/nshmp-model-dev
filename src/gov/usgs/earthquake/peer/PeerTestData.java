@@ -25,19 +25,20 @@ import static org.opensha2.eq.model.peer.PeerTest.S2_C4A;
 import static org.opensha2.eq.model.peer.PeerTest.S2_C4B;
 import static org.opensha2.eq.model.peer.PeerTest.S2_C5A;
 import static org.opensha2.eq.model.peer.PeerTest.S2_C5B;
-import static org.opensha2.geo.GeoTools.TO_RAD;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.opensha2.eq.Magnitudes;
+import org.opensha2.eq.Earthquakes;
 import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
 import org.opensha2.gmm.Gmm;
 import gov.usgs.earthquake.mfd.GaussianMfd;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.Mfds;
+import org.opensha2.util.Maths;
+
 import gov.usgs.earthquake.mfd.YC_1985_CharMfd;
 
 import com.google.common.collect.ImmutableMap;
@@ -171,7 +172,7 @@ public class PeerTestData {
 
   /* Compute down dip width */
   static double downDipWidth(double zTop, double zBot, double dip) {
-    return (zBot - zTop) / Math.sin(dip * TO_RAD);
+    return (zBot - zTop) / Math.sin(dip * Maths.TO_RAD);
   }
 
   /* Compute area in m^2 given length and width args in km */
@@ -181,7 +182,7 @@ public class PeerTestData {
 
   /* Compute the moment rate for a fault and slip (in mm/yr) */
   static double moRate(Fault fault, double slip) {
-    return Magnitudes.moment(area(fault), slip / 1000.0);
+    return Earthquakes.moment(area(fault), slip / 1000.0);
   }
 
   static {

@@ -13,8 +13,8 @@ import static org.opensha2.internal.SourceElement.SETTINGS;
 import static org.opensha2.internal.SourceElement.SYSTEM_FAULT_SECTIONS;
 import static org.opensha2.internal.SourceElement.SYSTEM_SOURCE_SET;
 
-import org.opensha2.internal.MathUtils;
 import org.opensha2.internal.Parsing;
+import org.opensha2.util.Maths;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -147,7 +147,7 @@ class SystemCreator {
       for (Rupture rupture : entry.getValue()) {
         if (rupture.mag != mag) {
           mag = rupture.mag;
-          addComment(String.format(" M=%s ", MathUtils.round(mag, 3)), root);
+          addComment(String.format(" M=%s ", Maths.round(mag, 3)), root);
         }
         rupture.appendTo(root, refCH);
       }

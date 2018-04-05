@@ -1,6 +1,6 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import org.opensha2.internal.MathUtils;
+import org.opensha2.util.Maths;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +36,7 @@ class GridLonConversion {
         int start = lineIn.indexOf('>') + 1;
         int end = lineIn.indexOf(',');
         double oldLon = Double.parseDouble(lineIn.substring(start, end));
-        double newLon = MathUtils.round(oldLon - 360.0, 1);
+        double newLon = Maths.round(oldLon - 360.0, 1);
         String newLine = lineIn.substring(0, start) + newLon + lineIn.substring(end);
         linesOut.add(newLine);
       } else {

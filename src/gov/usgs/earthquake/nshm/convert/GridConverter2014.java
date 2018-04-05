@@ -39,9 +39,9 @@ import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
 import org.opensha2.geo.Region;
 import org.opensha2.geo.Regions;
-import org.opensha2.internal.MathUtils;
 import org.opensha2.internal.Parsing;
 import org.opensha2.internal.Parsing.Delimiter;
+import org.opensha2.util.Maths;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
@@ -148,11 +148,11 @@ class GridConverter2014 {
           }
         }).toList());
     // summing (above) induces rounding errors
-    fileWeight = MathUtils.round(fileWeight, 8);
+    fileWeight = Maths.round(fileWeight, 8);
     srcDat.weight = fileWeight;
     for (CH_Data chDat : srcDat.chDats) {
       chDat.weight /= fileWeight;
-      chDat.weight = MathUtils.round(chDat.weight, 8);
+      chDat.weight = Maths.round(chDat.weight, 8);
     }
 
     try {

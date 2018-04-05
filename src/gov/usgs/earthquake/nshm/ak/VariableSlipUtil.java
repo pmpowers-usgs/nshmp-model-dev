@@ -7,7 +7,7 @@ import static gov.usgs.earthquake.nshm.ak.AkData.*;
 import org.opensha2.data.Data;
 import org.opensha2.data.XyPoint;
 import org.opensha2.data.XySequence;
-import org.opensha2.eq.Magnitudes;
+import org.opensha2.eq.Earthquakes;
 import org.opensha2.eq.fault.Faults;
 import org.opensha2.geo.LocationList;
 import org.opensha2.internal.Parsing;
@@ -676,7 +676,7 @@ public class VariableSlipUtil {
       values[i] = min + i * delta;
     }
     values[steps - 1] = max;
-    return Data.clean(scale, values);
+    return Data.round(scale, values);
   }
 
   static double momentRate(List<FaultSection> sections) {
@@ -689,7 +689,7 @@ public class VariableSlipUtil {
 
   static double momentRate(FaultSection section) {
     double area = section.trace.length() * 1000.0 * section.width * 1000.0;
-    return Magnitudes.moment(area, section.slipRate / 1000.0);
+    return Earthquakes.moment(area, section.slipRate / 1000.0);
   }
 
   /* ------- MFDs ------- */

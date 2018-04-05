@@ -37,19 +37,18 @@ import java.util.Map.Entry;
  *
  * @author Peter Powers
  */
-public class NgaEast {
+public class NgaEastSeed {
 
-//  static final String DIRBASE =
-//      "../../../Documents/NSHMP/GMPE/NGA-East/NGA-East_Final_Report_Rev0/E.1.1_Final_Median_NGA-East_GMM_Tables/";
-  static final String DIRBASE = 
-      "../../../Documents/NSHMP/GMPE/NGA-East/PEER Report 2017-03 - NGA-East - GMMs for the USGS NSHM /AppendixA_13GMMs/";
+  static final String DIRBASE =
+      "../../../Documents/NSHMP/GMPE/NGA-East/NGA-East_Final_Report_Rev0/seeds/D.4_Selected_Seed_Models/";
 
   static final Path SRC_DIR = Paths.get(DIRBASE, "csv");
-  static final String SRC_FILEBASE = "NGA-East_Model_";
 
   static final Path OUT_DIR = Paths.get(DIRBASE, "csv-combined");
-  static final String OUT_FILEBASE = "nga-east-usgs-";
+  static final String OUT_FILEBASE = "nga-east-";
 
+  static final String[] FILENAMES = { "1CCSP", "1CVSP", "2CCSP", "2CVSP", "ANC15", "B_a04", "B_ab14", "B_ab95", "B_bca10d", "B_bs11", "B_sgd02", "Frankel", "Graizer", "HA15", "PEER_EX", "PEER_GP", "PZCT15_M1SS", "PZCT15_M2ES", "SP15", "YA15" };
+  
   static final List<Double> R =
       Doubles.asList(0, 1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
           150, 175, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 1000, 1200, 1500);
@@ -58,18 +57,17 @@ public class NgaEast {
       Doubles.asList(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 7.8, 8.0, 8.2);
 
   public static void main(String[] args) throws IOException {
-    for (int i = 1; i <= 13; i++) {
-//    for (int i = 1; i <= 29; i++) {
-      combine(i);
+    for (String filename : FILENAMES) {
+      combine(filename);
     }
   }
 
-  static void combine(int model) throws IOException {
+  static void combine(String id) throws IOException {
 
     Map<Imt, Table<Double, Double, Double>> μTables = Maps.newEnumMap(Imt.class);
 
-    String id = ((model < 10) ? "0" : "") + model;
-    String glob = SRC_FILEBASE + id + "_" + "*.csv";
+    String glob = id + (id.equals("ANC15") ? "_as_is_" : "_adjusted_") + "*.csv";
+    System.out.println(glob);
     DirectoryStream<Path> stream = Files.newDirectoryStream(SRC_DIR, glob);
 
     for (Path p : stream) {
@@ -80,7 +78,7 @@ public class NgaEast {
       μTables.put(imt, μTable);
     }
 
-    writeTables(model, μTables);
+    writeTables(id, μTables);
   }
 
   static Table<Double, Double, Double> loadFile(Path csvFile) throws IOException {
@@ -88,12 +86,21 @@ public class NgaEast {
     Table<Double, Double, Double> t = ArrayTable.create(R, M);
     for (String line : Iterables.skip(lines, 1)) {
       List<Double> v = Parsing.splitToDoubleList(line, COMMA);
-      t.put(v.get(1), v.get(0), v.get(2));
+      /* 
+       * For whatever reason ANC15 has a greater discretization in both r and m;
+       * might be what the '_as_is_' refers to. If row or column is missing, skip
+       * populating table.
+       */
+      double r = v.get(1);
+      double m = v.get(0);
+      if (t.containsRow(r) && t.containsColumn(m)) {
+        t.put(r, m, v.get(2));
+      }
     }
     return t;
   }
 
-  static void writeTables(int model, Map<Imt, Table<Double, Double, Double>> μTables)
+  static void writeTables(String model, Map<Imt, Table<Double, Double, Double>> μTables)
       throws IOException {
 
     List<String> lines = new ArrayList<>();

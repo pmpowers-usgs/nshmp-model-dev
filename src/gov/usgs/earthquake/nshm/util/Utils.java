@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.opensha2.eq.Magnitudes;
+import org.opensha2.eq.Earthquakes;
 import org.opensha2.eq.fault.FocalMech;
 import org.opensha2.geo.BorderType;
 import org.opensha2.geo.GriddedRegion;
@@ -459,7 +459,7 @@ public class Utils {
     double M;
     for (int i = 0; i < nMag; i++) {
       M = mMin + i * dMag;
-      moRate += Mfds.grRate(a, b, M) * Magnitudes.magToMoment_N_m(M);
+      moRate += Mfds.grRate(a, b, M) * Earthquakes.magToMoment(M);
     }
     return moRate;
   }

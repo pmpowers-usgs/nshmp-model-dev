@@ -13,14 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.opensha2.eq.Magnitudes;
+import org.opensha2.eq.Earthquakes;
 import org.opensha2.eq.TectonicSetting;
 import org.opensha2.eq.fault.Faults;
-import org.opensha2.geo.GeoTools;
 import org.opensha2.geo.Location;
 import org.opensha2.geo.LocationList;
 import org.opensha2.mfd.IncrementalMfd;
 import org.opensha2.mfd.Mfds;
+import org.opensha2.util.Maths;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;
@@ -194,7 +194,7 @@ class NewZealandParser {
     List<FaultData> sourceDataList = new ArrayList<>();
     for (Integer i : typeMap.get(tect)) {
       double rate = 1.0 / recurs.get(i);
-      double width = (zBots.get(i) - zTops.get(i)) / Math.sin(dips.get(i) * GeoTools.TO_RAD);
+      double width = (zBots.get(i) - zTops.get(i)) / Math.sin(dips.get(i) * Maths.TO_RAD);
       FaultData faultData = new FaultData(names.get(i), mags.get(i), rate,
           dips.get(i), zTops.get(i), width, rakes.get(i), traces.get(i));
       sourceDataList.add(faultData);
@@ -371,11 +371,11 @@ class NewZealandParser {
    */
   private static LocationList validateTrace(LocationList trace, double dipDir) {
     double traceDipDir = Faults.dipDirectionRad(trace);
-    double inputDipDir = dipDir * GeoTools.TO_RAD;
+    double inputDipDir = dipDir * Maths.TO_RAD;
     // dot-product derived angle between two dip direction unit vectors
     double angle = Math.acos(Math.sin(traceDipDir) * Math.sin(inputDipDir) +
         Math.cos(traceDipDir) * Math.cos(inputDipDir)) *
-        GeoTools.TO_DEG;
+        Maths.TO_DEG;
     return (angle > 90.0) ? trace.reverse() : trace;
   }
 

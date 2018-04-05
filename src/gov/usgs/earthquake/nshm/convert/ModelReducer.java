@@ -2,10 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import java.util.List;
 
-import org.opensha2.eq.Magnitudes;
-import org.opensha2.geo.GeoTools;
+import org.opensha2.eq.Earthquakes;
 import org.opensha2.geo.LocationList;
 import org.opensha2.mfd.Mfds;
+import org.opensha2.util.Maths;
 
 import com.google.common.collect.Lists;
 
@@ -36,15 +36,15 @@ class ModelReducer {
     double dMag = 0.125;
     int nMag = 4;
 
-    double fSlip = 0.3 / Math.sin(dip * GeoTools.TO_RAD);
+    double fSlip = 0.3 / Math.sin(dip * Maths.TO_RAD);
 
-    double Mo = Magnitudes.magToMoment_N_m(chM); // ch M moment
+    double Mo = Earthquakes.magToMoment(chM); // ch M moment
     double moRate = mu * fSlip * W * L * 1000.0; // 1K scale from mm to m and km
                                                  // to m conversions
 
     double chRateCalc = moRate / Mo;
     System.out.println(chRateCalc);
-    double vRateCalc = chRate * Magnitudes.magToMoment_N_m(chM) * Math.sin(dip * GeoTools.TO_RAD) /
+    double vRateCalc = chRate * Earthquakes.magToMoment(chM) * Math.sin(dip * Maths.TO_RAD) /
         (mu * W * L) / 1000.0;
     System.out.println(vRateCalc);
 
@@ -56,7 +56,7 @@ class ModelReducer {
 
     double toMo = 0.0;
     for (double mag : mags) {
-      toMo += Magnitudes.magToMoment_N_m(mag) * Mfds.grRate(0, b, mag);
+      toMo += Earthquakes.magToMoment(mag) * Mfds.grRate(0, b, mag);
     }
     double grRateCalc = Math.log10(moRate / toMo);
     System.out.println(grRateCalc);
@@ -65,9 +65,9 @@ class ModelReducer {
 
     toMo = 0.0;
     for (double mag : mags) {
-      toMo += Magnitudes.magToMoment_N_m(mag) * Mfds.grRate(grRate, b, mag);
+      toMo += Earthquakes.magToMoment(mag) * Mfds.grRate(grRate, b, mag);
     }
-    toMo = toMo / Magnitudes.magToMoment_N_m(mMax);
+    toMo = toMo / Earthquakes.magToMoment(mMax);
     System.out.println(toMo);
 
     System.out.println(slipFromCH(chM, chRate, 50.0, W, L));
@@ -102,7 +102,7 @@ class ModelReducer {
   static final double ELASTIC_MODULUS = 3e10; // in N-m
 
   static double slipFromCH(double M, double rate, double dip, double W, double L) {
-    return rate * Magnitudes.magToMoment_N_m(M) * Math.sin(dip * GeoTools.TO_RAD) /
+    return rate * Earthquakes.magToMoment(M) * Math.sin(dip * Maths.TO_RAD) /
         (ELASTIC_MODULUS * W * L) / 1000.0;
   }
 
@@ -113,9 +113,9 @@ class ModelReducer {
       double W, double L) {
     double totMo = 0.0;
     for (double mag = mMin + dMag / 2.0; mag <= mMax; mag += dMag) {
-      totMo += Magnitudes.magToMoment_N_m(mag) * Mfds.grRate(a, b, mag);
+      totMo += Earthquakes.magToMoment(mag) * Mfds.grRate(a, b, mag);
     }
-    double chRate = totMo / Magnitudes.magToMoment_N_m(mMax);
+    double chRate = totMo / Earthquakes.magToMoment(mMax);
     return slipFromCH(mMax, chRate, dip, W, L);
   }
 
