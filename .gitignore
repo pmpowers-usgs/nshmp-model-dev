@@ -1,5 +1,10 @@
-/bin
-/classes
-/tmp
-/models
+.classpath
+.project
+.settings
+.gradle
+bin
+build
+classes
+tmp
+models
 Scratch*.java
