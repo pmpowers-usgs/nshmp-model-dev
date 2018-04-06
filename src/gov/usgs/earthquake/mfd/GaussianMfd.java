@@ -1,6 +1,6 @@
 package gov.usgs.earthquake.mfd;
 
-import org.opensha2.mfd.IncrementalMfd;
+import gov.usgs.earthquake.mfd.IncrementalMfd;
 
 import java.awt.geom.Point2D;
 

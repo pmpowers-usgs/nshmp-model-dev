@@ -1,19 +1,19 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import static org.opensha2.internal.Parsing.addAttribute;
-import static org.opensha2.internal.Parsing.addElement;
-import static org.opensha2.internal.SourceAttribute.ASEIS;
-import static org.opensha2.internal.SourceAttribute.DEPTH;
-import static org.opensha2.internal.SourceAttribute.DIP;
-import static org.opensha2.internal.SourceAttribute.DIP_DIR;
-import static org.opensha2.internal.SourceAttribute.INDEX;
-import static org.opensha2.internal.SourceAttribute.LOWER_DEPTH;
-import static org.opensha2.internal.SourceAttribute.NAME;
-import static org.opensha2.internal.SourceElement.GEOMETRY;
-import static org.opensha2.internal.SourceElement.SECTION;
-import static org.opensha2.internal.SourceElement.TRACE;
+import static gov.usgs.earthquake.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.internal.Parsing.addElement;
+import static gov.usgs.earthquake.internal.SourceAttribute.ASEIS;
+import static gov.usgs.earthquake.internal.SourceAttribute.DEPTH;
+import static gov.usgs.earthquake.internal.SourceAttribute.DIP;
+import static gov.usgs.earthquake.internal.SourceAttribute.DIP_DIR;
+import static gov.usgs.earthquake.internal.SourceAttribute.INDEX;
+import static gov.usgs.earthquake.internal.SourceAttribute.LOWER_DEPTH;
+import static gov.usgs.earthquake.internal.SourceAttribute.NAME;
+import static gov.usgs.earthquake.internal.SourceElement.GEOMETRY;
+import static gov.usgs.earthquake.internal.SourceElement.SECTION;
+import static gov.usgs.earthquake.internal.SourceElement.TRACE;
 
-import org.opensha2.geo.LocationList;
+import gov.usgs.earthquake.geo.LocationList;
 
 import org.w3c.dom.Element;
 

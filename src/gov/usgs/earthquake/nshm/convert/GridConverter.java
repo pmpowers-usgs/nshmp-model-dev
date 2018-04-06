@@ -5,11 +5,11 @@ import static gov.usgs.earthquake.nshm.util.FaultCode.FIXED;
 import static gov.usgs.earthquake.nshm.util.RateType.CUMULATIVE;
 import static gov.usgs.earthquake.nshm.util.RateType.INCREMENTAL;
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
-import static org.opensha2.eq.fault.FocalMech.NORMAL;
-import static org.opensha2.eq.fault.FocalMech.REVERSE;
-import static org.opensha2.eq.fault.FocalMech.STRIKE_SLIP;
-import static org.opensha2.internal.Parsing.splitToDoubleList;
-import static org.opensha2.internal.Parsing.Delimiter.SPACE;
+import static gov.usgs.earthquake.eq.fault.FocalMech.NORMAL;
+import static gov.usgs.earthquake.eq.fault.FocalMech.REVERSE;
+import static gov.usgs.earthquake.eq.fault.FocalMech.STRIKE_SLIP;
+import static gov.usgs.earthquake.internal.Parsing.splitToDoubleList;
+import static gov.usgs.earthquake.internal.Parsing.Delimiter.SPACE;
 
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
 import gov.usgs.earthquake.nshm.util.FaultCode;
@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha2.eq.fault.FocalMech;
-import org.opensha2.geo.GriddedRegion;
-import org.opensha2.geo.Location;
-import org.opensha2.geo.Regions;
-import org.opensha2.internal.Parsing;
+import gov.usgs.earthquake.eq.fault.FocalMech;
+import gov.usgs.earthquake.geo.GriddedRegion;
+import gov.usgs.earthquake.geo.Location;
+import gov.usgs.earthquake.geo.Regions;
+import gov.usgs.earthquake.internal.Parsing;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;

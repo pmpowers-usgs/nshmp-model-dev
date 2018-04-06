@@ -2,19 +2,19 @@ package gov.usgs.earthquake.nshm.ak;
 
 import static gov.usgs.earthquake.nshm.ak.VariableSlipUtil.*;
 
-import static org.opensha2.internal.Parsing.addAttribute;
-import static org.opensha2.internal.Parsing.addComment;
-import static org.opensha2.internal.Parsing.addElement;
-import static org.opensha2.internal.SourceAttribute.ID;
-import static org.opensha2.internal.SourceAttribute.NAME;
-import static org.opensha2.internal.SourceAttribute.WEIGHT;
-import static org.opensha2.internal.SourceElement.DEFAULT_MFDS;
-import static org.opensha2.internal.SourceElement.SETTINGS;
-import static org.opensha2.internal.SourceElement.SYSTEM_FAULT_SECTIONS;
-import static org.opensha2.internal.SourceElement.SYSTEM_SOURCE_SET;
+import static gov.usgs.earthquake.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.internal.Parsing.addComment;
+import static gov.usgs.earthquake.internal.Parsing.addElement;
+import static gov.usgs.earthquake.internal.SourceAttribute.ID;
+import static gov.usgs.earthquake.internal.SourceAttribute.NAME;
+import static gov.usgs.earthquake.internal.SourceAttribute.WEIGHT;
+import static gov.usgs.earthquake.internal.SourceElement.DEFAULT_MFDS;
+import static gov.usgs.earthquake.internal.SourceElement.SETTINGS;
+import static gov.usgs.earthquake.internal.SourceElement.SYSTEM_FAULT_SECTIONS;
+import static gov.usgs.earthquake.internal.SourceElement.SYSTEM_SOURCE_SET;
 
-import org.opensha2.internal.Parsing;
-import org.opensha2.util.Maths;
+import gov.usgs.earthquake.internal.Parsing;
+import gov.usgs.earthquake.util.Maths;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

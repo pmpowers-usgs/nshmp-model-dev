@@ -1,22 +1,22 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static org.opensha2.internal.Parsing.addAttribute;
-import static org.opensha2.internal.Parsing.addElement;
-import static org.opensha2.internal.SourceAttribute.A;
-import static org.opensha2.internal.SourceAttribute.B;
-import static org.opensha2.internal.SourceAttribute.C_MAG;
-import static org.opensha2.internal.SourceAttribute.D_MAG;
-import static org.opensha2.internal.SourceAttribute.M_MAX;
-import static org.opensha2.internal.SourceAttribute.M_MIN;
-import static org.opensha2.internal.SourceAttribute.TYPE;
-import static org.opensha2.internal.SourceAttribute.WEIGHT;
-import static org.opensha2.internal.SourceElement.INCREMENTAL_MFD;
-import static org.opensha2.mfd.MfdType.GR;
-import static org.opensha2.mfd.MfdType.GR_TAPER;
-import static org.opensha2.mfd.Mfds.magCount;
+import static gov.usgs.earthquake.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.internal.Parsing.addElement;
+import static gov.usgs.earthquake.internal.SourceAttribute.A;
+import static gov.usgs.earthquake.internal.SourceAttribute.B;
+import static gov.usgs.earthquake.internal.SourceAttribute.C_MAG;
+import static gov.usgs.earthquake.internal.SourceAttribute.D_MAG;
+import static gov.usgs.earthquake.internal.SourceAttribute.M_MAX;
+import static gov.usgs.earthquake.internal.SourceAttribute.M_MIN;
+import static gov.usgs.earthquake.internal.SourceAttribute.TYPE;
+import static gov.usgs.earthquake.internal.SourceAttribute.WEIGHT;
+import static gov.usgs.earthquake.internal.SourceElement.INCREMENTAL_MFD;
+import static gov.usgs.earthquake.mfd.MfdType.GR;
+import static gov.usgs.earthquake.mfd.MfdType.GR_TAPER;
+import static gov.usgs.earthquake.mfd.Mfds.magCount;
 
-import org.opensha2.internal.Parsing;
-import org.opensha2.internal.Parsing.Delimiter;
+import gov.usgs.earthquake.internal.Parsing;
+import gov.usgs.earthquake.internal.Parsing.Delimiter;
 
 import gov.usgs.earthquake.nshm.convert.FaultConverter.SourceData;
 import gov.usgs.earthquake.nshm.util.Utils;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opensha2.mfd.MfdType;
+import gov.usgs.earthquake.mfd.MfdType;
 
 import org.w3c.dom.Element;
 

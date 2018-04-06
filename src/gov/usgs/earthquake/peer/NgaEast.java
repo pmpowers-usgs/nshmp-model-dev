@@ -1,18 +1,18 @@
 package gov.usgs.earthquake.peer;
 
-import static org.opensha2.gmm.Imt.PGA;
-import static org.opensha2.gmm.Imt.PGV;
-import static org.opensha2.gmm.Imt.SA0P075;
-import static org.opensha2.gmm.Imt.SA0P15;
-import static org.opensha2.gmm.Imt.SA0P3;
-import static org.opensha2.gmm.Imt.SA0P75;
-import static org.opensha2.gmm.Imt.SA1P5;
-import static org.opensha2.gmm.Imt.SA3P0;
-import static org.opensha2.gmm.Imt.SA7P5;
-import static org.opensha2.internal.Parsing.Delimiter.COMMA;
+import static gov.usgs.earthquake.gmm.Imt.PGA;
+import static gov.usgs.earthquake.gmm.Imt.PGV;
+import static gov.usgs.earthquake.gmm.Imt.SA0P075;
+import static gov.usgs.earthquake.gmm.Imt.SA0P15;
+import static gov.usgs.earthquake.gmm.Imt.SA0P3;
+import static gov.usgs.earthquake.gmm.Imt.SA0P75;
+import static gov.usgs.earthquake.gmm.Imt.SA1P5;
+import static gov.usgs.earthquake.gmm.Imt.SA3P0;
+import static gov.usgs.earthquake.gmm.Imt.SA7P5;
+import static gov.usgs.earthquake.internal.Parsing.Delimiter.COMMA;
 
-import org.opensha2.gmm.Imt;
-import org.opensha2.internal.Parsing;
+import gov.usgs.earthquake.gmm.Imt;
+import gov.usgs.earthquake.internal.Parsing;
 
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.Iterables;

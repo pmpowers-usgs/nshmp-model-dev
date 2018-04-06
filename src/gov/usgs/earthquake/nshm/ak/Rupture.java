@@ -1,14 +1,14 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import static org.opensha2.internal.Parsing.addAttribute;
-import static org.opensha2.internal.Parsing.addElement;
-import static org.opensha2.internal.SourceAttribute.DEPTH;
-import static org.opensha2.internal.SourceAttribute.DIP;
-import static org.opensha2.internal.SourceAttribute.INDICES;
-import static org.opensha2.internal.SourceAttribute.RAKE;
-import static org.opensha2.internal.SourceAttribute.WIDTH;
-import static org.opensha2.internal.SourceElement.GEOMETRY;
-import static org.opensha2.internal.SourceElement.SOURCE;
+import static gov.usgs.earthquake.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.internal.Parsing.addElement;
+import static gov.usgs.earthquake.internal.SourceAttribute.DEPTH;
+import static gov.usgs.earthquake.internal.SourceAttribute.DIP;
+import static gov.usgs.earthquake.internal.SourceAttribute.INDICES;
+import static gov.usgs.earthquake.internal.SourceAttribute.RAKE;
+import static gov.usgs.earthquake.internal.SourceAttribute.WIDTH;
+import static gov.usgs.earthquake.internal.SourceElement.GEOMETRY;
+import static gov.usgs.earthquake.internal.SourceElement.SOURCE;
 
 import org.w3c.dom.Element;
 

@@ -13,14 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.opensha2.eq.Earthquakes;
-import org.opensha2.eq.TectonicSetting;
-import org.opensha2.eq.fault.Faults;
-import org.opensha2.geo.Location;
-import org.opensha2.geo.LocationList;
-import org.opensha2.mfd.IncrementalMfd;
-import org.opensha2.mfd.Mfds;
-import org.opensha2.util.Maths;
+import gov.usgs.earthquake.eq.Earthquakes;
+import gov.usgs.earthquake.eq.TectonicSetting;
+import gov.usgs.earthquake.eq.fault.Faults;
+import gov.usgs.earthquake.geo.Location;
+import gov.usgs.earthquake.geo.LocationList;
+import gov.usgs.earthquake.mfd.IncrementalMfd;
+import gov.usgs.earthquake.mfd.Mfds;
+import gov.usgs.earthquake.util.Maths;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;

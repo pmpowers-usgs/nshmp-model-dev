@@ -1,17 +1,17 @@
 package gov.usgs.earthquake.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opensha2.gmm.GmmAttribute.ID;
-import static org.opensha2.gmm.GmmAttribute.MAX_DISTANCE;
-import static org.opensha2.gmm.GmmAttribute.VALUES;
-import static org.opensha2.gmm.GmmAttribute.WEIGHT;
-import static org.opensha2.gmm.GmmAttribute.WEIGHTS;
-import static org.opensha2.gmm.GmmElement.GROUND_MOTION_MODELS;
-import static org.opensha2.gmm.GmmElement.MODEL;
-import static org.opensha2.gmm.GmmElement.MODEL_SET;
-import static org.opensha2.gmm.GmmElement.UNCERTAINTY;
-import static org.opensha2.internal.Parsing.addAttribute;
-import static org.opensha2.internal.Parsing.addElement;
+import static gov.usgs.earthquake.gmm.GmmAttribute.ID;
+import static gov.usgs.earthquake.gmm.GmmAttribute.MAX_DISTANCE;
+import static gov.usgs.earthquake.gmm.GmmAttribute.VALUES;
+import static gov.usgs.earthquake.gmm.GmmAttribute.WEIGHT;
+import static gov.usgs.earthquake.gmm.GmmAttribute.WEIGHTS;
+import static gov.usgs.earthquake.gmm.GmmElement.GROUND_MOTION_MODELS;
+import static gov.usgs.earthquake.gmm.GmmElement.MODEL;
+import static gov.usgs.earthquake.gmm.GmmElement.MODEL_SET;
+import static gov.usgs.earthquake.gmm.GmmElement.UNCERTAINTY;
+import static gov.usgs.earthquake.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.internal.Parsing.addElement;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +30,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opensha2.gmm.Gmm;
+import gov.usgs.earthquake.gmm.Gmm;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

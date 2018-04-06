@@ -2,10 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import java.util.List;
 
-import org.opensha2.eq.fault.surface.GriddedSurface;
-import org.opensha2.eq.fault.surface.RuptureSurface;
-import org.opensha2.geo.LocationList;
-import org.opensha2.geo.Locations;
+import gov.usgs.earthquake.eq.fault.surface.GriddedSurface;
+import gov.usgs.earthquake.eq.fault.surface.RuptureSurface;
+import gov.usgs.earthquake.geo.LocationList;
+import gov.usgs.earthquake.geo.Locations;
 
 /*
  * Reduction of CompoundSurface bidiness logic to bare minimum .

@@ -2,10 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.*;
-import static org.opensha2.eq.model.SourceType.*;
-import static org.opensha2.internal.Parsing.addComment;
+import static gov.usgs.earthquake.eq.model.SourceType.*;
+import static gov.usgs.earthquake.internal.Parsing.addComment;
 
-import org.opensha2.internal.Parsing;
+import gov.usgs.earthquake.internal.Parsing;
 
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 import gov.usgs.earthquake.nshm.util.Utils;

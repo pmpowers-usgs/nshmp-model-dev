@@ -16,14 +16,14 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.opensha2.eq.Earthquakes;
-import org.opensha2.eq.fault.FocalMech;
-import org.opensha2.geo.BorderType;
-import org.opensha2.geo.GriddedRegion;
-import org.opensha2.geo.Location;
-import org.opensha2.geo.LocationList;
-import org.opensha2.geo.Regions;
-import org.opensha2.mfd.Mfds;
+import gov.usgs.earthquake.eq.Earthquakes;
+import gov.usgs.earthquake.eq.fault.FocalMech;
+import gov.usgs.earthquake.geo.BorderType;
+import gov.usgs.earthquake.geo.GriddedRegion;
+import gov.usgs.earthquake.geo.Location;
+import gov.usgs.earthquake.geo.LocationList;
+import gov.usgs.earthquake.geo.Regions;
+import gov.usgs.earthquake.mfd.Mfds;
 
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.base.Strings;
