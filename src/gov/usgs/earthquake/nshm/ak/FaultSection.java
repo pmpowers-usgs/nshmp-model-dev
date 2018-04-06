@@ -1,19 +1,19 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import static gov.usgs.earthquake.internal.Parsing.addAttribute;
-import static gov.usgs.earthquake.internal.Parsing.addElement;
-import static gov.usgs.earthquake.internal.SourceAttribute.ASEIS;
-import static gov.usgs.earthquake.internal.SourceAttribute.DEPTH;
-import static gov.usgs.earthquake.internal.SourceAttribute.DIP;
-import static gov.usgs.earthquake.internal.SourceAttribute.DIP_DIR;
-import static gov.usgs.earthquake.internal.SourceAttribute.INDEX;
-import static gov.usgs.earthquake.internal.SourceAttribute.LOWER_DEPTH;
-import static gov.usgs.earthquake.internal.SourceAttribute.NAME;
-import static gov.usgs.earthquake.internal.SourceElement.GEOMETRY;
-import static gov.usgs.earthquake.internal.SourceElement.SECTION;
-import static gov.usgs.earthquake.internal.SourceElement.TRACE;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addElement;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.ASEIS;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DEPTH;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DIP;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DIP_DIR;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.INDEX;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.LOWER_DEPTH;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.NAME;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.GEOMETRY;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.SECTION;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.TRACE;
 
-import gov.usgs.earthquake.geo.LocationList;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
 
 import org.w3c.dom.Element;
 

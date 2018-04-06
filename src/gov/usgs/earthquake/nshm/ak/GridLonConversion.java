@@ -1,6 +1,6 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import gov.usgs.earthquake.util.Maths;
+import gov.usgs.earthquake.nshmp.util.Maths;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -1,25 +1,25 @@
 package gov.usgs.earthquake.model;
 
-import static gov.usgs.earthquake.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
-import static gov.usgs.earthquake.internal.Parsing.addAttribute;
-import static gov.usgs.earthquake.internal.Parsing.addElement;
-import static gov.usgs.earthquake.internal.Parsing.enumValueMapToString;
-import static gov.usgs.earthquake.internal.SourceAttribute.DEPTH;
-import static gov.usgs.earthquake.internal.SourceAttribute.DIP;
-import static gov.usgs.earthquake.internal.SourceAttribute.FOCAL_MECH_MAP;
-import static gov.usgs.earthquake.internal.SourceAttribute.MAG_DEPTH_MAP;
-import static gov.usgs.earthquake.internal.SourceAttribute.NAME;
-import static gov.usgs.earthquake.internal.SourceAttribute.RAKE;
-import static gov.usgs.earthquake.internal.SourceAttribute.RUPTURE_SCALING;
-import static gov.usgs.earthquake.internal.SourceAttribute.STRIKE;
-import static gov.usgs.earthquake.internal.SourceAttribute.WEIGHT;
-import static gov.usgs.earthquake.internal.SourceAttribute.WIDTH;
-import static gov.usgs.earthquake.internal.SourceElement.AREA_SOURCE_SET;
-import static gov.usgs.earthquake.internal.SourceElement.BORDER;
-import static gov.usgs.earthquake.internal.SourceElement.DEFAULT_MFDS;
-import static gov.usgs.earthquake.internal.SourceElement.SETTINGS;
-import static gov.usgs.earthquake.internal.SourceElement.SOURCE;
-import static gov.usgs.earthquake.internal.SourceElement.SOURCE_PROPERTIES;
+import static gov.usgs.earthquake.nshmp.eq.fault.surface.RuptureScaling.NSHM_POINT_WC94_LENGTH;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addElement;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.enumValueMapToString;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DEPTH;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DIP;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.FOCAL_MECH_MAP;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.MAG_DEPTH_MAP;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.NAME;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.RAKE;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.RUPTURE_SCALING;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.STRIKE;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.WEIGHT;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.WIDTH;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.AREA_SOURCE_SET;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.BORDER;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.DEFAULT_MFDS;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.SETTINGS;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.SOURCE;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.SOURCE_PROPERTIES;
 
 import gov.usgs.earthquake.nshm.convert.MFD_Data;
 
@@ -40,10 +40,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import gov.usgs.earthquake.eq.fault.surface.RuptureScaling;
-import gov.usgs.earthquake.eq.model.AreaSource.GridScaling;
-import gov.usgs.earthquake.geo.LocationList;
-import gov.usgs.earthquake.mfd.IncrementalMfd;
+import gov.usgs.earthquake.nshmp.eq.fault.surface.RuptureScaling;
+import gov.usgs.earthquake.nshmp.eq.model.AreaSource.GridScaling;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
+import gov.usgs.earthquake.nshmp.mfd.IncrementalMfd;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

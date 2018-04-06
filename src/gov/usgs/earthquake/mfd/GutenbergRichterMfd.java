@@ -2,7 +2,7 @@ package gov.usgs.earthquake.mfd;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import gov.usgs.earthquake.mfd.IncrementalMfd;
+import gov.usgs.earthquake.nshmp.mfd.IncrementalMfd;
 
 /**
  * <p>Title: GutenbergRichterMfd.java </p> <p>Description: This is a truncated

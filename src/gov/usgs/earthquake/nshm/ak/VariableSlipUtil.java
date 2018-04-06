@@ -4,15 +4,15 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static gov.usgs.earthquake.nshm.ak.AkData.*;
 
-import gov.usgs.earthquake.data.Data;
-import gov.usgs.earthquake.data.XyPoint;
-import gov.usgs.earthquake.data.XySequence;
-import gov.usgs.earthquake.eq.Earthquakes;
-import gov.usgs.earthquake.eq.fault.Faults;
-import gov.usgs.earthquake.geo.LocationList;
-import gov.usgs.earthquake.internal.Parsing;
-import gov.usgs.earthquake.mfd.IncrementalMfd;
-import gov.usgs.earthquake.mfd.Mfds;
+import gov.usgs.earthquake.nshmp.data.Data;
+import gov.usgs.earthquake.nshmp.data.XyPoint;
+import gov.usgs.earthquake.nshmp.data.XySequence;
+import gov.usgs.earthquake.nshmp.eq.Earthquakes;
+import gov.usgs.earthquake.nshmp.eq.fault.Faults;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
+import gov.usgs.earthquake.nshmp.internal.Parsing;
+import gov.usgs.earthquake.nshmp.mfd.IncrementalMfd;
+import gov.usgs.earthquake.nshmp.mfd.Mfds;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;

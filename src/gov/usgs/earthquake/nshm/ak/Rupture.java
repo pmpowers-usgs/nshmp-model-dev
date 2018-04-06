@@ -1,14 +1,14 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import static gov.usgs.earthquake.internal.Parsing.addAttribute;
-import static gov.usgs.earthquake.internal.Parsing.addElement;
-import static gov.usgs.earthquake.internal.SourceAttribute.DEPTH;
-import static gov.usgs.earthquake.internal.SourceAttribute.DIP;
-import static gov.usgs.earthquake.internal.SourceAttribute.INDICES;
-import static gov.usgs.earthquake.internal.SourceAttribute.RAKE;
-import static gov.usgs.earthquake.internal.SourceAttribute.WIDTH;
-import static gov.usgs.earthquake.internal.SourceElement.GEOMETRY;
-import static gov.usgs.earthquake.internal.SourceElement.SOURCE;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addElement;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DEPTH;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.DIP;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.INDICES;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.RAKE;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.WIDTH;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.GEOMETRY;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.SOURCE;
 
 import org.w3c.dom.Element;
 

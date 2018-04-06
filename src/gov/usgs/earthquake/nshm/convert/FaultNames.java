@@ -2,8 +2,8 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import gov.usgs.earthquake.internal.Parsing;
-import gov.usgs.earthquake.internal.Parsing.Delimiter;
+import gov.usgs.earthquake.nshmp.internal.Parsing;
+import gov.usgs.earthquake.nshmp.internal.Parsing.Delimiter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

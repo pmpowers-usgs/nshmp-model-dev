@@ -6,12 +6,12 @@ import static gov.usgs.earthquake.nshm.util.RateType.CUMULATIVE;
 import static gov.usgs.earthquake.nshm.util.RateType.INCREMENTAL;
 import static gov.usgs.earthquake.nshm.util.SourceRegion.CEUS;
 import static gov.usgs.earthquake.nshm.util.Utils.readGrid;
-import static gov.usgs.earthquake.eq.fault.FocalMech.NORMAL;
-import static gov.usgs.earthquake.eq.fault.FocalMech.REVERSE;
-import static gov.usgs.earthquake.eq.fault.FocalMech.STRIKE_SLIP;
-import static gov.usgs.earthquake.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
-import static gov.usgs.earthquake.internal.Parsing.splitToDoubleList;
-import static gov.usgs.earthquake.internal.Parsing.Delimiter.SPACE;
+import static gov.usgs.earthquake.nshmp.eq.fault.FocalMech.NORMAL;
+import static gov.usgs.earthquake.nshmp.eq.fault.FocalMech.REVERSE;
+import static gov.usgs.earthquake.nshmp.eq.fault.FocalMech.STRIKE_SLIP;
+import static gov.usgs.earthquake.nshmp.eq.fault.surface.RuptureScaling.NSHM_SUB_GEOMAT_LENGTH;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.splitToDoubleList;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.Delimiter.SPACE;
 
 import gov.usgs.earthquake.nshm.util.FaultCode;
 
@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import gov.usgs.earthquake.eq.fault.FocalMech;
-import gov.usgs.earthquake.geo.GriddedRegion;
-import gov.usgs.earthquake.geo.Location;
-import gov.usgs.earthquake.geo.Regions;
-import gov.usgs.earthquake.internal.Parsing;
+import gov.usgs.earthquake.nshmp.eq.fault.FocalMech;
+import gov.usgs.earthquake.nshmp.geo.GriddedRegion;
+import gov.usgs.earthquake.nshmp.geo.Location;
+import gov.usgs.earthquake.nshmp.geo.Regions;
+import gov.usgs.earthquake.nshmp.internal.Parsing;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;

@@ -1,16 +1,16 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static gov.usgs.earthquake.internal.Parsing.addAttribute;
-import static gov.usgs.earthquake.internal.Parsing.addElement;
-import static gov.usgs.earthquake.internal.SourceAttribute.FLOATS;
-import static gov.usgs.earthquake.internal.SourceAttribute.M;
-import static gov.usgs.earthquake.internal.SourceAttribute.RATE;
-import static gov.usgs.earthquake.internal.SourceAttribute.TYPE;
-import static gov.usgs.earthquake.internal.SourceAttribute.WEIGHT;
-import static gov.usgs.earthquake.internal.SourceElement.INCREMENTAL_MFD;
-import static gov.usgs.earthquake.mfd.MfdType.SINGLE;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addElement;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.FLOATS;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.M;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.RATE;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.TYPE;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.WEIGHT;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.INCREMENTAL_MFD;
+import static gov.usgs.earthquake.nshmp.mfd.MfdType.SINGLE;
 
-import gov.usgs.earthquake.data.Data;
+import gov.usgs.earthquake.nshmp.data.Data;
 import org.w3c.dom.Element;
 
 /*

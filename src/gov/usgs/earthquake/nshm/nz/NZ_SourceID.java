@@ -1,12 +1,12 @@
 package gov.usgs.earthquake.nshm.nz;
 
-import static gov.usgs.earthquake.eq.TectonicSetting.*;
-import static gov.usgs.earthquake.eq.fault.FocalMech.*;
+import static gov.usgs.earthquake.nshmp.eq.TectonicSetting.*;
+import static gov.usgs.earthquake.nshmp.eq.fault.FocalMech.*;
 
 import java.util.Map;
 
-import gov.usgs.earthquake.eq.TectonicSetting;
-import gov.usgs.earthquake.eq.fault.FocalMech;
+import gov.usgs.earthquake.nshmp.eq.TectonicSetting;
+import gov.usgs.earthquake.nshmp.eq.fault.FocalMech;
 
 import com.google.common.collect.ImmutableMap;
 

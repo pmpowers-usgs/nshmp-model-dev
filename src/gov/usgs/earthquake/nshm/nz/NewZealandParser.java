@@ -13,14 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import gov.usgs.earthquake.eq.Earthquakes;
-import gov.usgs.earthquake.eq.TectonicSetting;
-import gov.usgs.earthquake.eq.fault.Faults;
-import gov.usgs.earthquake.geo.Location;
-import gov.usgs.earthquake.geo.LocationList;
-import gov.usgs.earthquake.mfd.IncrementalMfd;
-import gov.usgs.earthquake.mfd.Mfds;
-import gov.usgs.earthquake.util.Maths;
+import gov.usgs.earthquake.nshmp.eq.Earthquakes;
+import gov.usgs.earthquake.nshmp.eq.TectonicSetting;
+import gov.usgs.earthquake.nshmp.eq.fault.Faults;
+import gov.usgs.earthquake.nshmp.geo.Location;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
+import gov.usgs.earthquake.nshmp.mfd.IncrementalMfd;
+import gov.usgs.earthquake.nshmp.mfd.Mfds;
+import gov.usgs.earthquake.nshmp.util.Maths;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;

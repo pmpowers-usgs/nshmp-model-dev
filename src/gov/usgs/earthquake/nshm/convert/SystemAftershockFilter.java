@@ -2,7 +2,7 @@ package gov.usgs.earthquake.nshm.convert;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import gov.usgs.earthquake.function.EvenlyDiscretizedFunc;
+import gov.usgs.earthquake.nshmp.function.EvenlyDiscretizedFunc;
 
 import gov.usgs.earthquake.mfd.GutenbergRichterMfd;
 

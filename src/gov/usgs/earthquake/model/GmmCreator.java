@@ -1,17 +1,17 @@
 package gov.usgs.earthquake.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static gov.usgs.earthquake.gmm.GmmAttribute.ID;
-import static gov.usgs.earthquake.gmm.GmmAttribute.MAX_DISTANCE;
-import static gov.usgs.earthquake.gmm.GmmAttribute.VALUES;
-import static gov.usgs.earthquake.gmm.GmmAttribute.WEIGHT;
-import static gov.usgs.earthquake.gmm.GmmAttribute.WEIGHTS;
-import static gov.usgs.earthquake.gmm.GmmElement.GROUND_MOTION_MODELS;
-import static gov.usgs.earthquake.gmm.GmmElement.MODEL;
-import static gov.usgs.earthquake.gmm.GmmElement.MODEL_SET;
-import static gov.usgs.earthquake.gmm.GmmElement.UNCERTAINTY;
-import static gov.usgs.earthquake.internal.Parsing.addAttribute;
-import static gov.usgs.earthquake.internal.Parsing.addElement;
+import static gov.usgs.earthquake.nshmp.gmm.GmmAttribute.ID;
+import static gov.usgs.earthquake.nshmp.gmm.GmmAttribute.MAX_DISTANCE;
+import static gov.usgs.earthquake.nshmp.gmm.GmmAttribute.VALUES;
+import static gov.usgs.earthquake.nshmp.gmm.GmmAttribute.WEIGHT;
+import static gov.usgs.earthquake.nshmp.gmm.GmmAttribute.WEIGHTS;
+import static gov.usgs.earthquake.nshmp.gmm.GmmElement.GROUND_MOTION_MODELS;
+import static gov.usgs.earthquake.nshmp.gmm.GmmElement.MODEL;
+import static gov.usgs.earthquake.nshmp.gmm.GmmElement.MODEL_SET;
+import static gov.usgs.earthquake.nshmp.gmm.GmmElement.UNCERTAINTY;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addElement;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +30,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import gov.usgs.earthquake.gmm.Gmm;
+import gov.usgs.earthquake.nshmp.gmm.Gmm;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

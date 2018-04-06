@@ -5,7 +5,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
-import gov.usgs.earthquake.eq.model.SourceType;
+import gov.usgs.earthquake.nshmp.eq.model.SourceType;
 
 import gov.usgs.earthquake.nshm.util.SourceRegion;
 

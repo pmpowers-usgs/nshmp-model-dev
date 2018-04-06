@@ -1,22 +1,22 @@
 package gov.usgs.earthquake.nshm.convert;
 
-import static gov.usgs.earthquake.internal.Parsing.addAttribute;
-import static gov.usgs.earthquake.internal.Parsing.addElement;
-import static gov.usgs.earthquake.internal.SourceAttribute.A;
-import static gov.usgs.earthquake.internal.SourceAttribute.B;
-import static gov.usgs.earthquake.internal.SourceAttribute.C_MAG;
-import static gov.usgs.earthquake.internal.SourceAttribute.D_MAG;
-import static gov.usgs.earthquake.internal.SourceAttribute.M_MAX;
-import static gov.usgs.earthquake.internal.SourceAttribute.M_MIN;
-import static gov.usgs.earthquake.internal.SourceAttribute.TYPE;
-import static gov.usgs.earthquake.internal.SourceAttribute.WEIGHT;
-import static gov.usgs.earthquake.internal.SourceElement.INCREMENTAL_MFD;
-import static gov.usgs.earthquake.mfd.MfdType.GR;
-import static gov.usgs.earthquake.mfd.MfdType.GR_TAPER;
-import static gov.usgs.earthquake.mfd.Mfds.magCount;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addAttribute;
+import static gov.usgs.earthquake.nshmp.internal.Parsing.addElement;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.A;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.B;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.C_MAG;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.D_MAG;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.M_MAX;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.M_MIN;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.TYPE;
+import static gov.usgs.earthquake.nshmp.internal.SourceAttribute.WEIGHT;
+import static gov.usgs.earthquake.nshmp.internal.SourceElement.INCREMENTAL_MFD;
+import static gov.usgs.earthquake.nshmp.mfd.MfdType.GR;
+import static gov.usgs.earthquake.nshmp.mfd.MfdType.GR_TAPER;
+import static gov.usgs.earthquake.nshmp.mfd.Mfds.magCount;
 
-import gov.usgs.earthquake.internal.Parsing;
-import gov.usgs.earthquake.internal.Parsing.Delimiter;
+import gov.usgs.earthquake.nshmp.internal.Parsing;
+import gov.usgs.earthquake.nshmp.internal.Parsing.Delimiter;
 
 import gov.usgs.earthquake.nshm.convert.FaultConverter.SourceData;
 import gov.usgs.earthquake.nshm.util.Utils;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import gov.usgs.earthquake.mfd.MfdType;
+import gov.usgs.earthquake.nshmp.mfd.MfdType;
 
 import org.w3c.dom.Element;
 

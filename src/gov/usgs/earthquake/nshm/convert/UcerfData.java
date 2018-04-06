@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import gov.usgs.earthquake.internal.Parsing;
-import gov.usgs.earthquake.internal.Parsing.Delimiter;
+import gov.usgs.earthquake.nshmp.internal.Parsing;
+import gov.usgs.earthquake.nshmp.internal.Parsing.Delimiter;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;

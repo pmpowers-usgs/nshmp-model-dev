@@ -1,8 +1,8 @@
 package gov.usgs.earthquake.nshm.ak;
 
-import gov.usgs.earthquake.eq.fault.surface.RuptureScaling;
-import gov.usgs.earthquake.geo.Location;
-import gov.usgs.earthquake.geo.LocationList;
+import gov.usgs.earthquake.nshmp.eq.fault.surface.RuptureScaling;
+import gov.usgs.earthquake.nshmp.geo.Location;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;

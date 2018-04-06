@@ -2,10 +2,10 @@ package gov.usgs.earthquake.nshm.convert;
 
 import java.util.List;
 
-import gov.usgs.earthquake.eq.Earthquakes;
-import gov.usgs.earthquake.geo.LocationList;
-import gov.usgs.earthquake.mfd.Mfds;
-import gov.usgs.earthquake.util.Maths;
+import gov.usgs.earthquake.nshmp.eq.Earthquakes;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
+import gov.usgs.earthquake.nshmp.mfd.Mfds;
+import gov.usgs.earthquake.nshmp.util.Maths;
 
 import com.google.common.collect.Lists;
 
