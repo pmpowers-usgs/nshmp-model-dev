@@ -39,16 +39,22 @@ import java.util.Map.Entry;
  */
 public class NgaEast {
 
-//  static final String DIRBASE =
-//      "../../../Documents/NSHMP/GMPE/NGA-East/NGA-East_Final_Report_Rev0/E.1.1_Final_Median_NGA-East_GMM_Tables/";
+  // prior paths:
+  // .../NGA-East/NGA-East_Final_Report_Rev0/E.1.1_Final_Median_NGA-East_GMM_Tables/ (29 models)
+  // .../NGA-East/NGA-East_For_USGS_Updated_Median_Models/ (13 models)
+  
+  // NOTE Delete any existing csv-combined directory first
+  // NOTE the latest set of 
+  
+  // 17 models
   static final String DIRBASE = 
-      "../../../Documents/NSHMP/GMPE/NGA-East/PEER Report 2017-03 - NGA-East - GMMs for the USGS NSHM /AppendixA_13GMMs/";
+      "../../Documents/NSHMP/GMPE/NGA-East/NGA-East_For_USGS_Updated_Median_Models/";
 
-  static final Path SRC_DIR = Paths.get(DIRBASE, "csv");
-  static final String SRC_FILEBASE = "NGA-East_Model_";
+//  static final Path SRC_DIR = Paths.get(DIRBASE, "csv");
+  static final String SRC_FILEBASE = "NGA_East_Model_";
 
   static final Path OUT_DIR = Paths.get(DIRBASE, "csv-combined");
-  static final String OUT_FILEBASE = "nga-east-usgs-";
+  static final String OUT_FILEBASE = "nga-east-usgs2-";
 
   static final List<Double> R =
       Doubles.asList(0, 1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140,
@@ -58,25 +64,27 @@ public class NgaEast {
       Doubles.asList(4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 7.8, 8.0, 8.2);
 
   public static void main(String[] args) throws IOException {
-    for (int i = 1; i <= 13; i++) {
-//    for (int i = 1; i <= 29; i++) {
+    for (int i = 1; i <= 17; i++) {
       combine(i);
     }
   }
 
   static void combine(int model) throws IOException {
-
+    
     Map<Imt, Table<Double, Double, Double>> μTables = Maps.newEnumMap(Imt.class);
 
-    String id = ((model < 10) ? "0" : "") + model;
-    String glob = SRC_FILEBASE + id + "_" + "*.csv";
-    DirectoryStream<Path> stream = Files.newDirectoryStream(SRC_DIR, glob);
+    DirectoryStream<Path> stream = Files.newDirectoryStream(
+        Paths.get(DIRBASE),
+        path -> Files.isDirectory(path) && !path.getFileName().toString().startsWith("csv"));
 
     for (Path p : stream) {
       String fName = p.getFileName().toString();
-      String freqStr = fName.substring(fName.lastIndexOf('_') + 1, fName.lastIndexOf('.'));
-      Imt imt = toImt(freqStr);
-      Table<Double, Double, Double> μTable = loadFile(p);
+//      System.out.println(fName);
+      Imt imt = toImt(fName);
+//      System.out.println(imt);
+      
+      Path modelPath = p.resolve(SRC_FILEBASE + model + ".csv");
+      Table<Double, Double, Double> μTable = loadFile(modelPath);
       μTables.put(imt, μTable);
     }
 
@@ -88,7 +96,7 @@ public class NgaEast {
     Table<Double, Double, Double> t = ArrayTable.create(R, M);
     for (String line : Iterables.skip(lines, 1)) {
       List<Double> v = Parsing.splitToDoubleList(line, COMMA);
-      t.put(v.get(1), v.get(0), v.get(2));
+      t.put(v.get(1), v.get(0), Math.exp(v.get(2)));
     }
     return t;
   }
@@ -112,7 +120,7 @@ public class NgaEast {
     lines.add(header);
     for (Entry<Double, Map<Double, Double>> rEntry : t.rowMap().entrySet()) {
       double r = rEntry.getKey();
-      String line = r + "," + Parsing.join(rEntry.getValue().values(), COMMA);
+      String line = r + "," + Parsing.toString(rEntry.getValue().values(), "%.5g", ",", false, true);
       lines.add(line);
     }
     return lines;

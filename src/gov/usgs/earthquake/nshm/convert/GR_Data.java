@@ -37,14 +37,14 @@ import org.w3c.dom.Element;
  */
 public class GR_Data implements MFD_Data {
 
-  double aVal;
-  double bVal;
-  double mMin;
-  double mMax;
-  double dMag;
-  double cMag; // optional tapered gr corner mag
-  double weight;
-  int nMag;
+  public double aVal;
+  public double bVal;
+  public double mMin;
+  public double mMax;
+  public double dMag;
+  public double cMag; // optional tapered gr corner mag
+  public double weight;
+  public int nMag;
 
   /* Used internally */
   private GR_Data() {}
