@@ -22,8 +22,6 @@ import static gov.usgs.earthquake.nshmp.internal.SourceElement.SETTINGS;
 import static gov.usgs.earthquake.nshmp.internal.SourceElement.SOURCE_PROPERTIES;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,6 +59,7 @@ import gov.usgs.earthquake.nshmp.internal.Parsing.Delimiter;
 import gov.usgs.earthquake.nshmp.json.Feature;
 import gov.usgs.earthquake.nshmp.json.FeatureCollection;
 import gov.usgs.earthquake.nshmp.json.Polygon;
+import gov.usgs.earthquake.nshmp.json.Properties;
 
 /**
  * Grid source file creator.
@@ -115,23 +114,22 @@ public class GridProcessor {
   private static Map<String, Zone> initCeusZones(Path geojson, String label) {
     try {
       System.out.println("CEUS " + label + " zones:");
-      URL url = geojson.toUri().toURL();
-      InputStreamReader is = new InputStreamReader(url.openStream());
-      FeatureCollection fc = FeatureCollection.read(is);
-      List<Feature> featureList = fc.getFeatures();
+      FeatureCollection fc = FeatureCollection.read(geojson);
       ImmutableMap.Builder<String, Zone> zoneMap = ImmutableMap.builder();
-      for (Feature feature : featureList) {
-        String name = feature.getProperties().getStringProperty("title");
-        // TODO get rid of cast
-        int id = (int) feature.getProperties().getDoubleProperty("id");
-        Object mMaxData = feature.getProperties().getProperty("mMax");
-        Polygon poly = (Polygon) feature.getGeometry();
+
+      for (Feature feature : fc) {
+        Properties properties = feature.getProperties();
+        String name = properties.getStringProperty("title");
+        int id = properties.getIntProperty("id");
+        MMaxData mMaxData = properties.getProperty(MMaxData.class);
+        
+        Polygon poly = feature.getGeometry().asPolygon();
         Region region = poly.toRegion(name);
 
         Zone zone = new Zone();
         zone.id = id;
         zone.region = region;
-        zone.mMax = mMaxMap(mMaxData);
+        zone.mMax = mMaxData.toMap();
 
         zoneMap.put(name, zone);
 
@@ -146,6 +144,49 @@ public class GridProcessor {
     }
   }
 
+  /**
+   * Container class to represent the mMax property in each 
+   *    {@link Feature}.
+   * <br><br>
+   * 
+   *  mMax json structure:
+   *  <pre>
+   *  "mMax": [
+   *    {
+   *      "id": ,
+   *      "Mw": ,
+   *      "weight": 
+   *    }
+   *  ]
+   *  </pre>
+   */
+  static class MMaxData {
+    List<MMaxAttributes> mMax;
+   
+    /**
+     * Return a {@code Map<Double, Double>} representing a 
+     *    {@code Map<Mw, weight>}.
+     *    
+     * @return The map of Mw and weight
+     */
+    Map<Double, Double> toMap() {
+      ImmutableMap.Builder<Double, Double> mMaxMap = ImmutableMap.builder();
+      mMax.stream().forEach(data -> mMaxMap.put(data.Mw, data.weight));
+      
+      return mMaxMap.build();
+    }
+  }
+ 
+  /**
+   * Container class to represent the attributes in the mMax {@link Feature}
+   *    property. 
+   */
+  static class MMaxAttributes {
+    int id;
+    double Mw;
+    double weight;
+  }
+  
   static void runCeus() throws IOException {
 
     Path gridOut = CEUS_OUT.resolve(SourceType.GRID.toString());
@@ -314,16 +355,6 @@ public class GridProcessor {
       }
     }
     throw new IllegalArgumentException("Node not in zone: " + node);
-  }
-
-  @SuppressWarnings("unchecked")
-  static Map<Double, Double> mMaxMap(Object data) {
-    ImmutableMap.Builder<Double, Double> mMaxMap = ImmutableMap.builder();
-    for (Object o : (List<?>) data) {
-      Map<String, Double> dataMap = (Map<String, Double>) o;
-      mMaxMap.put(dataMap.get("Mw"), dataMap.get("weight"));
-    }
-    return mMaxMap.build();
   }
 
   public static void main(String[] args) throws IOException {
