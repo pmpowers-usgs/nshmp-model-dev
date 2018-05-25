@@ -22,6 +22,8 @@ import static gov.usgs.earthquake.nshmp.internal.SourceElement.SETTINGS;
 import static gov.usgs.earthquake.nshmp.internal.SourceElement.SOURCE_PROPERTIES;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,7 +88,21 @@ public class GridProcessor {
    * them into their own files.
    * 
    * Process the fault source model to derive mMax for GR and CH branches.
+   * 
+   * WUS mMax truncation: when processing the CH branch, we want
+   * grid mMax to be the largest possible bin center less than CH-mMax. By using
+   * HALF_DOWN rounding the bin-center below mMax=7.25 will be 7.15.
    */
+  
+  private static final BigDecimal MFD_HALF_BIN_WIDTH = BigDecimal.valueOf(0.05);
+  
+  static double round(double m) {
+    return BigDecimal.valueOf(m)
+        .setScale(1, RoundingMode.HALF_DOWN)
+        .subtract(MFD_HALF_BIN_WIDTH)
+        .doubleValue();
+  }
+
   static final Path OUT = Paths.get("tmp/nshm");
   static final Path CEUS_OUT = OUT.resolve("ceus");
   static final Path WUS_OUT = OUT.resolve("wus");

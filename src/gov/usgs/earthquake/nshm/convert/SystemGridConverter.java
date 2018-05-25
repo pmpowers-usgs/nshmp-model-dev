@@ -110,7 +110,7 @@ public class SystemGridConverter {
   static {
     mags = Data.buildSequence(5.05, 7.85, 0.1, true);
     magStrSet = ImmutableSet.copyOf(FluentIterable.from(Doubles.asList(mags))
-        .transform(Parsing.formatDoubleFunction("%.2f")).toList());
+        .transform(Parsing.formatDoubleFunction("%.2f")::apply).toList());
     try {
       fracStrikeSlip = readFocalMechs("StrikeSlipWts.txt");
       fracNormal = readFocalMechs("NormalWts.txt");
