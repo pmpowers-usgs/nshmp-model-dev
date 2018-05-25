@@ -1,4 +1,4 @@
-package gov.usgs.earthquake.nshm.cous;
+package gov.usgs.earthquake.nshm.cous2018;
 
 import static gov.usgs.earthquake.nshmp.eq.fault.FocalMech.NORMAL;
 import static gov.usgs.earthquake.nshmp.eq.fault.FocalMech.REVERSE;
@@ -69,7 +69,7 @@ import gov.usgs.earthquake.nshmp.json.Properties;
  * @author pmpowers
  *
  */
-public class GridProcessor {
+public class CeusGridProcessor {
 
   /*
    * Developer notes:
@@ -89,13 +89,13 @@ public class GridProcessor {
    * 
    * Process the fault source model to derive mMax for GR and CH branches.
    * 
-   * WUS mMax truncation: when processing the CH branch, we want
-   * grid mMax to be the largest possible bin center less than CH-mMax. By using
-   * HALF_DOWN rounding the bin-center below mMax=7.25 will be 7.15.
+   * WUS mMax truncation: when processing the CH branch, we want grid mMax to be
+   * the largest possible bin center less than CH-mMax. By using HALF_DOWN
+   * rounding the bin-center below mMax=7.25 will be 7.15.
    */
-  
+
   private static final BigDecimal MFD_HALF_BIN_WIDTH = BigDecimal.valueOf(0.05);
-  
+
   static double round(double m) {
     return BigDecimal.valueOf(m)
         .setScale(1, RoundingMode.HALF_DOWN)
@@ -138,7 +138,7 @@ public class GridProcessor {
         String name = properties.getStringProperty("title");
         int id = properties.getIntProperty("id");
         MMaxData mMaxData = properties.getProperty(MMaxData.class);
-        
+
         Polygon poly = feature.getGeometry().asPolygon();
         Region region = poly.toRegion(name);
 
@@ -161,12 +161,12 @@ public class GridProcessor {
   }
 
   /**
-   * Container class to represent the mMax property in each 
-   *    {@link Feature}.
+   * Container class to represent the mMax property in each {@link Feature}.
    * <br><br>
    * 
-   *  mMax json structure:
-   *  <pre>
+   * mMax json structure:
+   * 
+   * <pre>
    *  "mMax": [
    *    {
    *      "id": ,
@@ -174,35 +174,34 @@ public class GridProcessor {
    *      "weight": 
    *    }
    *  ]
-   *  </pre>
+   * </pre>
    */
   static class MMaxData {
     List<MMaxAttributes> mMax;
-   
+
     /**
-     * Return a {@code Map<Double, Double>} representing a 
-     *    {@code Map<Mw, weight>}.
-     *    
+     * Return a {@code Map<Double, Double>} representing a
+     * {@code Map<Mw, weight>}.
+     * 
      * @return The map of Mw and weight
      */
     Map<Double, Double> toMap() {
       ImmutableMap.Builder<Double, Double> mMaxMap = ImmutableMap.builder();
       mMax.stream().forEach(data -> mMaxMap.put(data.Mw, data.weight));
-      
       return mMaxMap.build();
     }
   }
- 
+
   /**
    * Container class to represent the attributes in the mMax {@link Feature}
-   *    property. 
+   * property.
    */
   static class MMaxAttributes {
     int id;
     double Mw;
     double weight;
   }
-  
+
   static void runCeus() throws IOException {
 
     Path gridOut = CEUS_OUT.resolve(SourceType.GRID.toString());
@@ -213,17 +212,17 @@ public class GridProcessor {
     Map<String, List<Node>> usgsFixed = processZones(CEUS_FIXED, usgsZones);
     writeNodes(usgsFixed, nodesOut.resolve(folder));
     writeSources(usgsZones, gridOut.resolve(folder), folder, USGS_WT * FIXED_WT);
-    
+
     folder = "usgs-adapt";
     Map<String, List<Node>> usgsAdapt = processZones(CEUS_ADAPT, usgsZones);
     writeNodes(usgsAdapt, nodesOut.resolve(folder));
     writeSources(usgsZones, gridOut.resolve(folder), folder, USGS_WT * ADAPT_WT);
-    
+
     folder = "sscn-fixed";
     Map<String, List<Node>> sscnFixed = processZones(CEUS_FIXED, sscnZones);
     writeNodes(sscnFixed, nodesOut.resolve(folder));
     writeSources(sscnZones, gridOut.resolve(folder), folder, SSCN_WT * FIXED_WT);
-    
+
     folder = "sscn-adapt";
     Map<String, List<Node>> sscnAdapt = processZones(CEUS_ADAPT, sscnZones);
     writeNodes(sscnAdapt, nodesOut.resolve(folder));

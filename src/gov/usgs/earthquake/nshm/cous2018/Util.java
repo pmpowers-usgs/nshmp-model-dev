@@ -1,4 +1,4 @@
-package gov.usgs.earthquake.nshm.cous;
+package gov.usgs.earthquake.nshm.cous2018;
 
 import org.w3c.dom.Element;
 
