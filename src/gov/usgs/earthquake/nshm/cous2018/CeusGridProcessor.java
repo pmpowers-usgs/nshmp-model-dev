@@ -27,6 +27,7 @@ import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,7 +49,6 @@ import org.w3c.dom.Element;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.math.DoubleMath;
 
 import gov.usgs.earthquake.nshm.convert.GR_Data;
 import gov.usgs.earthquake.nshmp.eq.fault.FocalMech;
@@ -63,12 +63,7 @@ import gov.usgs.earthquake.nshmp.json.FeatureCollection;
 import gov.usgs.earthquake.nshmp.json.Polygon;
 import gov.usgs.earthquake.nshmp.json.Properties;
 
-/**
- * Grid source file creator.
- * 
- * @author pmpowers
- *
- */
+@SuppressWarnings("javadoc")
 public class CeusGridProcessor {
 
   /*
@@ -105,7 +100,6 @@ public class CeusGridProcessor {
 
   static final Path OUT = Paths.get("tmp/nshm");
   static final Path CEUS_OUT = OUT.resolve("ceus");
-  static final Path WUS_OUT = OUT.resolve("wus");
 
   static final Path CAT_PATH = Paths.get("../nshmp-haz-catalogs/2018");
   static final Path AGRID_PATH = CAT_PATH.resolve("agrids");
@@ -306,49 +300,32 @@ public class CeusGridProcessor {
       grDat.weight = entry.getValue();
       grDat.appendTo(mfdRef, null);
     }
-    addSourceProperties(settings);
+    addCeusSourceProperties(settings);
     Element nodesElem = addElement(NODES, root);
     String gridpath = Paths.get(folder, zone.region.name() + ".csv").toString();
     addAttribute(PATH, gridpath, nodesElem);
   }
 
-  private static void addSourceProperties(Element settings) {
+  private static void addCeusSourceProperties(Element settings) {
     Element propsElem = addElement(SOURCE_PROPERTIES, settings);
-    addAttribute(MAG_DEPTH_MAP, magDepthDataToString(CEUS_DEPTH_MAG, DEPTHS), propsElem);
+    addAttribute(MAG_DEPTH_MAP, Util.magDepthDataToString(CEUS_DEPTH_MAG, DEPTHS), propsElem);
     addAttribute(MAX_DEPTH, CEUS_MAX_DEPTH, propsElem);
     addAttribute(FOCAL_MECH_MAP, enumValueMapToString(CEUS_MECH_WT_MAP), propsElem);
     addAttribute(STRIKE, CEUS_STRIKE, propsElem);
     addAttribute(RUPTURE_SCALING, CEUS_RUPTURE_SCALING, propsElem);
   }
 
-  /*
-   * This actually reproduces something closer to the originally supplied NSHMP
-   * mag-depth-weight distribution, but it's not worth going back to the parser
-   * to change it. Example outputs that can be parsed as
-   * stringToValueValueWeightMap: [6.5::[5.0:1.0]; 10.0::[1.0:1.0]] standard two
-   * depth [10.0::[50.0:1.0]] standard single depth
-   */
-  static String magDepthDataToString(double mag, double[] depths) {
-    StringBuffer sb = new StringBuffer("[");
-    if (DoubleMath.fuzzyEquals(depths[0], depths[1], 0.000001)) {
-      sb.append("10.0::[").append(depths[0]);
-      sb.append(":1.0]]");
-    } else {
-      sb.append(mag).append("::[");
-      sb.append(depths[0]).append(":1.0]; 10.0::[");
-      sb.append(depths[1]).append(":1.0]]");
-    }
-    return sb.toString();
-  }
-
   static void writeNodes(Map<String, List<Node>> nodesMap, Path out) throws IOException {
     Files.createDirectories(out);
     for (Entry<String, List<Node>> entry : nodesMap.entrySet()) {
+      Path file = out.resolve(entry.getKey() + ".csv");
+      Files.write(file, Node.HEADER.getBytes());
       Files.write(
-          out.resolve(entry.getKey() + ".csv"),
+          file,
           entry.getValue().stream()
               .map(Node::toString)
-              .collect(Collectors.toList()));
+              .collect(Collectors.toList()),
+          StandardOpenOption.APPEND);
     }
   }
 
@@ -376,6 +353,12 @@ public class CeusGridProcessor {
     runCeus();
   }
 
+  static class Zone {
+    int id;
+    Region region;
+    Map<Double, Double> mMax;
+  }
+
   static class LineToNode implements Function<String, Node> {
 
     @Override
@@ -386,41 +369,6 @@ public class CeusGridProcessor {
       node.a = d.get(2);
       return node;
     }
-  }
-
-  static final String NODE_FMT = "%.1f,%1f,GR,%.8g";
-  static final String NODE_FMT_MMAX = NODE_FMT + ",%.2f";
-
-  static class Node implements Comparable<Node> {
-
-    Location loc;
-    double a;
-
-    @Override
-    public int compareTo(Node other) {
-      return loc.compareTo(other.loc);
-    }
-
-    @Override
-    public String toString() {
-      return String.format(NODE_FMT, loc.lon(), loc.lat(), a);
-    }
-  }
-
-  static class MwMaxNode extends Node {
-
-    double mMax;
-
-    @Override
-    public String toString() {
-      return String.format(NODE_FMT_MMAX, loc.lon(), loc.lat(), a, mMax);
-    }
-  }
-
-  static class Zone {
-    int id;
-    Region region;
-    Map<Double, Double> mMax;
   }
 
 }
