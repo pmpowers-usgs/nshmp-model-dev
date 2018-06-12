@@ -48,7 +48,7 @@ class SourceFile {
    */
   Iterator<String> lineIterator() throws IOException {
     return Iterables.transform(
-        Resources.readLines(url, StandardCharsets.US_ASCII),
+        Resources.readLines(url, StandardCharsets.UTF_8),
         CommentStripper.INSTANCE).iterator();
   }
 

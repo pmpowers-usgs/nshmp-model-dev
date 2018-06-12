@@ -413,7 +413,7 @@ public class SystemGridConverter {
 
 	private static double[] readFocalMechs(String filename) throws IOException {
 		Path mechPath = Paths.get(MECH_DATA_DIR, filename);
-		List<String> lines = Files.readAllLines(mechPath, StandardCharsets.US_ASCII);
+		List<String> lines = Files.readAllLines(mechPath, StandardCharsets.UTF_8);
 		double[] data = new double[lines.size()];
 		int count = 0;
 		for (String line : lines) {

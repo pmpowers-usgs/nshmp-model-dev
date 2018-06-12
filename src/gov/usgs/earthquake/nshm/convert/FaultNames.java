@@ -48,7 +48,7 @@ class FaultNames {
   private void initMaps(Path path) throws IOException {
     nameMap = new HashMap<>();
     faultIdMap = new HashMap<>();
-    List<String> lines = Files.readAllLines(path, StandardCharsets.US_ASCII);
+    List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
     for (String line : Iterables.skip(lines, 1)) {
 
       int commaIndex = line.indexOf(',');
