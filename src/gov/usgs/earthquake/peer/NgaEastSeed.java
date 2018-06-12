@@ -82,7 +82,7 @@ public class NgaEastSeed {
   }
 
   static Table<Double, Double, Double> loadFile(Path csvFile) throws IOException {
-    List<String> lines = Files.readAllLines(csvFile, StandardCharsets.US_ASCII);
+    List<String> lines = Files.readAllLines(csvFile, StandardCharsets.UTF_8);
     Table<Double, Double, Double> t = ArrayTable.create(R, M);
     for (String line : Iterables.skip(lines, 1)) {
       List<Double> v = Parsing.splitToDoubleList(line, COMMA);
@@ -109,7 +109,7 @@ public class NgaEastSeed {
     }
     Files.createDirectories(OUT_DIR);
     Path out = OUT_DIR.resolve(OUT_FILEBASE + model + ".dat");
-    Files.write(out, lines, StandardCharsets.US_ASCII);
+    Files.write(out, lines, StandardCharsets.UTF_8);
   }
 
   static List<String> toLines(Imt imt, Table<Double, Double, Double> t) {

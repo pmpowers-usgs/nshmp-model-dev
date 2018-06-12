@@ -98,7 +98,7 @@ class NewZealandParser {
     // faultPath.toString());
     List<String> lines = null;
     try {
-      lines = Resources.readLines(faultPath.toUri().toURL(), StandardCharsets.US_ASCII);
+      lines = Resources.readLines(faultPath.toUri().toURL(), StandardCharsets.UTF_8);
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -267,7 +267,7 @@ class NewZealandParser {
 
     List<String> lines = null;
     try {
-      lines = Resources.readLines(gridPath.toUri().toURL(), StandardCharsets.US_ASCII);
+      lines = Resources.readLines(gridPath.toUri().toURL(), StandardCharsets.UTF_8);
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }

@@ -127,7 +127,7 @@ public class UcerfData {
   }
 
   static final Map<String, List<Double>> readMfds(Path mfdIn) throws IOException {
-    List<String> lines = Files.readAllLines(mfdIn, StandardCharsets.US_ASCII);
+    List<String> lines = Files.readAllLines(mfdIn, StandardCharsets.UTF_8);
     Iterator<String> it = Iterators.filter(lines.iterator(), new MFDLineFilter());
 
     Builder<String, List<Double>> ratesMap = ImmutableMap.builder();
@@ -182,7 +182,7 @@ public class UcerfData {
       line = entry.getKey() + "," + Parsing.join(entry.getValue(), Delimiter.COMMA);
       lines.add(line);
     }
-    Files.write(mfdOut, lines, StandardCharsets.US_ASCII);
+    Files.write(mfdOut, lines, StandardCharsets.UTF_8);
   }
 
   // TODO rename maps for use as additional resource in unified hazard tool
