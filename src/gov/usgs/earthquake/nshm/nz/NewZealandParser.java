@@ -194,7 +194,7 @@ class NewZealandParser {
     List<FaultData> sourceDataList = new ArrayList<>();
     for (Integer i : typeMap.get(tect)) {
       double rate = 1.0 / recurs.get(i);
-      double width = (zBots.get(i) - zTops.get(i)) / Math.sin(dips.get(i) * Maths.TO_RAD);
+      double width = (zBots.get(i) - zTops.get(i)) / Math.sin(dips.get(i) * Maths.TO_RADIANS);
       FaultData faultData = new FaultData(names.get(i), mags.get(i), rate,
           dips.get(i), zTops.get(i), width, rakes.get(i), traces.get(i));
       sourceDataList.add(faultData);
@@ -371,11 +371,11 @@ class NewZealandParser {
    */
   private static LocationList validateTrace(LocationList trace, double dipDir) {
     double traceDipDir = Faults.dipDirectionRad(trace);
-    double inputDipDir = dipDir * Maths.TO_RAD;
+    double inputDipDir = dipDir * Maths.TO_RADIANS;
     // dot-product derived angle between two dip direction unit vectors
     double angle = Math.acos(Math.sin(traceDipDir) * Math.sin(inputDipDir) +
         Math.cos(traceDipDir) * Math.cos(inputDipDir)) *
-        Maths.TO_DEG;
+        Maths.TO_DEGREES;
     return (angle > 90.0) ? trace.reverse() : trace;
   }
 

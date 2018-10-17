@@ -36,7 +36,7 @@ class ModelReducer {
     double dMag = 0.125;
     int nMag = 4;
 
-    double fSlip = 0.3 / Math.sin(dip * Maths.TO_RAD);
+    double fSlip = 0.3 / Math.sin(dip * Maths.TO_RADIANS);
 
     double Mo = Earthquakes.magToMoment(chM); // ch M moment
     double moRate = mu * fSlip * W * L * 1000.0; // 1K scale from mm to m and km
@@ -44,7 +44,7 @@ class ModelReducer {
 
     double chRateCalc = moRate / Mo;
     System.out.println(chRateCalc);
-    double vRateCalc = chRate * Earthquakes.magToMoment(chM) * Math.sin(dip * Maths.TO_RAD) /
+    double vRateCalc = chRate * Earthquakes.magToMoment(chM) * Math.sin(dip * Maths.TO_RADIANS) /
         (mu * W * L) / 1000.0;
     System.out.println(vRateCalc);
 
@@ -102,7 +102,7 @@ class ModelReducer {
   static final double ELASTIC_MODULUS = 3e10; // in N-m
 
   static double slipFromCH(double M, double rate, double dip, double W, double L) {
-    return rate * Earthquakes.magToMoment(M) * Math.sin(dip * Maths.TO_RAD) /
+    return rate * Earthquakes.magToMoment(M) * Math.sin(dip * Maths.TO_RADIANS) /
         (ELASTIC_MODULUS * W * L) / 1000.0;
   }
 

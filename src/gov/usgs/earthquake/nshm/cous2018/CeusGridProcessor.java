@@ -54,14 +54,17 @@ import gov.usgs.earthquake.nshm.convert.GR_Data;
 import gov.usgs.earthquake.nshmp.eq.fault.FocalMech;
 import gov.usgs.earthquake.nshmp.eq.fault.surface.RuptureScaling;
 import gov.usgs.earthquake.nshmp.eq.model.SourceType;
+import gov.usgs.earthquake.nshmp.geo.BorderType;
 import gov.usgs.earthquake.nshmp.geo.Location;
+import gov.usgs.earthquake.nshmp.geo.LocationList;
 import gov.usgs.earthquake.nshmp.geo.Region;
+import gov.usgs.earthquake.nshmp.geo.Regions;
+import gov.usgs.earthquake.nshmp.geo.json.Feature;
+import gov.usgs.earthquake.nshmp.geo.json.FeatureCollection;
+import gov.usgs.earthquake.nshmp.geo.json.GeoJson;
+import gov.usgs.earthquake.nshmp.geo.json.Properties;
 import gov.usgs.earthquake.nshmp.internal.Parsing;
 import gov.usgs.earthquake.nshmp.internal.Parsing.Delimiter;
-import gov.usgs.earthquake.nshmp.json.Feature;
-import gov.usgs.earthquake.nshmp.json.FeatureCollection;
-import gov.usgs.earthquake.nshmp.json.Polygon;
-import gov.usgs.earthquake.nshmp.json.Properties;
 
 @SuppressWarnings("javadoc")
 public class CeusGridProcessor {
@@ -124,17 +127,17 @@ public class CeusGridProcessor {
   private static Map<String, Zone> initCeusZones(Path geojson, String label) {
     try {
       System.out.println("CEUS " + label + " zones:");
-      FeatureCollection fc = FeatureCollection.read(geojson);
+      FeatureCollection fc = GeoJson.fromJson(geojson);
       ImmutableMap.Builder<String, Zone> zoneMap = ImmutableMap.builder();
 
-      for (Feature feature : fc) {
-        Properties properties = feature.getProperties();
-        String name = properties.getStringProperty("title");
-        int id = properties.getIntProperty("id");
+      for (Feature feature : fc.features()) {
+        Properties properties = feature.properties();
+        String name = properties.getString("title");
+        int id = properties.getInt("id");
         MMaxData mMaxData = properties.getProperty(MMaxData.class);
 
-        Polygon poly = feature.getGeometry().asPolygon();
-        Region region = poly.toRegion(name);
+        LocationList border = feature.asPolygonBorder();
+        Region region = Regions.create(name, border, BorderType.MERCATOR_LINEAR);
 
         Zone zone = new Zone();
         zone.id = id;

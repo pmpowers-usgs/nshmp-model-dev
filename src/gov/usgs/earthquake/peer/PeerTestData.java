@@ -172,7 +172,7 @@ public class PeerTestData {
 
   /* Compute down dip width */
   static double downDipWidth(double zTop, double zBot, double dip) {
-    return (zBot - zTop) / Math.sin(dip * Maths.TO_RAD);
+    return (zBot - zTop) / Math.sin(dip * Maths.TO_RADIANS);
   }
 
   /* Compute area in m^2 given length and width args in km */

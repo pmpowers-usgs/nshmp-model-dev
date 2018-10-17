@@ -434,7 +434,7 @@ class FaultConverter {
   }
 
   private static String cleanName(String name) {
-    return CharMatcher.WHITESPACE.collapseFrom(name
+    return CharMatcher.whitespace().collapseFrom(name
         .replace("faults", "")
         .replace("fault", "")
         .replace("zone", "")
