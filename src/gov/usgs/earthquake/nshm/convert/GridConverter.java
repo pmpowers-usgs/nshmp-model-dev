@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -150,16 +152,18 @@ class GridConverter {
       if (sf.name.contains("2007all8")) {
         outPath += "mb-" + (sf.name.contains(".AB.") ? "AtkinBoore" : "Johnson") + S;
       }
-      String outName = sf.name.substring(0, sf.name.lastIndexOf('.')) + ".xml";
-      File outFile = new File(outPath, outName);
+      String baseName = sf.name.substring(0, sf.name.lastIndexOf('.'));
+      File outFile = new File(outPath, baseName + ".xml");
       Files.createParentDirs(outFile);
       srcDat.writeXML(outFile);
+      
+      Path csvOut = Paths.get(outPath);
+      srcDat.writeCsv(csvOut);
 
     } catch (Exception e) {
       log.log(Level.SEVERE, "Grid parse error: exiting", e);
       System.exit(1);
     }
-
   }
 
   /*

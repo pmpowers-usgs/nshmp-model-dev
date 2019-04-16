@@ -32,7 +32,7 @@ class Converter {
   private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
   private static final SourceManager MGR_2008 = SourceManager_2008.instance();
   private static final SourceManager MGR_2014 = SourceManager_2014.instance();
-  private static final String FCAST_DIR = ".." + S + "hazard-models" + S + "US" + S;
+  private static final String FCAST_DIR = "hazard-models" + S + "US" + S;
 
   private static final SimpleDateFormat sdf = new SimpleDateFormat("[yy-MM-dd-HH-mm]");
   private static final String LOG_DIR = FCAST_DIR + "logs" + S;
@@ -42,13 +42,27 @@ class Converter {
 
   public static void main(String[] args) {
     // convert2008();
-    convert2014();
-
+//    convert2014();
+    convert2008gridCsv();
     // for (SourceFile sf : MGR_2014.getAll()) {
     // System.out.println(sf);
     // }
   }
 
+  static void convert2008gridCsv() {
+    faultNames = FaultNames.create(2008);
+
+    List<SourceFile> files;
+    String logID = Converter.class.getName() + "-2008-" + sdf.format(new Date());
+    String logPath = LOG_DIR + logID + ".log";
+    Logger log = Utils.logger(logID, logPath, LEVEL);
+  
+    files = MGR_2008.get(CEUS, GRID);
+    convertGrid(files, "2008", log);
+
+  }
+
+    
   static void convert2008() {
     faultNames = FaultNames.create(2008);
 

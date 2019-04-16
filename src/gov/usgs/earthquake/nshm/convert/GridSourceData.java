@@ -35,12 +35,12 @@ import static gov.usgs.earthquake.nshmp.mfd.MfdType.GR_TAPER;
 import static gov.usgs.earthquake.nshmp.mfd.MfdType.INCR;
 import static gov.usgs.earthquake.nshmp.mfd.MfdType.SINGLE;
 
-import gov.usgs.earthquake.nshm.util.FaultCode;
-import gov.usgs.earthquake.nshm.util.RateType;
-import gov.usgs.earthquake.nshm.util.Utils;
-
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,19 +55,23 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import gov.usgs.earthquake.nshmp.data.Data;
-import gov.usgs.earthquake.nshmp.eq.fault.FocalMech;
-import gov.usgs.earthquake.nshmp.geo.GriddedRegion;
-import gov.usgs.earthquake.nshmp.internal.Parsing;
-import gov.usgs.earthquake.nshmp.mfd.IncrementalMfd;
-import gov.usgs.earthquake.nshmp.mfd.MfdType;
-import gov.usgs.earthquake.nshmp.mfd.Mfds;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Doubles;
+
+import gov.usgs.earthquake.nshm.util.FaultCode;
+import gov.usgs.earthquake.nshm.util.RateType;
+import gov.usgs.earthquake.nshm.util.Utils;
+import gov.usgs.earthquake.nshmp.data.Data;
+import gov.usgs.earthquake.nshmp.eq.fault.FocalMech;
+import gov.usgs.earthquake.nshmp.geo.GriddedRegion;
+import gov.usgs.earthquake.nshmp.geo.Location;
+import gov.usgs.earthquake.nshmp.internal.Parsing;
+import gov.usgs.earthquake.nshmp.mfd.IncrementalMfd;
+import gov.usgs.earthquake.nshmp.mfd.MfdType;
+import gov.usgs.earthquake.nshmp.mfd.Mfds;
 
 /*
  * Grid source data container.
@@ -114,6 +118,21 @@ class GridSourceData {
 
   // @formatter:off
 
+  public void writeCsv(Path out) throws IOException {
+    if (name.contains("2007all8")) {
+      List<String> cratonLines = new ArrayList<>();
+      List<String> marginLines = new ArrayList<>();
+      List<String> defaultLines = new ArrayList<>();
+      cratonLines.add("lon,lat,a,b");
+      marginLines.add("lon,lat,a,b");
+      defaultLines.add("lon,lat,a,b");
+      createLargeCeusGridCsv(cratonLines, marginLines, defaultLines);
+      Files.write(out.resolve("craton.csv"), cratonLines);
+      Files.write(out.resolve("margin.csv"), marginLines);
+      Files.write(out.resolve("default.csv"), defaultLines);
+    }
+  }
+  
 	/**
 	 * Write grid data to XML.
 	 * 
@@ -180,11 +199,38 @@ class GridSourceData {
 		}
 	}
 	
+	// large mblg CEUS grids with craton-margin tapers etc... to CSV
+	 private void createLargeCeusGridCsv(
+	     List<String> cratonLines,
+       List<String> marginLines,
+       List<String> defaultLines) {
+	   initMasks();
+	   for (int i=0; i<aDat.length; i++) {
+       double aVal = aDat[i];
+       if (aVal <= 0.0) continue;
+       double bVal = bDat[i];
+       String bStr = DoubleMath.fuzzyEquals(bVal, 0.95, 0.001) ? "" : String.format("%.2f", bVal);
+       Location loc = region.locationForIndex(i);
+       boolean craton = cratonFlags[i];
+       boolean margin = marginFlags[i];
+       String line = String.format(
+           "%.1f,%.1f,%.8e,%s", // ,%.2f
+           loc.lon(), loc.lat(), aVal, bStr); // , bVal, mMaxDat[i]
+       if (craton) {
+         cratonLines.add(line);
+       } else if (margin) {
+         marginLines.add(line);
+       } else {
+         defaultLines.add(line);
+       }
+	  }
+	}
+
 	// large mblg CEUS grids with craton-margin tapers etc...
 	private void writeLargeCeusGrid(Element root) {
 		Element settings = addElement(SETTINGS, root);
 		Element mfdRef = addElement(DEFAULT_MFDS, settings);
-		Element e = addElement(INCREMENTAL_MFD, mfdRef);
+		Element e =  addElement(INCREMENTAL_MFD, mfdRef);
 		addAttribute(TYPE, INCR, e);
 		List<Double> mags = Doubles.asList(name.contains(".AB.") ? abMags : jMags);
 		addAttribute(MAGS, Parsing.toString(mags, "%.2f"), e);
@@ -237,7 +283,6 @@ class GridSourceData {
 				addAttribute(TYPE, INCR, nodeElem);
 			}
 		}
-		
 	}
 	
 	// standard grid without customizations requiring incremental MFDs

@@ -125,16 +125,16 @@ public class CeusGridProcessor {
 
   /* Create map from CEUS mMax zone file. */
   private static Map<String, Zone> initCeusZones(Path geojson, String label) {
-    try {
+//    try {
       System.out.println("CEUS " + label + " zones:");
-      FeatureCollection fc = GeoJson.fromJson(geojson);
+      FeatureCollection fc = GeoJson.from(geojson).toFeatureCollection();
       ImmutableMap.Builder<String, Zone> zoneMap = ImmutableMap.builder();
 
       for (Feature feature : fc.features()) {
         Properties properties = feature.properties();
         String name = properties.getString("title");
         int id = properties.getInt("id");
-        MMaxData mMaxData = properties.getProperty(MMaxData.class);
+        MMaxData mMaxData = properties.get("mMax", MMaxData.class);
 
         LocationList border = feature.asPolygonBorder();
         Region region = Regions.create(name, border, BorderType.MERCATOR_LINEAR);
@@ -151,10 +151,10 @@ public class CeusGridProcessor {
       System.out.println();
       return zoneMap.build();
 
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-      return null;
-    }
+//    } catch (IOException ioe) {
+//      ioe.printStackTrace();
+//      return null;
+//    }
   }
 
   /**
